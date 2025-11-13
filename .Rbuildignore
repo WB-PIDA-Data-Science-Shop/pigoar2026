@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^pigoar2026\.Rproj$
 ^\.Rproj\.user$
