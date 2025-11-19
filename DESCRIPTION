@@ -15,8 +15,12 @@ Imports:
     ggplot2,
     ggrepel,
     here,
+    httr,
+    janitor,
+    jsonlite,
     rlang,
     stringr,
+    tibble,
     tidyr
 Depends: 
     R (>= 3.5)

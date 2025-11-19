@@ -3,6 +3,21 @@ library(readxl)
 library(dplyr)
 library(janitor)
 library(here)
+library(httr)
+
+# API
+res <- POST(
+  "https://acleddata.com/oauth/token",
+  body = list(
+    username   = Sys.getenv("username"),
+    password   = Sys.getenv("password"),
+    grant_type = "password",
+    client_id  = "acled"
+  ),
+  encode = "form"
+)
+
+content(res)
 
 # Read ACLED demonstrations data
 # available at https://acleddata.com/aggregated/number-demonstration-events-country-year
@@ -17,10 +32,16 @@ acled_asia_raw <- read_excel(
 
 # Clean and process the data
 acled <- acled_raw |>
-    clean_names()
+    clean_names() |>
+    mutate(
+      country_code = countrycode::countrycode(country, origin = "country.name", destination = "wb")
+    )
 
 acled_asia <- acled_asia_raw |>
-    clean_names()
+    clean_names() |>
+    mutate(
+      country_code = countrycode::countrycode(country, origin = "country.name", destination = "wb")
+    )
 
 usethis::use_data(acled, overwrite = TRUE)
 usethis::use_data(acled_asia, overwrite = TRUE)
