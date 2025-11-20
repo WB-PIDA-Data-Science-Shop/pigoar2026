@@ -8,6 +8,7 @@
 A data frame with 2726 rows and 3 variables:
 \describe{
 \item{\code{country}}{character The name of the country}
+\item{\code{country_code}}{World Bank country code}
 \item{\code{year}}{double The year of the demonstration events}
 \item{\code{events}}{double The number of demonstration events}
 }
