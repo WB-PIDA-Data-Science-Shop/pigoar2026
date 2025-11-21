@@ -313,6 +313,7 @@ plot_correlation <- institutional_clusters |>
         ggplot(
             aes(.data[[cluster]], events_mean)
         ) +
+        scale_x_log10() +
         scale_y_log10() +
         geom_point()
     }
