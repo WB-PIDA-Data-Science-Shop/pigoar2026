@@ -277,11 +277,54 @@ wb_acled_maps <- wb_regions |>
   )
 
 map_names <- sprintf(
-    here("analysis", "figs", "map_acled_%s.png"), janitor::make_clean_names(wb_regions)
+    here("analysis", "figs", "map", "map_acled_%s.png"), janitor::make_clean_names(wb_regions)
 )
 
 walk2(
     wb_acled_maps,
     map_names,
+    ~ ggsave(.x, filename = .y, dpi = 300, width = 14, height = 12, bg = "white")
+)
+
+# correlation with institutional capacity --------------------------------
+acled_regional_summary <- acled_regional |> 
+    compute_summary(
+        "events",
+        groups = c("country_code"),
+        fns = "mean",
+        output = "wide"
+    )
+
+institutional_clusters <- colnames(
+    cliaretl::closeness_to_frontier_static
+) |> 
+  str_subset(
+    "_avg$"
+  )
+
+plot_correlation <- institutional_clusters |> 
+  map(
+    \(cluster){
+      acled_regional_summary |> 
+        left_join(
+            cliaretl::closeness_to_frontier_static,
+            by = c("country_code")
+        ) |> 
+        ggplot(
+            aes(.data[[cluster]], events_mean)
+        ) +
+        scale_y_log10() +
+        geom_point()
+    }
+  )
+
+plot_correlation_names <- sprintf(
+    here("analysis", "figs", "correlation", "cor_acled_%s.png"),
+    janitor::make_clean_names(institutional_clusters)
+)
+
+walk2(
+    plot_correlation,
+    plot_correlation_names,
     ~ ggsave(.x, filename = .y, dpi = 300, width = 14, height = 12, bg = "white")
 )
