@@ -6,6 +6,9 @@
 #'   \item{\code{country_code}}{World Bank country code}
 #'   \item{\code{year}}{double The year of the demonstration events}
 #'   \item{\code{events}}{double The number of demonstration events}
+#'   \item{\code{country_name}}{character. Official World Bank country name}
+#'   \item{\code{region}}{character. Official World Bank regional classification}
+#'   \item{\code{income_group}}{character. Official World Bank income classification}
 #'}
 #' @details #' The Armed Conflict Location & Event Data Project (ACLED) is a comprehensive dataset of political violence, protest, and disorder events across the world. This dataset aggregates ACLED event data for Asia at the weekly level, including event types such as battles, protests, riots, and violence against civilians. Each record summarizes the number of events, fatalities, and estimated population exposure for a specific week, country, and administrative region. Geographic centroids are provided for spatial analysis. For more information, see the official ACLED codebook: https://acleddata.com/resources/codebooks/
 #' @source https://acleddata.com/aggregated/number-demonstration-events-country-year
@@ -29,9 +32,12 @@
 #'   \item{\code{id}}{double. Unique identifier for the aggregated record.}
 #'   \item{\code{centroid_latitude}}{double. Latitude of the centroid of the administrative unit where events occurred.}
 #'   \item{\code{centroid_longitude}}{double. Longitude of the centroid of the administrative unit where events occurred.}
+#'   \item{\code{country_name}}{character. Official World Bank country name}
+#'   \item{\code{region}}{character. Official World Bank regional classification}
+#'   \item{\code{income_group}}{character. Official World Bank income classification}
 #' }
 #' @details The Armed Conflict Location & Event Data Project (ACLED) is a comprehensive dataset of political violence, protest, and disorder events across the world. This dataset aggregates ACLED event data for Asia at the weekly level, including event types such as battles, protests, riots, and violence against civilians. Each record summarizes the number of events, fatalities, and estimated population exposure for a specific week, country, and administrative region. Geographic centroids are provided for spatial analysis. For more information, see the official ACLED codebook: https://acleddata.com/resources/codebooks/
-"acled_asia"
+"acled_regional"
 
 #' @title World Bank Map 
 #' @description A shapefile containing all relevant country boundaries and disputed areas used by the World Bank.

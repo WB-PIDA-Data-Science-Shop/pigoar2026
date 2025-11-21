@@ -1,10 +1,8 @@
-# ---------------------------------------------------------------------------- #
-#                                    set-up                                    #
-# ---------------------------------------------------------------------------- #
+# set-up -----------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
 library(ggthemes)
-library(purrr)
+library(forcats)
 library(sf)
 library(lubridate)
 library(rmapshaper)
@@ -18,9 +16,7 @@ theme_set(
     theme_few()
 )
 
-# ---------------------------------------------------------------------------- #
-#                                 global trends                                #
-# ---------------------------------------------------------------------------- #
+# global trends ----------------------------------------------------------
 acled_events <- acled |>
     inner_join(
         wdi_indicators,
@@ -35,7 +31,7 @@ acled_events <- acled |>
         year >= 2019
     ) |> 
     mutate(
-        income_group = fct_reorder(
+        income_group = fct_relevel(
             income_group,
             c(
                 "Low income",
@@ -60,9 +56,9 @@ acled_events |>
         ylim = c(0, 2.5e5)
     ) +
     labs(
-        title = "Global Demonstration Events Over Time",
+        title = "Global Demonstrations Over Time",
         x = "Year",
-        y = "Number of Events"
+        y = "Total"
     )
 
 ggsave(
@@ -143,13 +139,12 @@ ggsave(
     here("analysis", "figs", "global_demonstration_trends_region.png")
 )
 
-# ---------------------------------------------------------------------------- #
-#                               spatial analysis                               #
-# ---------------------------------------------------------------------------- #
+# spatial analysis -------------------------------------------------------
 acled_asia_aggregate <- acled_asia |>
     filter(
-        year(week) >= 2019 &
-        region %in% c("East Asia", "Southeast ASia", "Oceania")
+        year(week) == 2024 &
+        region %in% c("East Asia", "Southeast Asia", "Oceania") &
+        event_type %in% c("Protests", "Riots")
     ) |> 
     group_by(centroid_latitude, centroid_longitude) |> 
     summarise(

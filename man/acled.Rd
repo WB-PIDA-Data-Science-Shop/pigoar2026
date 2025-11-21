@@ -11,6 +11,9 @@ A data frame with 2726 rows and 3 variables:
 \item{\code{country_code}}{World Bank country code}
 \item{\code{year}}{double The year of the demonstration events}
 \item{\code{events}}{double The number of demonstration events}
+\item{\code{country_name}}{character. Official World Bank country name}
+\item{\code{region}}{character. Official World Bank regional classification}
+\item{\code{income_group}}{character. Official World Bank income classification}
 }
 }
 \source{
