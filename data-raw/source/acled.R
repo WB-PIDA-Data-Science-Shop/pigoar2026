@@ -39,6 +39,17 @@ acled <- acled_raw |>
   left_join(
     cliaretl::wb_income_and_region,
     by = c("country_code")
+  ) |> 
+  mutate(
+        income_group = fct_relevel(
+            income_group,
+            c(
+                "Low income",
+                "Lower middle income",
+                "Upper middle income",
+                "High income"
+            )
+        )
   )
 
 acled_regional <- acled_regional_raw |>
@@ -55,6 +66,17 @@ acled_regional <- acled_regional_raw |>
   left_join(
     cliaretl::wb_income_and_region,
     by = c("country_code")
+  ) |> 
+  mutate(
+        income_group = fct_relevel(
+            income_group,
+            c(
+                "Low income",
+                "Lower middle income",
+                "Upper middle income",
+                "High income"
+            )
+        )
   )
 
 usethis::use_data(acled, overwrite = TRUE)

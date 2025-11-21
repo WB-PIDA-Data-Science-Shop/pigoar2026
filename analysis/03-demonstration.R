@@ -22,14 +22,6 @@ acled_events <- acled |>
         wdi_indicators,
         by = c("country_code", "year")
     ) |>
-    left_join(
-        wb_income_and_region,
-        by = c("country_code")
-    ) |> 
-    # country coverage improves in 2019
-    filter(
-        year >= 2019
-    ) |> 
     mutate(
         income_group = fct_relevel(
             income_group,
