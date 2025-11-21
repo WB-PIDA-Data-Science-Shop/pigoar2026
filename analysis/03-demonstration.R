@@ -4,6 +4,7 @@ library(ggplot2)
 library(ggthemes)
 library(forcats)
 library(sf)
+library(purrr)
 library(lubridate)
 library(rmapshaper)
 library(geojsonio)
@@ -21,17 +22,9 @@ acled_events <- acled |>
     inner_join(
         wdi_indicators,
         by = c("country_code", "year")
-    ) |>
-    mutate(
-        income_group = fct_relevel(
-            income_group,
-            c(
-                "Low income",
-                "Lower middle income",
-                "Upper middle income",
-                "High income"
-            )
-        )
+    ) |> 
+    filter(
+        year >= 2019
     )
 
 # pooled
@@ -131,54 +124,151 @@ ggsave(
     here("analysis", "figs", "global_demonstration_trends_region.png")
 )
 
-# spatial analysis -------------------------------------------------------
-acled_asia_aggregate <- acled_asia |>
+# regional analysis ------------------------------------------------------
+acled_demonstrations_regional <- acled_regional |>
     filter(
-        year(week) == 2024 &
-        region %in% c("East Asia", "Southeast Asia", "Oceania") &
-        event_type %in% c("Protests", "Riots")
+        between(year, 2019, 2024) &
+            event_type %in% c("Protests", "Riots")
     ) |> 
-    group_by(centroid_latitude, centroid_longitude) |> 
-    summarise(
-        total_events = n(),
-        .groups = "drop"
-    )
-
-acled_asia_sf <- acled_asia_aggregate |> 
-    st_as_sf(
-    coords = c("centroid_longitude", "centroid_latitude"), 
-    crs = 4326  # WGS84 coordinate system (standard for lat/lon)
-    )
-
-wb_map |> 
+    mutate(
+        month = lubridate::floor_date(week, unit = "months"),
+        year = lubridate::floor_date(week, unit = "years") |> as.numeric()
+    ) |> 
     left_join(
-        wb_income_and_region,
-        by = c("country_code")
+        wdi_indicators,
+        by = c("country_code", "year")
+    )
+
+acled_demonstrations_regional |> 
+    compute_summary(
+        cols = "events",
+        fns = "sum",
+        groups = "month"
     ) |> 
-    filter(
-        region == "East Asia & Pacific"
-    ) |> 
-    ggplot() +
-    geom_sf(
-        fill = "orange2", color = "white"
+    ggplot(aes(x = month, y = value)) +
+    geom_line() +
+    scale_y_continuous(
+        limits = c(0, NA)
     ) +
-    geom_sf(
-        aes(
-            size = total_events
-        ),
-        data = acled_asia_sf, color = "steelblue3", alpha = 0.6
-    ) +
-    coord_sf(crs = st_crs("+proj=longlat +lon_0=120")) +
     labs(
-        title = "Demonstrations in East Asia and the Pacific (2019-2024)",
-        x = "Longitude",
-        y = "Latitude"
-    ) +
-    theme_void()
+        title = "Global Protests and Riots Over Time",
+        x = "Time",
+        y = "Total"
+    )
 
 ggsave(
-    here("analysis", "figs", "map_global_demonstration_asia.png"),
-    width = 14,
-    height = 8,
-    bg = "white"
+    here("analysis", "figs", "global_demonstration_trends.png")
+)
+
+acled_demonstrations_regional |> 
+    compute_summary(
+        cols = "events",
+        fns = "sum",
+        groups = c("month", "income_group")
+    ) |> 
+    filter(
+        !is.na(income_group)
+    ) |> 
+    ggplot(
+        aes(x = month, y = value, color = income_group)
+    ) +
+    geom_line(
+        linewidth = 2
+    ) +
+    scale_y_continuous(
+        limits = c(0, NA)
+    ) +
+    scale_color_brewer(
+        palette = "Set1"
+    ) +
+    facet_wrap(
+        vars(income_group)
+    ) +
+    theme(
+        legend.position = "none"
+    ) +
+    labs(
+        title = "Global Protests and Riots Over Time",
+        x = "Time",
+        y = "Total"
+    )
+
+ggsave(
+    here("analysis", "figs", "global_demonstration_trends_income.png")
+)
+
+# by region
+acled_demonstrations_regional |> 
+    compute_summary(
+        cols = "events",
+        fns = "sum",
+        groups = c("month", "region")
+    ) |> 
+    filter(
+        !is.na(.data[["region"]])
+    ) |> 
+    ggplot(
+        aes(x = month, y = value, color = .data[["region"]])
+    ) +
+    geom_line(
+        linewidth = 2
+    ) +
+    scale_y_continuous(
+        limits = c(0, NA)
+    ) +
+    scale_color_brewer(
+        palette = "Set1"
+    ) +
+    facet_wrap(
+        vars(.data[["region"]])
+    ) +
+    theme(
+        legend.position = "none"
+    ) +
+    labs(
+        title = "Global Protests and Riots Over Time, by Region",
+        x = "Time",
+        y = "Total"
+    )
+
+ggsave(
+    here("analysis", "figs", "global_demonstration_trends_region.png")
+)
+
+# spatial analysis -------------------------------------------------------
+acled_regional_sf <- acled_regional |> 
+    filter(
+        year == 2024 &
+            event_type %in% c("Protests", "Riots")
+    ) |> 
+    group_by(
+        region, centroid_longitude, centroid_latitude
+    ) |> 
+    summarise(
+        total_events = sum(events),
+        .groups = "drop"
+    ) |> 
+    st_as_sf(
+        coords = c("centroid_longitude", "centroid_latitude"), 
+        crs = 4326  # WGS84 coordinate system (standard for lat/lon)
+    )
+
+wb_regions <- wb_income_and_region |> 
+  filter(!is.na(region) & region != "North America") |> 
+  distinct(region) |> 
+  pull()
+
+wb_acled_maps <- wb_regions |> 
+  map(
+    \(region) plot_regional_map(region, acled_regional_sf)
+  )
+
+map_names <- sprintf(
+    here("analysis", "figs", "map_acled_%s.png"), janitor::make_clean_names(wb_regions)
+)
+
+walk2(
+    wb_acled_maps,
+    map_names,
+    ~ ggsave(.x, filename = .y, dpi = 300, width = 14, height = 12, bg = "white")
 )
