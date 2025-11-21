@@ -59,7 +59,7 @@ acled_events |>
     ) |>
     ggplot(aes(x = year, y = events, color = income_group)) +
     geom_line(
-        linewidth = 2
+        linewidth = 1.2
     ) +
     geom_point(
         size = 6
@@ -101,7 +101,7 @@ acled_events |>
         .groups = "drop"
     ) |>
     ggplot(aes(x = year, y = events, color = region)) +
-    geom_line(linewidth = 2) +
+    geom_line(linewidth = 1.2) +
     geom_point(size = 6) +
     geom_text(
         data = \(x) x |> group_by(region) |> slice_max(year, n = 1),
@@ -173,7 +173,7 @@ acled_demonstrations_regional |>
         aes(x = month, y = value, color = income_group)
     ) +
     geom_line(
-        linewidth = 2
+        linewidth = 1.2
     ) +
     scale_y_continuous(
         limits = c(0, NA)
@@ -211,7 +211,7 @@ acled_demonstrations_regional |>
         aes(x = month, y = value, color = .data[["region"]])
     ) +
     geom_line(
-        linewidth = 2
+        linewidth = 1.2
     ) +
     scale_y_continuous(
         limits = c(0, NA)
@@ -260,7 +260,20 @@ wb_regions <- wb_income_and_region |>
 
 wb_acled_maps <- wb_regions |> 
   map(
-    \(region) plot_regional_map(region, acled_regional_sf)
+    \(region) plot_regional_map(region, acled_regional_sf) +
+        scale_size_continuous(
+            range = c(1, 10),
+            limits = c(
+                min(acled_regional_sf$total_events), 
+                max(acled_regional_sf$total_events)
+            ),
+            name = "Total Number of Demonstrations"
+        ) +
+        labs(
+            title = sprintf("Demonstrations in %s (2024)", region),
+            x = "Longitude",
+            y = "Latitude"
+        )
   )
 
 map_names <- sprintf(

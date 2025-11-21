@@ -35,7 +35,6 @@
 #'
 #' @export
 get_wb_projection <- function(wb_region) {
-
   wb_projections <- list(
     "East Asia & Pacific" = ggplot2::coord_sf(
       crs = "+proj=laea +lat_0=20 +lon_0=110"
@@ -59,7 +58,7 @@ get_wb_projection <- function(wb_region) {
       crs = "+proj=laea +lat_0=0 +lon_0=20"
     ),
     "World" = ggplot2::coord_sf(
-      crs = "+proj=robin"  # WB Atlas standard
+      crs = "+proj=robin" # WB Atlas standard
     )
   )
 
@@ -91,32 +90,29 @@ get_wb_projection <- function(wb_region) {
 #' }
 #'
 #' @export
-plot_regional_map <- function(wb_region, data_region){
-  wb_map_region_sf <- pigoar2026::wb_map |> 
+plot_regional_map <- function(wb_region, data_region) {
+  wb_map_region_sf <- pigoar2026::wb_map |>
     left_join(
       wb_income_and_region,
       by = c("country_code")
-    ) |> 
+    ) |>
     filter(
       region == wb_region
-    ) 
+    )
 
-  map_out <- wb_map_region_sf |> 
+  map_out <- wb_map_region_sf |>
     ggplot() +
     geom_sf(
-      fill = "orange2", color = "white"
+      fill = "orange2",
+      color = "white"
     ) +
     geom_sf(
       aes(
         size = total_events
       ),
-      data = data_region |> filter(region == wb_region), color = "steelblue3", alpha = 0.6
-    ) +
-    scale_size_continuous(range = c(1, 10)) +
-    labs(
-      title = sprintf("Demonstrations in %s (2019-2024)", wb_region),
-      x = "Longitude",
-      y = "Latitude"
+      data = data_region |> filter(region == wb_region),
+      color = "steelblue3",
+      alpha = 0.6
     ) +
     theme_void() +
     theme(
