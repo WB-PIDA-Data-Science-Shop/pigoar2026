@@ -98,5 +98,4 @@ define_fns <- function(){
   )
 
   return(default_fns)
-
 }

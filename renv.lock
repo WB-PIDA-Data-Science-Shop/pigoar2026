@@ -358,6 +358,47 @@
       "NeedsCompilation": "yes",
       "Repository": "CRAN"
     },
+    "basedosdados": {
+      "Package": "basedosdados",
+      "Version": "0.2.3",
+      "Source": "Repository",
+      "Title": "'Base Dos Dados' R Client",
+      "Author": "Pedro Cavalcante [aut, cre], Daniel Herszenhut [aut] (ORCID: <https://orcid.org/0000-0001-8066-1105>), Rodrigo Dornelles [aut] (ORCID: <https://orcid.org/0000-0003-3709-4760>)",
+      "Maintainer": "Pedro Cavalcante <pedrocolrj@gmail.com>",
+      "Authors@R": "c(person(given = \"Pedro\", family = \"Cavalcante\", role = c(\"aut\", \"cre\"), email = \"pedrocolrj@gmail.com\"), person(given = \"Daniel\", family = \"Herszenhut\", role = c(\"aut\"), email = \"dhersz@gmail.com\", comment = c(ORCID = \"0000-0001-8066-1105\")), person(given = \"Rodrigo\", family = \"Dornelles\", role = c(\"aut\"), email = \"rodornelles@gmail.com\", comment = c(ORCID = \"0000-0003-3709-4760\")))",
+      "Description": "An R interface to the 'Base dos Dados' API <https://basedosdados.org/docs/api_reference_python/>). Authenticate your project, query our tables, save data to disk and memory, all from R.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "Imports": [
+        "purrr (>= 0.3.4)",
+        "dplyr (>= 1.0.6)",
+        "tibble (>= 3.1.1)",
+        "httr (>= 1.4.2)",
+        "cli (>= 2.5.0)",
+        "magrittr (>= 2.0.1)",
+        "readr (>= 1.4.0)",
+        "stringr (>= 1.4.0)",
+        "dotenv (>= 1.0.2)",
+        "bigrquery (>= 1.4.0)",
+        "glue (>= 1.4.2)",
+        "rlang (>= 0.4.0)",
+        "writexl (>= 1.4.0)",
+        "fs (>= 1.5.0)",
+        "dbplyr (>= 2.1.1)",
+        "scales (>= 1.1.1)",
+        "DBI (>= 1.1.1)",
+        "methods"
+      ],
+      "Suggests": [
+        "rmarkdown",
+        "knitr",
+        "testthat (>= 3.0.0)"
+      ],
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "bigD": {
       "Package": "bigD",
       "Version": "0.3.1",
@@ -384,6 +425,66 @@
       "Author": "Richard Iannone [aut, cre] (<https://orcid.org/0000-0003-3925-190X>), Olivier Roy [ctb], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Richard Iannone <rich@posit.co>",
       "Repository": "RSPM"
+    },
+    "bigrquery": {
+      "Package": "bigrquery",
+      "Version": "1.6.1",
+      "Source": "Repository",
+      "Title": "An Interface to Google's 'BigQuery' 'API'",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Jennifer\", \"Bryan\", , \"jenny@posit.co\", role = \"aut\", comment = c(ORCID = \"0000-0002-6983-2759\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Easily talk to Google's 'BigQuery' database from R.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://bigrquery.r-dbi.org, https://github.com/r-dbi/bigrquery",
+      "BugReports": "https://github.com/r-dbi/bigrquery/issues",
+      "Depends": [
+        "R (>= 4.1)"
+      ],
+      "Imports": [
+        "bit64",
+        "brio",
+        "cli",
+        "clock",
+        "curl",
+        "DBI",
+        "gargle (>= 1.5.0)",
+        "httr",
+        "jsonlite",
+        "lifecycle",
+        "methods",
+        "prettyunits",
+        "rlang (>= 1.1.0)",
+        "tibble",
+        "nanoparquet (>= 0.3.1)"
+      ],
+      "Suggests": [
+        "bigrquerystorage (>= 1.2.1)",
+        "blob",
+        "covr",
+        "dbplyr (>= 2.4.0)",
+        "dplyr (>= 1.1.0)",
+        "hms",
+        "readr",
+        "sodium",
+        "testthat (>= 3.1.5)",
+        "wk (>= 0.3.2)",
+        "withr"
+      ],
+      "LinkingTo": [
+        "cli",
+        "cpp11",
+        "rapidjsonr"
+      ],
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Config/testthat/parallel": "TRUE",
+      "Config/testthat/start-first": "bq-table, dplyr",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.3",
+      "Collate": "'bigrquery-package.R' 'bq-auth.R' 'bq-dataset.R' 'bq-download.R' 'bq-field.R' 'bq-job.R' 'bq-param.R' 'bq-parse.R' 'bq-perform.R' 'bq-project.R' 'bq-projects.R' 'bq-query.R' 'bq-refs.R' 'bq-request.R' 'bq-table.R' 'bq-test.R' 'camelCase.R' 'connections-page.R' 'cpp11.R' 'dbi-driver.R' 'dbi-connection.R' 'dbi-result.R' 'dplyr.R' 'gs-object.R' 'import-standalone-obj-type.R' 'import-standalone-s3-register.R' 'import-standalone-types-check.R' 'utils.R' 'zzz.R'",
+      "NeedsCompilation": "yes",
+      "Author": "Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Jennifer Bryan [aut] (ORCID: <https://orcid.org/0000-0002-6983-2759>), Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
     },
     "bit": {
       "Package": "bit",
@@ -1060,6 +1161,52 @@
       "Maintainer": "Matthew Lincoln <matthew.d.lincoln@gmail.com>",
       "Repository": "CRAN"
     },
+    "clock": {
+      "Package": "clock",
+      "Version": "0.7.3",
+      "Source": "Repository",
+      "Title": "Date-Time Types and Tools",
+      "Authors@R": "c( person(\"Davis\", \"Vaughan\", , \"davis@posit.co\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Provides a comprehensive library for date-time manipulations using a new family of orthogonal date-time classes (durations, time points, zoned-times, and calendars) that partition responsibilities so that the complexities of time zones are only considered when they are really needed. Capabilities include: date-time parsing, formatting, arithmetic, extraction and updating of components, and rounding.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://clock.r-lib.org, https://github.com/r-lib/clock",
+      "BugReports": "https://github.com/r-lib/clock/issues",
+      "Depends": [
+        "R (>= 4.0.0)"
+      ],
+      "Imports": [
+        "cli (>= 3.6.4)",
+        "lifecycle (>= 1.0.4)",
+        "rlang (>= 1.1.5)",
+        "tzdb (>= 0.5.0)",
+        "vctrs (>= 0.6.5)"
+      ],
+      "Suggests": [
+        "covr",
+        "knitr",
+        "magrittr",
+        "pillar",
+        "rmarkdown",
+        "slider (>= 0.3.2)",
+        "testthat (>= 3.0.0)",
+        "withr"
+      ],
+      "LinkingTo": [
+        "cpp11 (>= 0.5.2)",
+        "tzdb (>= 0.5.0)"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/build/compilation-database": "true",
+      "Config/Needs/website": "lubridate, tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.2",
+      "NeedsCompilation": "yes",
+      "Author": "Davis Vaughan [aut, cre], Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Davis Vaughan <davis@posit.co>",
+      "Repository": "CRAN"
+    },
     "commonmark": {
       "Package": "commonmark",
       "Version": "2.0.0",
@@ -1653,6 +1800,23 @@
       "NeedsCompilation": "yes",
       "Author": "Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>), Antoine Lucas [ctb], Jarek Tuszynski [ctb], Henrik Bengtsson [ctb] (<https://orcid.org/0000-0002-7579-5165>), Simon Urbanek [ctb] (<https://orcid.org/0000-0003-2297-1732>), Mario Frasca [ctb], Bryan Lewis [ctb], Murray Stokely [ctb], Hannes Muehleisen [ctb], Duncan Murdoch [ctb], Jim Hester [ctb], Wush Wu [ctb] (<https://orcid.org/0000-0001-5180-0567>), Qiang Kou [ctb] (<https://orcid.org/0000-0001-6786-5453>), Thierry Onkelinx [ctb] (<https://orcid.org/0000-0001-8804-4216>), Michel Lang [ctb] (<https://orcid.org/0000-0001-9754-0393>), Viliam Simko [ctb], Kurt Hornik [ctb] (<https://orcid.org/0000-0003-4198-9911>), Radford Neal [ctb] (<https://orcid.org/0000-0002-2473-3407>), Kendon Bell [ctb] (<https://orcid.org/0000-0002-9093-8312>), Matthew de Queljoe [ctb], Dmitry Selivanov [ctb], Ion Suruceanu [ctb], Bill Denney [ctb], Dirk Schumacher [ctb], András Svraka [ctb], Sergey Fedorov [ctb], Will Landau [ctb] (<https://orcid.org/0000-0003-1878-3253>), Floris Vanderhaeghe [ctb] (<https://orcid.org/0000-0002-6378-6229>), Kevin Tappe [ctb], Harris McGehee [ctb], Tim Mastny [ctb], Aaron Peikert [ctb] (<https://orcid.org/0000-0001-7813-818X>), Mark van der Loo [ctb] (<https://orcid.org/0000-0002-9807-4686>), Chris Muir [ctb] (<https://orcid.org/0000-0003-2555-3878>), Moritz Beller [ctb] (<https://orcid.org/0000-0003-4852-0526>), Sebastian Campbell [ctb], Winston Chang [ctb] (<https://orcid.org/0000-0002-1576-2126>), Dean Attali [ctb] (<https://orcid.org/0000-0002-5645-3493>), Michael Chirico [ctb] (<https://orcid.org/0000-0003-0787-087X>), Kevin Ushey [ctb]",
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
+      "Repository": "CRAN"
+    },
+    "dotenv": {
+      "Package": "dotenv",
+      "Version": "1.0.3",
+      "Source": "Repository",
+      "Title": "Load Environment Variables from '.env'",
+      "Authors@R": "c(person(\"Gábor\", \"Csárdi\", role = c(\"aut\", \"cre\", \"cph\"), email = \"csardi.gabor@gmail.com\"))",
+      "Description": "Load configuration from a '.env' file, that is in the current working directory, into environment variables.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/gaborcsardi/dotenv",
+      "BugReports": "https://github.com/gaborcsardi/dotenv/issues",
+      "RoxygenNote": "5.0.1.9000",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "Gábor Csárdi [aut, cre, cph]",
+      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
     },
     "downlit": {
@@ -4169,6 +4333,45 @@
       "Author": "Hadley Wickham [aut, cre], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "RSPM"
+    },
+    "nanoparquet": {
+      "Package": "nanoparquet",
+      "Version": "0.4.2",
+      "Source": "Repository",
+      "Title": "Read and Write 'Parquet' Files",
+      "Authors@R": "c( person(\"Gábor\", \"Csárdi\", role = c(\"aut\", \"cre\"), email = \"csardi.gabor@gmail.com\"), person(\"Hannes\", \"Mühleisen\", role = c(\"aut\", \"cph\"), comment = c(ORCID = \"0000-0001-8552-0029\")), person(\"Google Inc.\", role = \"cph\"), person(\"Apache Software Foundation\", role = \"cph\"), person(\"Posit Software, PBC\", role = \"cph\"), person(\"RAD Game Tools\", role = \"cph\"), person(\"Valve Software\", role = \"cph\"), person(\"Tenacious Software LLC\", role = \"cph\"), person(\"Facebook, Inc.\", role = \"cph\"))",
+      "Description": "Self-sufficient reader and writer for flat 'Parquet' files. Can read most 'Parquet' data types. Can write many 'R' data types, including factors and temporal types. See docs for limitations.",
+      "Depends": [
+        "R (>= 4.0.0)"
+      ],
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/r-lib/nanoparquet, https://nanoparquet.r-lib.org/",
+      "BugReports": "https://github.com/r-lib/nanoparquet/issues",
+      "Encoding": "UTF-8",
+      "Suggests": [
+        "arrow",
+        "bit64",
+        "DBI",
+        "duckdb",
+        "hms",
+        "mockery",
+        "pillar",
+        "processx",
+        "rprojroot",
+        "spelling",
+        "testthat",
+        "tzdb",
+        "withr"
+      ],
+      "RoxygenNote": "7.3.2.9000",
+      "Config/testthat/edition": "3",
+      "Config/Needs/website": "tidyverse/tidytemplate, r-lib/pkgdown, dplyr, gt, gtExtras, knitr, nycflights13, prettyunits, quarto, rmarkdown, sessioninfo, svglite",
+      "Language": "en-US",
+      "Biarch": "true",
+      "NeedsCompilation": "yes",
+      "Author": "Gábor Csárdi [aut, cre], Hannes Mühleisen [aut, cph] (<https://orcid.org/0000-0001-8552-0029>), Google Inc. [cph], Apache Software Foundation [cph], Posit Software, PBC [cph], RAD Game Tools [cph], Valve Software [cph], Tenacious Software LLC [cph], Facebook, Inc. [cph]",
+      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+      "Repository": "CRAN"
     },
     "nlme": {
       "Package": "nlme",
@@ -7413,6 +7616,33 @@
       "NeedsCompilation": "yes",
       "Author": "Dewey Dunnington [aut, cre] (<https://orcid.org/0000-0002-9415-4582>), Edzer Pebesma [aut] (<https://orcid.org/0000-0001-8049-7069>), Anthony North [ctb]",
       "Repository": "CRAN"
+    },
+    "writexl": {
+      "Package": "writexl",
+      "Version": "1.5.4",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Export Data Frames to Excel 'xlsx' Format",
+      "Authors@R": "c( person(\"Jeroen\", \"Ooms\", ,\"jeroenooms@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-4035-0289\")), person(\"John McNamara\", role = \"cph\", comment = \"Author of libxlsxwriter (see AUTHORS and COPYRIGHT files for details)\"))",
+      "Description": "Zero-dependency data frame to xlsx exporter based on 'libxlsxwriter' <https://libxlsxwriter.github.io>. Fast and no Java or Excel required.",
+      "License": "BSD_2_clause + file LICENSE",
+      "Encoding": "UTF-8",
+      "URL": "https://ropensci.r-universe.dev/writexl https://docs.ropensci.org/writexl/",
+      "BugReports": "https://github.com/ropensci/writexl/issues",
+      "RoxygenNote": "7.0.2",
+      "Suggests": [
+        "spelling",
+        "readxl",
+        "nycflights13",
+        "testthat",
+        "bit64"
+      ],
+      "Language": "en-US",
+      "SystemRequirements": "zlib",
+      "NeedsCompilation": "yes",
+      "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>), John McNamara [cph] (Author of libxlsxwriter (see AUTHORS and COPYRIGHT files for details))",
+      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
+      "Repository": "RSPM"
     },
     "xfun": {
       "Package": "xfun",
