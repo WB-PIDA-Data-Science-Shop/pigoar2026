@@ -73,8 +73,76 @@ ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
                       filter(country_group == 0) |>
                       filter(region != "North America")  # Exclude North America
 
+ctf_static <- cliaretl::closeness_to_frontier_static |>
+  filter(country_group == 0) |>
+  filter(region != "North America")  # 2025
 
-# regional-visualizations -------------------------------------------------
+
+
+# radar overview ----------------------------------------------------------
+
+ctf_avgs <- ctf_static |>
+  select(1:5, ends_with("_avg")
+  ) |>
+  rename(
+    `Degree of Integrity` = vars_anticorruption_avg,
+    `Energy and Enviroment Institutions` = vars_climate_avg,
+    `Justice Institutions` = vars_leg_avg,
+    `Political Institutions` = vars_pol_avg,
+    `Social Institutions` = vars_social_avg,
+    `Digital and Data Use` = vars_digital_avg,
+    `Justice Institutions` = vars_leg_avg,
+    `Transparency Institutions` = vars_transp_avg,
+    `Bussines Enviroment` = vars_mkt_avg,
+    `Public Financial Management` = vars_pfm_avg,
+    `Public Sector Employment` = vars_hrm_avg
+  ) |>
+  pivot_longer(cols = 6:last_col(),
+               names_to = "cluster",
+               values_to = "value"
+  )
+
+plot_df <- ctf_avgs |>
+  mutate(cluster_lab = str_wrap(cluster, 12))
+
+plot_df |>
+  ggplot(aes(x = reorder(cluster, value), y = value)) +
+  geom_col(aes(fill = cluster), alpha = 0.75, show.legend = FALSE) +
+  geom_segment(
+    aes(y = 0, yend = 1, xend = cluster, color = cluster),
+    linetype = "dashed",
+    show.legend = FALSE
+  ) +
+  coord_polar(direction = 1) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, by = 0.25),
+    labels = scales::number_format(accuracy = 0.01) # or percent_format()
+  ) +
+  facet_wrap(~ region) +
+  labs(
+    title = "Institutional Capacity overview by Region (2020-2024)",
+    subtitle = "Regional Average CTF Scores by Institutional Cluster",
+    y = "CTF cluster score",
+    x = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    # show radial scale labels:
+    axis.text.y      = element_text(size = 8),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "grey90")
+  )
+
+
+ggsave_db(
+  here("figures","institutional-capacity-radar-by-region.png")
+)
+
+
+
+
+# regional-dummbells-visualizations --------------------------------------------
 
 
 # FIGURE 5. POLITICAL
