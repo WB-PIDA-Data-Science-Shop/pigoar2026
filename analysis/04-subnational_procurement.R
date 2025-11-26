@@ -1,6 +1,8 @@
 # set-up -----------------------------------------------------------------
 library(dplyr)
-library(dotwshiker)
+library(broom)
+library(dotwhisker)
+library(ggthemes)
 library(ggplot2)
 
 devtools::load_all()
@@ -19,7 +21,8 @@ subnational_hr <- pigoar2026::rais_mun |>
 subnational_gov <- pigoar2026::mides |> 
   mutate(
     municipality_code = as.character(municipality_code),
-    gdp_per_capita_tercile = ntile(gdp_per_capita, 3)
+    gdp_per_capita_quartile = ntile(gdp_per_capita, 4) |> 
+      as.factor()
   ) |> 
   left_join(
     subnational_hr,
@@ -27,6 +30,37 @@ subnational_gov <- pigoar2026::mides |>
   )
 
 # visualize --------------------------------------------------------------
+subnational_gov |> 
+  filter(
+    !is.na(gdp_per_capita_quartile)
+  ) |> 
+  ggplot(
+    aes(
+      x = share_dismissed,
+      y = weighted_average_delay,
+      color = gdp_per_capita_quartile
+    )
+  ) +
+  # plot binned averages
+  stat_summary_bin(
+    fun = "mean",
+    bins = 30,         # choose the number of bins
+    geom = "point",
+    size = 3
+  ) +
+  geom_smooth(method = "lm") +
+  scale_y_log10() +
+  facet_wrap(
+    vars(gdp_per_capita_quartile),
+    nrow = 2
+  )
+
+ggsave(
+  here("analysis", "figs", "correlation", "subnat_procur_hrm.png"),
+  bg = "white"
+)
+
+# regression -------------------------------------------------------------
 lm(
   weighted_average_delay ~ share_dismissed + log(gdp_per_capita) +
     idhm + log(population) +

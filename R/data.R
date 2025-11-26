@@ -19,9 +19,7 @@
 #' @format A data frame with 198945 rows and 13 variables:
 #' \describe{
 #'   \item{\code{week}}{double. The week number corresponding to the aggregation period.}
-#'   \item{\code{region}}{character. The ACLED-defined region in which the event occurred.}
 #'   \item{\code{country}}{character. The country in which the event occurred.}
-#'   \item{\code{country_code}}{World Bank country code}
 #'   \item{\code{admin1}}{character. The first-level administrative division (e.g., province, state) where the event took place.}
 #'   \item{\code{event_type}}{character. The broad category of the event (e.g., Battles, Protests, Violence against civilians).}
 #'   \item{\code{sub_event_type}}{character. The more specific type of event within the event_type (e.g., Armed clash, Peaceful protest).}
@@ -32,6 +30,8 @@
 #'   \item{\code{id}}{double. Unique identifier for the aggregated record.}
 #'   \item{\code{centroid_latitude}}{double. Latitude of the centroid of the administrative unit where events occurred.}
 #'   \item{\code{centroid_longitude}}{double. Longitude of the centroid of the administrative unit where events occurred.}
+#'   \item{\code{year}}{double. Year.}
+#'   \item{\code{country_code}}{World Bank country code}
 #'   \item{\code{country_name}}{character. Official World Bank country name}
 #'   \item{\code{region}}{character. Official World Bank regional classification}
 #'   \item{\code{income_group}}{character. Official World Bank income classification}

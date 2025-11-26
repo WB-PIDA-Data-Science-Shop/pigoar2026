@@ -17,8 +17,8 @@ theme_set(
     theme_few()
 )
 
-# global trends ----------------------------------------------------------
-acled_events <- acled |>
+# read-in data -----------------------------------------------------------
+acled_events <- pigoar2026::acled |>
     inner_join(
         wdi_indicators,
         by = c("country_code", "year")
@@ -27,6 +27,29 @@ acled_events <- acled |>
         year >= 2019
     )
 
+acled_demonstrations_regional <- pigoar2026::acled_regional |>
+    filter(
+        between(year, 2019, 2024) &
+            event_type %in% c("Protests", "Riots")
+    ) |> 
+    mutate(
+        month = lubridate::floor_date(week, unit = "months"),
+        year = lubridate::floor_date(week, unit = "years") |> as.numeric()
+    ) |> 
+    left_join(
+        cliaretl::wdi_indicators,
+        by = c("country_code", "year")
+    )
+
+acled_regional_summary <- acled_regional |> 
+    compute_summary(
+        "events",
+        groups = c("country_code", "income_group"),
+        fns = "mean",
+        output = "wide"
+    )
+
+# global trends ----------------------------------------------------------
 # pooled
 acled_events |>
     filter(!is.na(income_group)) |>
@@ -125,20 +148,6 @@ ggsave(
 )
 
 # regional analysis ------------------------------------------------------
-acled_demonstrations_regional <- acled_regional |>
-    filter(
-        between(year, 2019, 2024) &
-            event_type %in% c("Protests", "Riots")
-    ) |> 
-    mutate(
-        month = lubridate::floor_date(week, unit = "months"),
-        year = lubridate::floor_date(week, unit = "years") |> as.numeric()
-    ) |> 
-    left_join(
-        wdi_indicators,
-        by = c("country_code", "year")
-    )
-
 acled_demonstrations_regional |> 
     compute_summary(
         cols = "events",
@@ -287,14 +296,6 @@ walk2(
 )
 
 # correlation with institutional capacity --------------------------------
-acled_regional_summary <- acled_regional |> 
-    compute_summary(
-        "events",
-        groups = c("country_code"),
-        fns = "mean",
-        output = "wide"
-    )
-
 institutional_clusters <- colnames(
     cliaretl::closeness_to_frontier_static
 ) |> 
@@ -307,15 +308,31 @@ plot_correlation <- institutional_clusters |>
     \(cluster){
       acled_regional_summary |> 
         left_join(
-            cliaretl::closeness_to_frontier_static,
+            cliaretl::closeness_to_frontier_static |> 
+              select(country_code, ends_with("_avg")),
             by = c("country_code")
         ) |> 
+        filter(
+            !is.na(income_group)
+        ) |> 
         ggplot(
-            aes(.data[[cluster]], events_mean)
+            aes(.data[[cluster]], events_mean, color = income_group)
         ) +
         scale_x_log10() +
         scale_y_log10() +
-        geom_point()
+        geom_point() +
+        geom_smooth(
+            method = "lm"
+        ) +
+        facet_wrap(
+            vars(income_group),
+            nrow = 2,
+            scales = "free_y"
+        ) +
+        theme(
+            legend.position = "none"
+        ) +
+        scale_color_solarized()
     }
   )
 
