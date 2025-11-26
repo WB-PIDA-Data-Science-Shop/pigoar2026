@@ -10,6 +10,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     countrycode,
+    data.table,
     dplyr,
     forcats,
     ggplot2,
@@ -18,8 +19,11 @@ Imports:
     here,
     rlang,
     stringr,
-    tidyr
+    tidyr,
+    tidyselect
 Depends: 
     R (>= 3.5)
+Suggests:
+    tibble
 LazyData: true
 LazyDataCompression: xz

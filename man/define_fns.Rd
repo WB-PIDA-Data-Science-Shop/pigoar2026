@@ -75,7 +75,7 @@ compute_summary(
 
 }
 \seealso{
-\code{\link[=compute_summary]{compute_summary()}}, \code{\link[=compute_share]{compute_share()}}
+\code{\link[=compute_summary]{compute_summary()}}
 }
 \keyword{internal}
 \keyword{summarization}

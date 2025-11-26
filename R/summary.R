@@ -73,6 +73,7 @@
 #' @importFrom dplyr group_by summarise across all_of n_distinct
 #' @importFrom tidyr pivot_longer
 #' @importFrom glue glue
+#' @importFrom tidyselect matches
 #' @importFrom rlang is_formula
 #' @export
 

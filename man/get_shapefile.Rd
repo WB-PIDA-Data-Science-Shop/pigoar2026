@@ -23,7 +23,7 @@ from the URL (e.g., IBGE's geoftp).
 \examples{
 \dontrun{
 library(sf)
-url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_Municipios_2024.zip"
+url <- "https://geoftp.ibge.gov.br/map.shp"
 shp_path <- get_shapefile(url)
 br_muni <- st_read(shp_path, options = "ENCODING=WINDOWS-1252")
 }
