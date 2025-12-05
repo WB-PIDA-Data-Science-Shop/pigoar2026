@@ -5,7 +5,16 @@ credit_rating_raw <- get_data360_api(
   pivot = FALSE
 )
 
-credit_rating_raw |> 
-  count(COMP_BREAKDOWN_1)
+credit_rating <- credit_rating_raw |> 
+  filter(
+    COMP_BREAKDOWN_1 == "WEF_TTDI_VAL"
+  ) |> 
+  pivot_data360() |> 
+  rename(
+    credit_rating = wef_ttdi_indccreditrate
+  ) |> 
+  mutate(
+    credit_rating = as.numeric(credit_rating)
+  )
 
 usethis::use_data(credit_rating, overwrite = TRUE)

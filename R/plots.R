@@ -1,8 +1,7 @@
 #' Plot correlation between a numeric outcome and a predictor with regional coloring
 #'
 #' Creates a scatter plot with points colored by \code{region} and overlays a dashed
-#' quadratic polynomial regression line (lm with \code{y ~ poly(x, 2)}). The x-axis
-#' is constrained to [0, 1] with ticks every 0.2. Optionally saves the plot to disk.
+#' quadratic polynomial regression line. Optionally saves the plot to disk.
 #'
 #' @param data A data frame or tibble containing the variables to plot. Must include
 #'   columns named by \code{x}, \code{y}, and a \code{region} column for color mapping.
@@ -15,7 +14,6 @@
 #'
 #' @details
 #' - The smoothing line is a quadratic polynomial fit via \code{method = "lm"}.
-#' - X-axis limits are fixed at [0, 1]; y-axis limits span the range of \code{data[[y]]}.
 #' - Colors use \code{scale_color_brewer(palette = "Paired")}.
 #'
 #' @examples

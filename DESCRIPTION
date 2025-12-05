@@ -17,13 +17,16 @@ Imports:
     ggrepel,
     glue,
     here,
+    httr,
+    janitor,
+    jsonlite,
     rlang,
+    scales,
     stringr,
+    tibble,
     tidyr,
     tidyselect
 Depends: 
     R (>= 3.5)
-Suggests:
-    tibble
 LazyData: true
 LazyDataCompression: xz

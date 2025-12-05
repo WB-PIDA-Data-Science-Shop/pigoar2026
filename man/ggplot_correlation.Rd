@@ -22,13 +22,11 @@ A \code{ggplot} object.
 }
 \description{
 Creates a scatter plot with points colored by \code{region} and overlays a dashed
-quadratic polynomial regression line (lm with \code{y ~ poly(x, 2)}). The x-axis
-is constrained to \link{0, 1} with ticks every 0.2. Optionally saves the plot to disk.
+quadratic polynomial regression line. Optionally saves the plot to disk.
 }
 \details{
 \itemize{
 \item The smoothing line is a quadratic polynomial fit via \code{method = "lm"}.
-\item X-axis limits are fixed at \link{0, 1}; y-axis limits span the range of \code{data[[y]]}.
 \item Colors use \code{scale_color_brewer(palette = "Paired")}.
 }
 }

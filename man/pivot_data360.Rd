@@ -30,12 +30,6 @@ the indicator variable (\code{INDICATOR}), while keeping the reference area and
 time period identifiers. The resulting dataset is renamed and cleaned to
 have snake_case variable names.
 }
-\details{
-This function is particularly useful for preparing Data360 or similar
-datasets for analysis, where multiple indicators are recorded by country
-and year. The output dataset is cleaned using \code{janitor::clean_names()} to
-ensure consistent naming.
-}
 \examples{
 library(dplyr)
 library(tidyr)

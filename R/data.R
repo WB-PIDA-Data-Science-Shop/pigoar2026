@@ -108,3 +108,14 @@
 #'}
 #' @details DETAILS
 "brazil_mun_shp"
+
+#' @title Country credit rating
+#' @description Average of scores across the rating of the four top rating agencies (S&P, Moody’s, Fitch and DBRS). Scoring the creditworthiness of a country between 100 (riskless) and 0 (likely to default), assigned according to Trading Economics’ methodology and based on Standard & Poor, Moody’s and DBRS sovereign debt credit rating.
+#' @format A data frame with 369 rows and 3 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character World Bank country code.}
+#'   \item{\code{year}}{character Year.}
+#'   \item{\code{credit_rating}}{double Country credit rating, 0-100 best} 
+#'}
+#' @details DETAILS
+"credit_rating"

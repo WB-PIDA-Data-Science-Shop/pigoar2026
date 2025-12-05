@@ -94,11 +94,6 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
 #'   - `year`: The year or time period (from `TIME_PERIOD`)
 #'   - One column per unique `INDICATOR`, containing corresponding values from `OBS_VALUE`
 #'
-#' @details
-#' This function is particularly useful for preparing Data360 or similar
-#' datasets for analysis, where multiple indicators are recorded by country
-#' and year. The output dataset is cleaned using `janitor::clean_names()` to
-#' ensure consistent naming.
 #'
 #' @examples
 #' library(dplyr)
@@ -122,61 +117,16 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
 pivot_data360 <- function(data){
   data_pivot <- data |>
     pivot_wider(
-      id_cols = c(REF_AREA, TIME_PERIOD),
-      values_from = OBS_VALUE,
-      names_from = INDICATOR
+      id_cols = c(.data[["REF_AREA"]], .data[["TIME_PERIOD"]]),
+      values_from = .data[["OBS_VALUE"]],
+      names_from = .data[["INDICATOR"]]
     ) |>
     select(
-      country_code = REF_AREA,
-      year = TIME_PERIOD,
+      country_code = .data[["REF_AREA"]],
+      year = .data[["TIME_PERIOD"]],
       everything()
     ) |>
     janitor::clean_names()
 
   return(data_pivot)
-}
-
-#' Retrieve dataset metadata from the World Bank Data360 API
-#'
-#' This function queries the World Bank Data360 API to fetch metadata for a
-#' specified dataset, identified by its `dataset_id`. It constructs the request
-#' URL, retrieves the metadata in JSON format, and parses it into an R list or
-#' data frame.
-#'
-#' @param dataset_id A character string or numeric identifier specifying the
-#'   dataset for which metadata should be retrieved.
-#'
-#' @return A list (or data frame) containing the metadata associated with the
-#'   requested dataset, as returned by the Data360 API.
-#'
-#' @examples
-#' get_metadata360("WB_MPO")
-#'
-#' @importFrom httr modify_url GET stop_for_status content
-#' @importFrom jsonlite fromJSON
-#' @export
-get_metadata360 <- function(dataset_id) {
-  url <- "https://data360api.worldbank.org/data360/metadata"
-
-  # Define the JSON body as a list
-  body <- list(
-    query = dataset_id
-  )
-
-  # Send the POST request
-  res <- POST(
-    url = url,
-    add_headers(
-      "accept" = "*/*",
-      "Content-Type" = "application/json"
-    ),
-    body = body,
-    encode = "json"
-  )
-
-  httr::stop_for_status(res)
-
-  js <- httr::content(res, as = "text", encoding = "UTF-8")
-
-  jsonlite::fromJSON(js)
 }
