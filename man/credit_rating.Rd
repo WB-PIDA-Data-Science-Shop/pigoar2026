@@ -12,13 +12,13 @@ A data frame with 369 rows and 3 variables:
 \item{\code{credit_rating}}{double Country credit rating, 0-100 best}
 }
 }
+\source{
+World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WEF_TTDI_INDCCREDITRATE
+}
 \usage{
 credit_rating
 }
 \description{
 Average of scores across the rating of the four top rating agencies (S&P, Moody’s, Fitch and DBRS). Scoring the creditworthiness of a country between 100 (riskless) and 0 (likely to default), assigned according to Trading Economics’ methodology and based on Standard & Poor, Moody’s and DBRS sovereign debt credit rating.
-}
-\details{
-DETAILS
 }
 \keyword{datasets}

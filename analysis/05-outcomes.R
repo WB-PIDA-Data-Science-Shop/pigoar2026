@@ -28,13 +28,14 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
     unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE)
   )
 
-acled_average <- pigoar2026::acled_regional |>
+acled_regional_pop <- pigoar2026::acled_regional |>
     filter(
         between(year, 2020, 2024) &
             event_type %in% c("Protests", "Riots")
     ) |> 
-    summarise(
-      
+    inner_join(
+      pigoar2026::population,
+      by = c("country_code", "year")
     )
 
 cliar_correlation <- cliaretl::closeness_to_frontier_static |> 

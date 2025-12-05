@@ -42,11 +42,18 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
     )
 
 acled_regional_summary <- acled_regional |> 
+    filter(
+        year %in% c(2020:2024)
+    ) |> 
     compute_summary(
         "events",
         groups = c("country_code", "income_group"),
-        fns = "mean",
+        fns = c("mean", "sum"),
         output = "wide"
+    ) |> 
+    left_join(
+        pigoar2026::population |> filter(year == 2020),
+        by = c("country_code")
     )
 
 # global trends ----------------------------------------------------------
@@ -303,9 +310,23 @@ institutional_clusters <- colnames(
     "_avg$"
   )
 
-plot_correlation <- institutional_clusters |> 
-  map(
-    \(cluster){
+names(institutional_clusters) <- c(
+  "Degree of Integrity",
+  "Climate",
+  "Digital Institutions",
+  "Public HRM Institutions",
+  "Justice",
+  "Business Environment",
+  "Public Financial Management",
+  "Political",
+  "Social",
+  "Transparency"
+)
+
+plot_correlation <- map2(
+    institutional_clusters,
+    names(institutional_clusters),
+    \(cluster, cluster_name){
       acled_regional_summary |> 
         left_join(
             cliaretl::closeness_to_frontier_static |> 
@@ -316,18 +337,24 @@ plot_correlation <- institutional_clusters |>
             !is.na(income_group)
         ) |> 
         ggplot(
-            aes(.data[[cluster]], events_mean, color = income_group)
+            aes(.data[[cluster]], events_sum/total_population*1e5, color = income_group)
         ) +
-        scale_x_log10() +
-        scale_y_log10() +
         geom_point() +
         geom_smooth(
             method = "lm"
+        ) +
+        scale_y_log10(
+            breaks = scales::breaks_log(n = 6),
+            labels = scales::label_number(big.mark = ",")
         ) +
         facet_wrap(
             vars(income_group),
             nrow = 2,
             scales = "free_y"
+        ) +
+        labs(
+            x = cluster_name,
+            y = "Number of events per capita (logged)"
         ) +
         theme(
             legend.position = "none"
@@ -337,7 +364,7 @@ plot_correlation <- institutional_clusters |>
   )
 
 plot_correlation_names <- sprintf(
-    here("analysis", "figs", "correlation", "cor_acled_%s.png"),
+    here("analysis", "figs", "acled", "cor_acled_%s.png"),
     janitor::make_clean_names(institutional_clusters)
 )
 

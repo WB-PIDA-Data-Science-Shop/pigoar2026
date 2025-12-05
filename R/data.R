@@ -50,7 +50,6 @@
 #' @source https://datacatalogfiles.worldbank.org/ddh-published/0038272/5/DR0095369/World%20Bank%20Official%20Boundaries%20(GeoJSON)/World%20Bank%20Official%20Boundaries%20-%20Admin%200.geojson
 "wb_map"
 
-
 #' @title Microdados de Despesas de Entes Subnacionais (MiDES)
 #' @description This dataset contains annual panel data on public procurement and public expenditure of Brazilian municipalities.
 #' @format A data frame with 43,298 rows and 10 variables:
@@ -117,5 +116,16 @@
 #'   \item{\code{year}}{character Year.}
 #'   \item{\code{credit_rating}}{double Country credit rating, 0-100 best} 
 #'}
-#' @details DETAILS
+#' @source World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WEF_TTDI_INDCCREDITRATE
 "credit_rating"
+
+#' @title Population, Total
+#' @description Total population is based on the de facto definition of population, which counts all residents regardless of legal status or citizenship. The values shown are midyear estimates.
+#' @format A data frame with 17195 rows and 3 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character World Bank country code.}
+#'   \item{\code{year}}{double Year.}
+#'   \item{\code{total_population}}{double Population, total.} 
+#'}
+#' @details World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WB_WDI_SP_POP_TOTL
+"population"
