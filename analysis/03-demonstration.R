@@ -354,7 +354,7 @@ plot_correlation <- map2(
         ) +
         labs(
             x = cluster_name,
-            y = "Number of events per capita (logged)"
+            y = "Number of events per million people (logged)"
         ) +
         theme(
             legend.position = "none"
