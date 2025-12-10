@@ -153,7 +153,8 @@
 #'   \item{url}{Character. Landing page URL.}
 #'   \item{orig_unit}{Character. Originating unit (origu).}
 #'   \item{owner}{Character. Owning unit/department.}
-#'   \item{abstracts}{List-column. Abstract text(s) as returned by the API; may include multiple language versions.}
+#'   \item{gov_unit}{Numeric. Flag for whether the owning unit is mapped to Governance.}
+#'   \item{abstract}{Character. Abstract text(s) as returned by the API; may include multiple language versions.}
 #' }
 #'
 #' @details

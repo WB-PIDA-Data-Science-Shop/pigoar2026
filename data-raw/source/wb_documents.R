@@ -60,6 +60,37 @@ wb_documents <- documents_tbl |>
     document_id = id,
     doc_type = docty,
     doc_date = docdt,
-    orig_unit = origu
+    orig_unit = origu,
+    abstract = abstracts
+  ) |> 
+  # fix abstracts
+  mutate(
+    abstract = purrr::map(
+      abstract,
+      ~ if (is.null(.x)) NA_character_ else .x
+    ) |> 
+      unlist()
   )
 
+gov_unit <- wb_documents |> 
+  distinct(owner) |> 
+  filter(
+    grepl("GOV|FM|Proc|Inst", owner) &
+      grepl("^efi|^prosperity", owner, ignore.case = TRUE)
+  ) |> 
+  mutate(
+    gov_unit = 1
+  )
+
+wb_documents <- wb_documents |> 
+  left_join(
+    gov_unit,
+    by = "owner"
+  ) |> 
+  mutate(
+    gov_unit = if_else(
+      is.na(gov_unit), 0, gov_unit
+    )
+  )
+
+usethis::use_data(wb_documents)
