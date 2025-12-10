@@ -24,6 +24,9 @@ subnational_hr <- pigoar2026::rais_mun |>
   )
 
 subnational_gov <- pigoar2026::mides |> 
+  filter(
+    between(year, 2008, 2021)
+  ) |> 
   mutate(
     municipality_code = as.character(municipality_code),
     gdp_per_capita_quartile = ntile(gdp_per_capita, 4) |> 
@@ -34,6 +37,7 @@ subnational_gov <- pigoar2026::mides |>
     by = c("municipality_code", "year")
   ) |> 
   mutate(
+    year = as.character(year),
     across(
       is.numeric, 
       \(col) scale(col)

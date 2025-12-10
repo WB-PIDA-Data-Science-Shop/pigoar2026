@@ -129,3 +129,43 @@
 #'}
 #' @details World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WB_WDI_SP_POP_TOTL
 "population"
+
+#' World Bank Documents API: 2025 document catalog (flattened)
+#'
+#' A tibble of documents retrieved from the World Bank Documents & Reports API,
+#' with authors flattened to a single semicolon-separated string per document
+#' and selected metadata fields standardized. Data were fetched for the period
+#' 2025-01-01 to 2025-12-31 using the v3 API.
+#'
+#' @format A tibble with one row per document and the following columns:
+#' \describe{
+#'   \item{document_id}{Character. Unique document identifier (id).}
+#'   \item{authors}{Character. Semicolon-separated list of authors extracted from the nested authors/authr field.}
+#'   \item{count}{Character. Country or count field as returned by the API (often country name).}
+#'   \item{doc_type}{Character. Document type (docty).}
+#'   \item{theme}{Character. Comma-separated themes associated with the document.}
+#'   \item{lang}{Character. Language code/name.}
+#'   \item{doc_date}{Character or date-time string. Document date (docdt) as returned by the API.}
+#'   \item{display_title}{Character. Human-readable title.}
+#'   \item{pdfurl}{Character. Direct URL to the PDF if available.}
+#'   \item{projectid}{Character. Project identifier when applicable.}
+#'   \item{guid}{Character. Global unique identifier.}
+#'   \item{url}{Character. Landing page URL.}
+#'   \item{orig_unit}{Character. Originating unit (origu).}
+#'   \item{owner}{Character. Owning unit/department.}
+#'   \item{abstracts}{List-column. Abstract text(s) as returned by the API; may include multiple language versions.}
+#' }
+#'
+#' @details
+#' - Data are retrieved via the World Bank Documents & Reports Search API (v3).
+#' - The nested `authors`/`authr` field is collapsed to a single character string
+#'   per document using semicolons as separators.
+#'
+#' @source World Bank Documents & Reports API:
+#'   https://documents.worldbank.org/en/publication/documents-reports/api
+#'
+#' @seealso
+#' - API search endpoint: https://search.worldbank.org/api/v3/wds
+#' - API field list parameter (`fl`) for selecting returned fields
+#'
+"wb_documents"
