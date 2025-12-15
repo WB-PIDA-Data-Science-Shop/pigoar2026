@@ -28,6 +28,15 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
     unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE)
   )
 
+labor_income_average <- pigoar2026::labor_income |> 
+  filter(
+    year %in% 2020:2024
+  ) |> 
+  group_by(country_code) |> 
+  summarise(
+    labor_income = mean(labor_income, na.rm = TRUE)
+  )
+
 acled_regional_pop <- pigoar2026::acled_regional |>
     filter(
         between(year, 2020, 2024) &
@@ -45,6 +54,10 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
   ) |> 
   left_join(
     wdi_outcomes,
+    by = c("country_code")
+  ) |> 
+  left_join(
+    labor_income_average,
     by = c("country_code")
   )
 
@@ -75,7 +88,8 @@ outcomes <- c(
   "Logged GNI per capita (Constant International Dollars)" = "gni_per_capita",
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
   "Annual GDP Growth" = "gdp_growth",
-  "Unemployment rate" = "unemployment_rate"
+  "Unemployment rate" = "unemployment_rate",
+  "Labor income" = "labor_income"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"

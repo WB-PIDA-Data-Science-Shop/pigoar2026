@@ -197,3 +197,33 @@
 #'
 #' @source Derived from World Bank Documents & Reports API unit labels.
 "gov_unit"
+
+#' Labour income share (SDG 10.4.1), ILOSTAT
+#'
+#' Country-year estimates of the labour income share as a percent of GDP
+#' from ILOSTAT (SDG indicator 10.4.1), annual series of modelled estimates.
+#'
+#' @format A tibble with one row per country (or aggregate) and year, with 4 variables:
+#' \describe{
+#'   \item{\code{country_code}}{Character. World Bank economy code from \code{countrycode(..., dest = "wb")}.
+#'     Entries that are aggregates (e.g., regions, income groups, world) are \code{NA}.}
+#'   \item{\code{year}}{Double. Reference year.}
+#'   \item{\code{labor_income}}{Double. Labour income share as a percent of GDP.}
+#'   \item{\code{status_label}}{Character. Observation status as provided by ILOSTAT
+#'     (e.g., "Imputation", "Model-based extrapolation", or \code{NA}).}
+#' }
+#'
+#' @details
+#' - Source indicator: \code{SDG_1041_NOC_RT_A} (annual, percent of GDP).
+#' - Retrieved via the ILO rplumber API and minimally transformed:
+#'   country names mapped to World Bank codes, columns renamed, and status kept.
+#' - Aggregates and regions in the source retain \code{NA} in \code{country_code};
+#'   filter these out to keep only countries.
+#'
+#' @source ILOSTAT SDG 10.4.1 — Labour income share as a percent of GDP:
+#'   https://ilostat.ilo.org/topics/labour-income/ • API:
+#'   https://rplumber.ilo.org/data/indicator/?id=SDG_1041_NOC_RT_A
+#'
+#' @seealso \code{countrycode::countrycode()} for country code mappings,
+#'   ILOSTAT indicator metadata for SDG 10.4.1.
+"labor_income"
