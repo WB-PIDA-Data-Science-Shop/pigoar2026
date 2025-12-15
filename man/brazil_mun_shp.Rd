@@ -3,35 +3,47 @@
 \docType{data}
 \name{brazil_mun_shp}
 \alias{brazil_mun_shp}
-\title{Brazilian Municipality Shapefiles}
+\title{Brazilian municipality boundaries (IBGE)}
 \format{
-A data frame with 5573 rows and 16 variables:
+An \code{sf} data frame with 5,573 rows (municipalities) and 16 variables:
 \describe{
-\item{\code{municipality_code}}{character Municipality code (IBGE)}
-\item{\code{nm_mun}}{character Municipality name}
-\item{\code{cd_rgi}}{character Region code}
-\item{\code{nm_rgi}}{character Region name}
-\item{\code{cd_rgint}}{character COLUMN_DESCRIPTION}
-\item{\code{nm_rgint}}{character COLUMN_DESCRIPTION}
-\item{\code{cd_uf}}{character State code}
-\item{\code{nm_uf}}{character State name}
-\item{\code{sigla_uf}}{character State acronym}
-\item{\code{cd_regia}}{character COLUMN_DESCRIPTION}
-\item{\code{nm_regia}}{character COLUMN_DESCRIPTION}
-\item{\code{sigla_rg}}{character COLUMN_DESCRIPTION}
-\item{\code{cd_concu}}{character COLUMN_DESCRIPTION}
-\item{\code{nm_concu}}{character COLUMN_DESCRIPTION}
-\item{\code{area_km2}}{double COLUMN_DESCRIPTION}
-\item{\code{geometry}}{list COLUMN_DESCRIPTION}
+\item{\code{municipality_code}}{Character. IBGE 7-digit municipality code.}
+\item{\code{nm_mun}}{Character. Municipality name.}
+\item{\code{cd_rgi}}{Character. Immediate geographic region code (IBGE).}
+\item{\code{nm_rgi}}{Character. Immediate geographic region name.}
+\item{\code{cd_rgint}}{Character. Intermediate geographic region code (IBGE).}
+\item{\code{nm_rgint}}{Character. Intermediate geographic region name.}
+\item{\code{cd_uf}}{Character. State code (IBGE).}
+\item{\code{nm_uf}}{Character. State name.}
+\item{\code{sigla_uf}}{Character. State acronym (UF).}
+\item{\code{cd_regia}}{Character. Macro-region code (IBGE).}
+\item{\code{nm_regia}}{Character. Macro-region name (IBGE).}
+\item{\code{sigla_rg}}{Character. Macro-region acronym (if applicable).}
+\item{\code{cd_concu}}{Character. Mesoregion/microregion legacy code (if present).}
+\item{\code{nm_concu}}{Character. Mesoregion/microregion legacy name (if present).}
+\item{\code{area_km2}}{Double. Municipality area in square kilometers.}
+\item{\code{geometry}}{List-column. Simple features polygon geometry (EPSG:4674).}
 }
+}
+\source{
+Instituto Brasileiro de Geografia e Estatística (IBGE) — Malha Municipal.
+https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais.html
 }
 \usage{
 brazil_mun_shp
 }
 \description{
-Shapesfiles for municipal boundaries in Brazil (IBGE)
+Municipal boundary polygons for Brazil from IBGE, suitable for subnational
+analysis and mapping. Provided as an \code{sf} object with attributes for region,
+state, and municipality identifiers.
 }
 \details{
-DETAILS
+\itemize{
+\item Coordinate reference system (CRS): SIRGAS 2000 (EPSG:4674, geographic).
+\item Geometry type: MULTIPOLYGON/POLYGON; includes islands and multipart features.
+\item Source data from IBGE’s official municipal boundary dataset; lightly cleaned
+and renamed for consistency. Attributes follow IBGE’s regional hierarchy:
+macro-region > state (UF) > intermediate > immediate > municipality.
+}
 }
 \keyword{datasets}

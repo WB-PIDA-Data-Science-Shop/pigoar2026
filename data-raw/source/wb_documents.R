@@ -1,9 +1,10 @@
 ## code to prepare `wb_documents` dataset goes here
 library(dplyr)
+library(purrr)
 
 skip_rows <- 0
-n_rows <- 1000
-nrow_docs <- 1000
+n_rows <- 500
+nrow_docs <- 500
 documents_tbl <- tibble()
 
 while(nrow_docs == n_rows){
@@ -11,7 +12,7 @@ while(nrow_docs == n_rows){
     httr2::req_url_query(
       format = "json",
       fl = "id,count,abstracts,authr,docdt,origu,owner,projectid,theme,topic,docty",
-      strdate = "2025-01-01",
+      strdate = "2024-01-01",
       enddate = "2025-12-31",
       os = skip_rows,
       rows = n_rows
@@ -72,25 +73,29 @@ wb_documents <- documents_tbl |>
       unlist()
   )
 
-gov_unit <- wb_documents |> 
+gov_unit <- wb_documents |>
   distinct(owner) |> 
+  separate_rows(
+    owner,
+    sep = ";"
+  ) |> 
   filter(
-    grepl("GOV|FM|Proc|Inst", owner) &
+    grepl("GOV|Inst", owner) &
       grepl("^efi|^prosperity", owner, ignore.case = TRUE)
   ) |> 
   mutate(
-    gov_unit = 1
-  )
-
-wb_documents <- wb_documents |> 
-  left_join(
-    gov_unit,
-    by = "owner"
+    owner_code = str_extract(owner, "(?<=\\().*?(?=\\))")
   ) |> 
-  mutate(
-    gov_unit = if_else(
-      is.na(gov_unit), 0, gov_unit
-    )
+  select(
+    owner, owner_code
   )
 
-usethis::use_data(wb_documents)
+wb_documents |> 
+  inner_join(
+    gov_unit,
+    by = c("owner")
+  ) |> 
+  count(owner, doc_type, sort = TRUE)
+
+usethis::use_data(wb_documents, overwrite = TRUE)
+usethis::use_data(gov_unit, overwrite = TRUE)
