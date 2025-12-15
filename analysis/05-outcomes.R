@@ -49,19 +49,19 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
   )
 
 # analyze ----------------------------------------------------------------
-institutional_clusters <- colnames(cliar_correlation) |> 
-  stringr::str_subset(".*_avg$")
+institutional_clusters <- c(
+  "vars_hrm_avg",
+  "vars_pfm_avg",
+  "vars_digital_avg",
+  "vars_anticorruption_avg",
+  "vars_transp_avg"
+)
 
 names(institutional_clusters) <- c(
-  "Degree of Integrity",
-  "Climate",
-  "Digital Institutions",
   "Public HRM Institutions",
-  "Justice",
-  "Business Environment",
   "Public Financial Management",
-  "Political",
-  "Social",
+  "Digital Institutions",
+  "Degree of Integrity",
   "Transparency"
 )
 
@@ -93,7 +93,7 @@ cartesian_product <- tidyr::crossing(
 correlation_plots <- purrr::pmap(
   cartesian_product,
   function(x_val, y_val, x_lab, y_lab) {
-    ggplot_correlation(
+    plot <- ggplot_correlation(
       data = cliar_correlation |> filter(!is.na(region)),
       x = x_val,
       y = y_val
@@ -104,6 +104,13 @@ correlation_plots <- purrr::pmap(
         title = paste("Correlation between:", y_lab),
         subtitle = paste("and", x_lab)
       )
+    
+    if(y_val == "poverty_gap_215"){
+      plot <- plot +
+        scale_y_log10()
+    }
+
+    plot
   }
 )
 
