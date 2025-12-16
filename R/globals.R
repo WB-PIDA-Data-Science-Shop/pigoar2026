@@ -9,5 +9,8 @@ utils::globalVariables(c(
   "country_name", "ctf_distance", "execution_ratio", "family_name",
   "income_group", "lending_category", "max_av", "max_value", "min_av", 
   "min_value", "region", "region_av", "region_long", "region_w",
-  "sector", "type", "value", "var_name", "variable", "year"
+  "sector", "type", "value", "var_name", "variable", "year",
+  "wb_income_and_region", "total_events",
+  "geom_sf", "unzip", "download.file",
+  ".N", "val", "N", "sd", "quantile", "theme_void"
 ))
