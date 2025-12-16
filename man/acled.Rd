@@ -26,6 +26,6 @@ acled
 ACLED demonstration data, aggregated by country and year.
 }
 \details{
-#' The Armed Conflict Location & Event Data Project (ACLED) is a comprehensive dataset of political violence, protest, and disorder events across the world. This dataset aggregates ACLED event data for Asia at the weekly level, including event types such as battles, protests, riots, and violence against civilians. Each record summarizes the number of events, fatalities, and estimated population exposure for a specific week, country, and administrative region. Geographic centroids are provided for spatial analysis. For more information, see the official ACLED codebook: https://acleddata.com/resources/codebooks/
+The Armed Conflict Location & Event Data Project (ACLED) is a comprehensive dataset of political violence, protest, and disorder events across the world. This dataset provides the number of demonstration events aggregated by country and year, globally. Each record summarizes the total number of demonstration events for a given country and year. For more information, see the official ACLED codebook: https://acleddata.com/resources/codebooks/
 }
 \keyword{datasets}
