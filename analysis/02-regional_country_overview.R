@@ -1,4 +1,4 @@
-# STATIC DUMMBELLS
+# STATIC DUMMBELLS AND
 
 # Static CTF scores: identify which countries have changed the most in their score.
 
@@ -70,12 +70,10 @@ set.seed(101010)
 # data-load ---------------------------------------------------------------
 
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
-                      filter(country_group == 0) |>
-                      filter(region != "North America")  # Exclude North America
+                      filter(country_group == 0)
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
-  filter(country_group == 0) |>
-  filter(region != "North America")  # 2025
+  filter(country_group == 0)
 
 
 
@@ -129,14 +127,14 @@ plot_df |>
   theme_minimal() +
   theme(
     # show radial scale labels:
-    axis.text.y      = element_text(size = 8),
+    axis.text.y      = element_text(size = 7),
     panel.grid.minor = element_blank(),
     panel.grid.major = element_line(color = "grey90")
   )
 
 
 ggsave_db(
-  here("figures","institutional-capacity-radar-by-region.png")
+  here("figures","institutional-capacity-radar-by-region_2025.png")
 )
 
 
@@ -151,7 +149,7 @@ pol_data <- ctf_static_wide |>
 
 # Plot
 pol_data |>
-  generate_regional_minmax_plot("Political Institutions") +
+  generate_capacity_levels_plot("Political Institutions") +
   ggtitle(
     "Political Institutions",
     subtitle = "Regional Distributions and Average Trend"
@@ -167,7 +165,7 @@ pol_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","05-poli-arena-regional-dumbbells.png")
+  here("figures","05-poli-arena-regional-dumbbells_color_2025.png")
 )
 
 
@@ -193,7 +191,7 @@ social_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","05-social-arena-regional-dumbbells.png")
+  here("figures","05-social-arena-regional-dumbbells_2025.png")
 )
 
 
@@ -220,7 +218,7 @@ hrm_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","06-center-of-gov-hrm-regional-dumbbells.png")
+  here("figures","06-center-of-gov-hrm-regional-dumbbells_2025.png")
 )
 
 # FIGURE 6. DIGITAL
@@ -245,7 +243,7 @@ digital_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","06-center-of-gov-digital-regional-dumbbells.png")
+  here("figures","06-center-of-gov-digital-regional-dumbbells_2025.png")
 )
 
 
@@ -271,7 +269,7 @@ integrity_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","07-integrity-regional-dumbbells.png")
+  here("figures","07-integrity-regional-dumbbells_2025.png")
 )
 
 
@@ -297,7 +295,7 @@ transp_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","07-transp-regional-dumbbells.png")
+  here("figures","07-transp-regional-dumbbells_2025.png")
 )
 
 
@@ -323,7 +321,7 @@ justice_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","08-justice-regional-dumbbells.png")
+  here("figures","08-justice-regional-dumbbells_2025.png")
 )
 
 
@@ -350,7 +348,7 @@ climate_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","08-enviroment-regional-dumbbells.png")
+  here("figures","08-enviroment-regional-dumbbells_2025.png")
 )
 
 
