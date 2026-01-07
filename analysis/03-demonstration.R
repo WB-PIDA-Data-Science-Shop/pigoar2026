@@ -293,7 +293,7 @@ wb_acled_maps <- wb_regions |>
   )
 
 map_names <- sprintf(
-    here("analysis", "figs", "map", "map_acled_%s.png"), janitor::make_clean_names(wb_regions)
+    here("analysis", "figs", "acled", "map", "map_acled_%s.png"), janitor::make_clean_names(wb_regions)
 )
 
 walk2(
@@ -373,3 +373,5 @@ walk2(
     plot_correlation_names,
     ~ ggsave(.x, filename = .y, dpi = 300, width = 14, height = 12, bg = "white")
 )
+
+# regression -------------------------------------------------------------
