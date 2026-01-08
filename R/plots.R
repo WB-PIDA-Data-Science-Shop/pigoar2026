@@ -90,3 +90,98 @@ ggplot_correlation <- function(data, x, y, filename = NULL){
     
     return(plot)
   }
+
+#' Plot indexed event trends by quarter with baseline = 100
+#'
+#' Creates a faceted line plot showing the number of events over time, indexed
+#' to the first quarter (baseline = 100). Events are aggregated by quarter and
+#' a grouping variable, then indexed within each group. Useful for comparing
+#' relative growth across categories.
+#'
+#' @param data A data frame or tibble containing the event data. Must include
+#'   a \code{week} column (date or date-time) and an \code{events} column (numeric).
+#'   Must also include the column named by \code{group}.
+#' @param group A string naming the grouping column in \code{data} (e.g., "region",
+#'   "income_group"). Used for faceting and color mapping.
+#' @param group_name A string for the legend title corresponding to \code{group}.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' \dontrun{
+#' library(dplyr)
+#' library(ggplot2)
+#' library(lubridate)
+#'
+#' # Sample event data
+#' events_df <- tibble(
+#'   week = seq.Date(as.Date("2023-01-01"), as.Date("2024-12-31"), by = "week"),
+#'   events = sample(50:200, length(week), replace = TRUE),
+#'   region = sample(c("North", "South", "East", "West"), length(week), replace = TRUE)
+#' )
+#'
+#' # Plot indexed trends by region
+#' plot_events_index(events_df, group = "region", group_name = "Region")
+#' }
+#'
+#' @import ggplot2
+#' @importFrom lubridate quarter
+#' @importFrom ggthemes scale_color_solarized
+#' @importFrom ggplot2 label_wrap_gen
+#'
+#' @export
+plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
+  plot <- data |>
+    mutate(
+      quarter = lubridate::quarter(week, type = "date_first")
+    ) |>
+    compute_summary(
+      cols = c("events"),
+      fns = "sum",
+      groups = c("quarter", group),
+      output = "wide"
+    ) |>
+    filter(
+      !is.na(.data[[group]])
+    ) |>
+    group_by(
+      .data[[group]]
+    ) |>
+    mutate(
+      events_index = events_sum / events_sum[quarter == min(quarter)] * 100
+    ) |>
+    ungroup() |>
+    ggplot(
+      aes(x = quarter, y = events_index, color = .data[[group]])
+    ) +
+    geom_line(
+      linewidth = 1.2
+    ) +
+    geom_hline(
+      yintercept = 100,
+      linetype = "dashed"
+    ) +
+    scale_y_continuous(
+      limits = c(0, NA)
+    ) +
+    scale_color_solarized(
+      name = group_name
+    ) +
+    theme(
+      legend.position = "bottom"
+    ) +
+    labs(
+        x = "Time",
+        y = "Protests (Baseline = 100)"
+    )
+  
+  if(facet_group){
+    plot <- plot +
+      facet_wrap(
+        vars(.data[[group]]),
+        labeller = label_wrap_gen(width = 20)
+      )
+  }
+
+  plot
+}

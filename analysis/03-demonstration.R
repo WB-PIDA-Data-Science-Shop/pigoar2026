@@ -25,12 +25,12 @@ acled_events <- pigoar2026::acled |>
         by = c("country_code", "year")
     ) |>
     filter(
-        year >= 2019
+        between(year, 2020, 2024)
     )
 
 acled_demonstrations_regional <- pigoar2026::acled_regional |>
     filter(
-        between(year, 2019, 2024) &
+        between(year, 2020, 2024) &
             event_type %in% c("Protests", "Riots")
     ) |>
     mutate(
@@ -47,7 +47,8 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
 
 acled_regional_summary <- pigoar2026::acled_regional |>
     filter(
-        year %in% c(2020:2024)
+        year %in% c(2020:2024) &
+            event_type %in% c("Protests", "Riots")
     ) |>
     group_by(
         region,
@@ -109,7 +110,7 @@ acled_events |>
     )
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends.png")
 )
 
 # by income group
@@ -151,7 +152,7 @@ acled_events |>
     )
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends_income.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends_income.png")
 )
 
 # by region
@@ -189,106 +190,71 @@ acled_events |>
     theme(legend.position = "none")
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends_region.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends_region.png")
 )
 
 # regional analysis ------------------------------------------------------
+# global
 acled_demonstrations_regional |>
+    mutate(
+        quarter = lubridate::quarter(week, type = "date_first")
+    ) |>
     compute_summary(
         cols = "events",
         fns = "sum",
-        groups = "month"
+        groups = "quarter"
     ) |>
-    ggplot(aes(x = month, y = value)) +
-    geom_line() +
-    scale_y_continuous(
-        limits = c(0, NA)
-    ) +
-    labs(
-        title = "Global Protests and Riots Over Time",
-        x = "Time",
-        y = "Total"
-    )
+  mutate(
+    events_index = value/value[quarter == min(quarter)] * 100
+  ) |> 
+  ggplot(aes(x = quarter, y = events_index)) +
+  geom_line() +
+  scale_y_continuous(
+      limits = c(0, 200)
+  ) +
+  geom_hline(
+    yintercept = 100,
+    linetype = "dashed"
+  ) +
+  labs(
+      x = "Time",
+      y = "Protests (Baseline = 100)"
+  )
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends.png"),
+    width = 12,
+    height = 9,
+    bg = "white"
 )
 
+# income group
 acled_demonstrations_regional |>
-    compute_summary(
-        cols = "events",
-        fns = "sum",
-        groups = c("month", "income_group")
-    ) |>
-    filter(
-        !is.na(income_group)
-    ) |>
-    ggplot(
-        aes(x = month, y = value, color = income_group)
-    ) +
-    geom_line(
-        linewidth = 1.2
-    ) +
-    scale_y_continuous(
-        limits = c(0, NA)
-    ) +
-    scale_color_brewer(
-        palette = "Set1"
-    ) +
-    facet_wrap(
-        vars(income_group)
-    ) +
-    theme(
-        legend.position = "none"
-    ) +
-    labs(
-        title = "Global Protests and Riots Over Time",
-        x = "Time",
-        y = "Total"
-    )
+    plot_events_index(
+        "income_group",
+        "Income Group"
+   )
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends_income.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends_income.png"),
+    width = 12,
+    height = 9,
+    bg = "white"
 )
 
 # by region
 acled_demonstrations_regional |>
-    compute_summary(
-        cols = c("events", "total_population"),
-        fns = "sum",
-        groups = c("month", "region"),
-        output = "wide"
-    ) |>
-    filter(
-        !is.na(.data[["region"]])
-    ) |>
-    ggplot(
-        aes(x = month, y = events_sum/total_population_sum * 1e6, color = .data[["region"]])
-    ) +
-    geom_line(
-        linewidth = 1.2
-    ) +
-    scale_y_continuous(
-        limits = c(0, NA)
-    ) +
-    scale_color_solarized() +
-    facet_wrap(
-        vars(.data[["region"]]),
-        labeller = label_wrap_gen(width = 20)
-    ) +
-    theme(
-        legend.position = "none"
-    ) +
-    labs(
-        x = "Time",
-        y = "Protests per Million"
-    )
+   plot_events_index(
+        "region",
+        "Region",
+        facet_group = TRUE
+   )
 
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_region.png"),
     dpi = 300,
-    height = 6,
-    width = 9,
+    height = 9,
+    width = 12,
     bg = "white"
 )
 
