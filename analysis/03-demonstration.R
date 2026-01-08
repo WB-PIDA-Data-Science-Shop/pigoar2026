@@ -15,7 +15,7 @@ library(dotwhisker)
 devtools::load_all()
 
 theme_set(
-    theme_few(base_size = 16)
+    theme_few(base_size = 20)
 )
 
 # read-in data -----------------------------------------------------------
@@ -34,19 +34,18 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
             event_type %in% c("Protests", "Riots")
     ) |>
     mutate(
-        month = lubridate::floor_date(week, unit = "months"),
-        year = lubridate::floor_date(week, unit = "years") |> as.numeric()
+        month = lubridate::floor_date(week, unit = "months")
     ) |>
     left_join(
         cliaretl::wdi_indicators,
         by = c("country_code", "year")
-    ) |>
+    ) |> 
     left_join(
         pigoar2026::population,
         by = c("country_code", "year")
     )
 
-acled_regional_summary <- acled_regional |>
+acled_regional_summary <- pigoar2026::acled_regional |>
     filter(
         year %in% c(2020:2024)
     ) |>
@@ -66,6 +65,27 @@ acled_regional_summary <- acled_regional |>
             filter(year == 2020) |>
             select(country_code, total_population),
         by = c("country_code")
+    )
+
+acled_estimation <- acled_regional_summary |>
+    left_join(
+        cliaretl::closeness_to_frontier_dynamic |>
+            select(
+                country_code,
+                year,
+                vdem_core_v2stcritrecadm,
+                wb_spi_std_and_methods,
+                wjp_rol_2,
+                wjp_rol_3_1,
+                log_gdp 
+            ) |> 
+          mutate(
+            across(
+                vdem_core_v2stcritrecadm:wjp_rol_3_1,
+                \(x) as.vector(scale(x))
+            )
+          ),
+        by = c("country_code", "year")
     )
 
 # global trends ----------------------------------------------------------
@@ -136,13 +156,19 @@ ggsave(
 
 # by region
 acled_events |>
+    left_join(
+        pigoar2026::population,
+        by = c("country_code", "year")
+    ) |> 
     filter(!is.na(region)) |>
     group_by(region, year) |>
     summarize(
-        events = sum(events, na.rm = TRUE),
+        events_sum = sum(events, na.rm = TRUE),
+        total_population = sum(total_population, na.rm = TRUE),
+        events_per_capita = events_sum/total_population,
         .groups = "drop"
     ) |>
-    ggplot(aes(x = year, y = events, color = region)) +
+    ggplot(aes(x = year, y = events_per_capita, color = region)) +
     geom_line(linewidth = 1.2) +
     geom_point(size = 6) +
     geom_text(
@@ -228,15 +254,16 @@ ggsave(
 # by region
 acled_demonstrations_regional |>
     compute_summary(
-        cols = "events",
+        cols = c("events", "total_population"),
         fns = "sum",
-        groups = c("month", "region")
+        groups = c("month", "region"),
+        output = "wide"
     ) |>
     filter(
         !is.na(.data[["region"]])
     ) |>
     ggplot(
-        aes(x = month, y = value, color = .data[["region"]])
+        aes(x = month, y = events_sum/total_population_sum * 1e6, color = .data[["region"]])
     ) +
     geom_line(
         linewidth = 1.2
@@ -244,23 +271,25 @@ acled_demonstrations_regional |>
     scale_y_continuous(
         limits = c(0, NA)
     ) +
-    scale_color_brewer(
-        palette = "Set1"
-    ) +
+    scale_color_solarized() +
     facet_wrap(
-        vars(.data[["region"]])
+        vars(.data[["region"]]),
+        labeller = label_wrap_gen(width = 20)
     ) +
     theme(
         legend.position = "none"
     ) +
     labs(
-        title = "Global Protests and Riots Over Time, by Region",
         x = "Time",
-        y = "Total"
+        y = "Protests per Million"
     )
 
 ggsave(
-    here("analysis", "figs", "global_demonstration_trends_region.png")
+    here("analysis", "figs", "acled", "global_demonstration_trends_region.png"),
+    dpi = 300,
+    height = 6,
+    width = 9,
+    bg = "white"
 )
 
 # spatial analysis -------------------------------------------------------
@@ -410,13 +439,6 @@ walk2(
 )
 
 # linear regression
-acled_estimation <- acled_regional_summary |>
-    left_join(
-        cliaretl::closeness_to_frontier_dynamic |>
-            select(-c(region, income_group)),
-        by = c("country_code", "year")
-    )
-
 income_groups <- acled_estimation |>
     filter(
         !is.na(income_group)
@@ -456,7 +478,6 @@ lm_protests_income_group <- income_groups |>
     set_names(income_groups)
 
 list(
-    "Pooled" = lm_protests_pooled,
     "Low Income" = lm_protests_income_group[["Low income"]],
     "Lower middle income" = lm_protests_income_group[["Lower middle income"]],
     "Upper middle income" = lm_protests_income_group[["Upper middle income"]],
@@ -475,10 +496,10 @@ list(
     ) |> 
     relabel_predictors(
       c(
-        vdem_core_v2stcritrecadm = "Meritocratic criteria for appointment",
-        wb_spi_std_and_methods = "Standards and methods for data",
-        wjp_rol_2 = "Absence of corruption",
-        wjp_rol_3_1 = "Publicized laws and government data"
+        vdem_core_v2stcritrecadm = "Personnel\n (Meritocratic criteria for appointment)",
+        wb_spi_std_and_methods = "Information Systems\n (Standards and methods for data)",
+        wjp_rol_2 = "Integrity\n (Absence of corruption)",
+        wjp_rol_3_1 = "Transparency\n (Publicized laws and government data)"
       )
     ) +
     xlab("Coefficient") +
@@ -497,8 +518,14 @@ list(
         name = "Models",
         breaks = c(0, 1)
     ) +
-    scale_colour_grey(
-        start = .3,
-        end = .7,
+    scale_color_solarized(
         name = "Models"
     )
+
+ggsave(
+    here("analysis", "figs", "acled", "regression_income.png"),
+    dpi = 300,
+    width = 10,
+    height = 6,
+    bg = "white"
+)
