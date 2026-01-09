@@ -4,7 +4,7 @@
 \alias{ggplot_correlation}
 \title{Plot correlation between a numeric outcome and a predictor with regional coloring}
 \usage{
-ggplot_correlation(data, x, y, filename = NULL)
+ggplot_correlation(data, x, y, group, filename = NULL)
 }
 \arguments{
 \item{data}{A data frame or tibble containing the variables to plot. Must include

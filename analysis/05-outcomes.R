@@ -6,6 +6,10 @@ library(purrr)
 
 devtools::load_all()
 
+theme_set(
+    ggthemes::theme_few(base_size = 24)
+)
+
 # read-in data -----------------------------------------------------------
 credit_rating_average <- pigoar2026::credit_rating |> 
   filter(
@@ -37,16 +41,6 @@ labor_income_average <- pigoar2026::labor_income |>
     labor_income = mean(labor_income, na.rm = TRUE)
   )
 
-acled_regional_pop <- pigoar2026::acled_regional |>
-    filter(
-        between(year, 2020, 2024) &
-            event_type %in% c("Protests", "Riots")
-    ) |> 
-    inner_join(
-      pigoar2026::population,
-      by = c("country_code", "year")
-    )
-
 cliar_correlation <- cliaretl::closeness_to_frontier_static |> 
   left_join(
     credit_rating_average,
@@ -59,6 +53,17 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
   left_join(
     labor_income_average,
     by = c("country_code")
+  ) |> 
+  mutate(
+    income_group = forcats::fct_relevel(
+            income_group,
+            c(
+                "Low income",
+                "Lower middle income",
+                "Upper middle income",
+                "High income"
+            )
+        )
   )
 
 # analyze ----------------------------------------------------------------
@@ -108,15 +113,23 @@ correlation_plots <- purrr::pmap(
   cartesian_product,
   function(x_val, y_val, x_lab, y_lab) {
     plot <- ggplot_correlation(
-      data = cliar_correlation |> filter(!is.na(region)),
+      data = cliar_correlation |> filter(!is.na(income_group)),
       x = x_val,
-      y = y_val
+      y = y_val,
+      group = "income_group"
     ) +
+      scale_y_continuous(
+        labels = function(x) stringr::str_wrap(x, width = 15)
+      ) +
       labs(
         x = paste0(x_lab, " (2020-2024)"),
-        y = y_lab,
-        title = paste("Correlation between:", y_lab),
-        subtitle = paste("and", x_lab)
+        y = y_lab
+      ) +
+      guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
       )
     
     if(y_val == "poverty_gap_215"){
@@ -136,12 +149,12 @@ purrr::walk2(
     filename = file.path(
       "analysis/figs/outcomes",
       sprintf(
-        "cor_%02d_%s_vs_%s.png", .y,
+        "cor_%s_vs_%s.png",
         gsub("\\s+", "_", cartesian_product$y_val[.y]),
         gsub("\\s+", "_", cartesian_product$x_val[.y])
       )
     ),
     plot = .x,
-    width = 12, height = 12, dpi = 300, bg = "white"
+    width = 10, height = 10, dpi = 300, bg = "white"
   )
 )
