@@ -15,7 +15,7 @@ library(dotwhisker)
 devtools::load_all()
 
 theme_set(
-    theme_few(base_size = 20)
+    theme_few(base_size = 24)
 )
 
 # read-in data -----------------------------------------------------------
@@ -462,10 +462,10 @@ list(
     ) |> 
     relabel_predictors(
       c(
-        vdem_core_v2stcritrecadm = "Personnel\n (Meritocratic criteria for appointment)",
-        wb_spi_std_and_methods = "Information Systems\n (Standards and methods for data)",
-        wjp_rol_2 = "Integrity\n (Absence of corruption)",
-        wjp_rol_3_1 = "Transparency\n (Publicized laws and government data)"
+        vdem_core_v2stcritrecadm = "Meritocratic criteria for appointment",
+        wb_spi_std_and_methods = "Standards and methods for data",
+        wjp_rol_2 = "Degree of integrity",
+        wjp_rol_3_1 = "Publicized laws and government data"
       )
     ) +
     xlab("Coefficient") +
@@ -475,23 +475,26 @@ list(
         colour = "grey60",
         linetype = 2
     ) +
-    theme_bw() +
+    facet_wrap(
+        vars(model)
+    ) +
     labs(x = "Coefficient Estimate with 95% CIs", y = "") +
     theme(
         legend.position = "bottom"
     ) +
     scale_shape_discrete(
-        name = "Models",
+        name = "Income group",
         breaks = c(0, 1)
     ) +
     scale_color_solarized(
-        name = "Models"
-    )
+        name = "Income group"
+    ) +
+    guides(color = guide_legend(nrow = 2))
 
 ggsave(
     here("analysis", "figs", "acled", "regression_income.png"),
     dpi = 300,
-    width = 10,
-    height = 6,
+    width = 14,
+    height = 8,
     bg = "white"
 )
