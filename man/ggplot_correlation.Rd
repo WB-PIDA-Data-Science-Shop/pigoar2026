@@ -14,6 +14,8 @@ columns named by \code{x}, \code{y}, and a \code{region} column for color mappin
 
 \item{y}{A string naming the outcome column in \code{data}. Used on the y-axis.}
 
+\item{group}{A string naming the grouping column in \code{data} (e.g., "region")}
+
 \item{filename}{Optional string path to save the plot. If \code{NULL}, the plot
 is not saved. Passed to \code{ggplot2::ggsave()}.}
 }

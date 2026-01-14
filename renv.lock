@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.5.2",
+    "Version": "4.5.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -375,7 +375,8 @@
       "License": "GPL-2 | GPL-3",
       "URL": "http://www.rforge.net/base64enc",
       "NeedsCompilation": "yes",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "basedosdados": {
       "Package": "basedosdados",
@@ -416,7 +417,7 @@
       ],
       "Config/testthat/edition": "3",
       "NeedsCompilation": "no",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "bayestestR": {
       "Package": "bayestestR",
@@ -583,7 +584,7 @@
       "NeedsCompilation": "yes",
       "Author": "Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Jennifer Bryan [aut] (ORCID: <https://orcid.org/0000-0002-6983-2759>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "bit": {
       "Package": "bit",
@@ -1347,7 +1348,7 @@
       "NeedsCompilation": "yes",
       "Author": "Davis Vaughan [aut, cre], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Davis Vaughan <davis@posit.co>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "commonmark": {
       "Package": "commonmark",
@@ -2026,7 +2027,7 @@
       "NeedsCompilation": "no",
       "Author": "Gábor Csárdi [aut, cre, cph]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "dotwhisker": {
       "Package": "dotwhisker",
@@ -2257,8 +2258,7 @@
       "NeedsCompilation": "yes",
       "Author": "David Meyer [aut, cre] (<https://orcid.org/0000-0002-5196-3048>), Evgenia Dimitriadou [aut, cph], Kurt Hornik [aut] (<https://orcid.org/0000-0003-4198-9911>), Andreas Weingessel [aut], Friedrich Leisch [aut], Chih-Chung Chang [ctb, cph] (libsvm C++-code), Chih-Chen Lin [ctb, cph] (libsvm C++-code)",
       "Maintainer": "David Meyer <David.Meyer@R-project.org>",
-      "Repository": "RSPM",
-      "Encoding": "UTF-8"
+      "Repository": "CRAN"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -3520,7 +3520,7 @@
       "NeedsCompilation": "no",
       "Author": "Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>), Jennifer Bryan [ctb] (ORCID: <https://orcid.org/0000-0002-6983-2759>)",
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "highr": {
       "Package": "highr",
@@ -3870,7 +3870,8 @@
         "testthat"
       ],
       "NeedsCompilation": "no",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "insight": {
       "Package": "insight",
@@ -4534,7 +4535,7 @@
     },
     "litedown": {
       "Package": "litedown",
-      "Version": "0.8",
+      "Version": "0.9",
       "Source": "Repository",
       "Type": "Package",
       "Title": "A Lightweight Version of R Markdown",
@@ -4546,7 +4547,7 @@
       "Imports": [
         "utils",
         "commonmark (>= 2.0.0)",
-        "xfun (>= 0.54)"
+        "xfun (>= 0.55)"
       ],
       "Suggests": [
         "rbibutils",
@@ -5042,7 +5043,7 @@
       "NeedsCompilation": "yes",
       "Author": "Gábor Csárdi [aut, cre], Hannes Mühleisen [aut, cph] (<https://orcid.org/0000-0001-8552-0029>), Google Inc. [cph], Apache Software Foundation [cph], Posit Software, PBC [cph], RAD Game Tools [cph], Valve Software [cph], Tenacious Software LLC [cph], Facebook, Inc. [cph]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "nlme": {
       "Package": "nlme",
@@ -5371,7 +5372,7 @@
       "Config/Needs/website": "gifski",
       "NeedsCompilation": "no",
       "Author": "Thomas Lin Pedersen [cre, aut] (ORCID: <https://orcid.org/0000-0002-5147-4711>)",
-      "Repository": "RSPM"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "performance": {
       "Package": "performance",
@@ -6079,8 +6080,7 @@
       "NeedsCompilation": "yes",
       "Author": "David Meyer [aut, cre], Christian Buchta [aut]",
       "Maintainer": "David Meyer <David.Meyer@R-project.org>",
-      "Repository": "RSPM",
-      "Encoding": "UTF-8"
+      "Repository": "CRAN"
     },
     "ps": {
       "Package": "ps",
@@ -6935,7 +6935,7 @@
       "NeedsCompilation": "no",
       "Author": "Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>)",
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "rstudioapi": {
       "Package": "rstudioapi",
@@ -7302,7 +7302,7 @@
       "NeedsCompilation": "yes",
       "Author": "Edzer Pebesma [aut, cre] (ORCID: <https://orcid.org/0000-0001-8049-7069>), Roger Bivand [ctb] (ORCID: <https://orcid.org/0000-0003-2392-6140>), Etienne Racine [ctb], Michael Sumner [ctb], Ian Cook [ctb], Tim Keitt [ctb], Robin Lovelace [ctb], Hadley Wickham [ctb], Jeroen Ooms [ctb] (ORCID: <https://orcid.org/0000-0002-4035-0289>), Kirill Müller [ctb], Thomas Lin Pedersen [ctb], Dan Baston [ctb], Dewey Dunnington [ctb] (ORCID: <https://orcid.org/0000-0002-9415-4582>)",
       "Maintainer": "Edzer Pebesma <edzer.pebesma@uni-muenster.de>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "sfheaders": {
       "Package": "sfheaders",
@@ -7504,8 +7504,7 @@
       "NeedsCompilation": "yes",
       "Author": "Edzer Pebesma [aut, cre], Roger Bivand [aut], Barry Rowlingson [ctb], Virgilio Gomez-Rubio [ctb], Robert Hijmans [ctb], Michael Sumner [ctb], Don MacQueen [ctb], Jim Lemon [ctb], Finn Lindgren [ctb], Josh O'Brien [ctb], Joseph O'Rourke [ctb], Patrick Hausmann [ctb]",
       "Maintainer": "Edzer Pebesma <edzer.pebesma@uni-muenster.de>",
-      "Repository": "RSPM",
-      "Encoding": "UTF-8"
+      "Repository": "CRAN"
     },
     "stringi": {
       "Package": "stringi",
@@ -8129,7 +8128,7 @@
       "NeedsCompilation": "yes",
       "Author": "Edzer Pebesma [aut, cre] (ORCID: <https://orcid.org/0000-0001-8049-7069>), Thomas Mailund [aut], Tomasz Kalinowski [aut], James Hiebert [ctb], Iñaki Ucar [aut] (ORCID: <https://orcid.org/0000-0001-6403-5550>), Thomas Lin Pedersen [ctb]",
       "Maintainer": "Edzer Pebesma <edzer.pebesma@uni-muenster.de>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "urlchecker": {
       "Package": "urlchecker",
@@ -8505,7 +8504,8 @@
       ],
       "RoxygenNote": "6.1.1",
       "NeedsCompilation": "no",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "withr": {
       "Package": "withr",
@@ -8603,7 +8603,7 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.52",
+      "Version": "0.55",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Supporting Functions for Packages Maintained by 'Yihui Xie'",
@@ -8625,7 +8625,7 @@
         "rstudioapi",
         "tinytex (>= 0.30)",
         "mime",
-        "litedown (>= 0.4)",
+        "litedown (>= 0.6)",
         "commonmark",
         "knitr (>= 1.50)",
         "remotes",
@@ -8635,16 +8635,18 @@
         "jsonlite",
         "magick",
         "yaml",
+        "data.table",
+        "qs2",
         "qs"
       ],
       "License": "MIT + file LICENSE",
       "URL": "https://github.com/yihui/xfun",
       "BugReports": "https://github.com/yihui/xfun/issues",
       "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2",
+      "RoxygenNote": "7.3.3",
       "VignetteBuilder": "litedown",
       "NeedsCompilation": "yes",
-      "Author": "Yihui Xie [aut, cre, cph] (<https://orcid.org/0000-0003-0645-5666>, https://yihui.org), Wush Wu [ctb], Daijiang Li [ctb], Xianying Tan [ctb], Salim Brüggemann [ctb] (<https://orcid.org/0000-0002-5329-5987>), Christophe Dervieux [ctb]",
+      "Author": "Yihui Xie [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0645-5666>, URL: https://yihui.org), Wush Wu [ctb], Daijiang Li [ctb], Xianying Tan [ctb], Salim Brüggemann [ctb] (ORCID: <https://orcid.org/0000-0002-5329-5987>), Christophe Dervieux [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "CRAN"
     },
@@ -8716,7 +8718,7 @@
       "NeedsCompilation": "no",
       "Author": "Gábor Csárdi [aut, cre], Fathi Boudra [aut], Rex Dieter [aut], Kevin Krammer [aut], Jeremy White [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Repository": "CRAN"
+      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "xtable": {
       "Package": "xtable",
@@ -8765,7 +8767,8 @@
       "URL": "https://github.com/vubiostat/r-yaml/",
       "BugReports": "https://github.com/vubiostat/r-yaml/issues",
       "NeedsCompilation": "yes",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "zip": {
       "Package": "zip",

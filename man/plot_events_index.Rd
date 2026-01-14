@@ -15,6 +15,8 @@ Must also include the column named by \code{group}.}
 "income_group"). Used for faceting and color mapping.}
 
 \item{group_name}{A string for the legend title corresponding to \code{group}.}
+
+\item{facet_group}{Logical indicating whether to facet the plot by \code{group}.}
 }
 \value{
 A \code{ggplot} object.

@@ -9,6 +9,7 @@
 #' @param y A string naming the outcome column in \code{data}. Used on the y-axis.
 #' @param filename Optional string path to save the plot. If \code{NULL}, the plot
 #'   is not saved. Passed to \code{ggplot2::ggsave()}.
+#' @param group A string naming the grouping column in \code{data} (e.g., "region")
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -84,6 +85,7 @@ ggplot_correlation <- function(data, x, y, group, filename = NULL){
 #' @param group A string naming the grouping column in \code{data} (e.g., "region",
 #'   "income_group"). Used for faceting and color mapping.
 #' @param group_name A string for the legend title corresponding to \code{group}.
+#' @param facet_group Logical indicating whether to facet the plot by \code{group}.
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -113,7 +115,7 @@ ggplot_correlation <- function(data, x, y, group, filename = NULL){
 plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
   plot <- data |>
     mutate(
-      quarter = lubridate::quarter(week, type = "date_first")
+      quarter = lubridate::quarter(.data[["week"]], type = "date_first")
     ) |>
     compute_summary(
       cols = c("events"),
@@ -128,11 +130,11 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
       .data[[group]]
     ) |>
     mutate(
-      events_index = events_sum / events_sum[quarter == min(quarter)] * 100
+      events_index = .data[["events_sum"]] / .data[["events_sum"]][quarter == min(quarter)] * 100
     ) |>
     ungroup() |>
     ggplot(
-      aes(x = quarter, y = events_index, color = .data[[group]])
+      aes(x = quarter, y = .data[["events_index"]], color = .data[[group]])
     ) +
     geom_line(
       linewidth = 1.2
