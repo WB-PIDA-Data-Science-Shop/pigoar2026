@@ -1,4 +1,4 @@
-# STATIC DUMMBELLS AND
+# STATIC RADAR and DUMMBELLS
 
 # Static CTF scores: identify which countries have changed the most in their score.
 
@@ -70,10 +70,26 @@ set.seed(101010)
 # data-load ---------------------------------------------------------------
 
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
-                      filter(country_group == 0)
+  filter(country_group == 0) |>
+  filter(region != "North America") |>
+  mutate(
+    region = case_when(
+      region == "East Asia & Pacific" ~ "EAP",
+      region == "Europe & Central Asia" ~ "ECA",
+      region == "Latin America & Caribbean" ~ "LAC",
+      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+      region == "South Asia" ~ "SAR",
+      region == "Sub-Saharan Africa" ~ "SSA",
+      TRUE ~ region
+    )
+  )
+
+
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
-  filter(country_group == 0)
+  filter(country_group == 0) |>
+  filter(region != "North America")
+
 
 
 
@@ -98,16 +114,38 @@ ctf_avgs <- ctf_static |>
   pivot_longer(cols = 6:last_col(),
                names_to = "cluster",
                values_to = "value"
+  ) |>
+  mutate(
+    region = case_when(
+      region == "East Asia & Pacific" ~ "EAP",
+      region == "Europe & Central Asia" ~ "ECA",
+      region == "Latin America & Caribbean" ~ "LAC",
+      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+      region == "South Asia" ~ "SAR",
+      region == "Sub-Saharan Africa" ~ "SSA",
+      TRUE ~ region
+    )
+  ) |>
+  filter(
+    cluster %in% c(
+      "Degree of Integrity",
+      "Transparency Institutions",
+      "Digital and Data Use",
+      "Public Sector Employment"
+      # "Public Financial Management"
+    )
   )
 
 plot_df <- ctf_avgs |>
-  mutate(cluster_lab = str_wrap(cluster, 12))
+  mutate(cluster_lab = str_wrap(cluster, 12)) |>
+  group_by(region, cluster_lab) |>
+  summarise(value = mean(value, na.rm = TRUE))
 
 plot_df |>
-  ggplot(aes(x = reorder(cluster, value), y = value)) +
-  geom_col(aes(fill = cluster), alpha = 0.75, show.legend = FALSE) +
+  ggplot(aes(x = reorder(cluster_lab, value), y = value)) +
+  geom_col(aes(fill = cluster_lab), alpha = 0.75, show.legend = FALSE) +
   geom_segment(
-    aes(y = 0, yend = 1, xend = cluster, color = cluster),
+    aes(y = 0, yend = 1, xend = cluster_lab, color = cluster_lab),
     linetype = "dashed",
     show.legend = FALSE
   ) +
@@ -126,77 +164,45 @@ plot_df |>
   ) +
   theme_minimal() +
   theme(
-    # show radial scale labels:
     axis.text.y      = element_text(size = 7),
     panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(color = "grey90")
+    panel.grid.major = element_line(color = "grey90"),
+    strip.text       = element_text(face = "bold", size = 12)   # <- facet titles
   )
 
 
 ggsave_db(
-  here("figures","institutional-capacity-radar-by-region_2025.png")
+  here("analysis", "figs", "dumbbells","overview-institutional-capacity-radar-by-region.png")
 )
 
 
-
-
-# regional-dummbells-visualizations --------------------------------------------
-
-
-# FIGURE 5. POLITICAL
-pol_data <- ctf_static_wide |>
-  compute_regional_statistics("vars_pol_avg")
-
-# Plot
-pol_data |>
-  generate_capacity_levels_plot("Political Institutions") +
-  ggtitle(
-    "Political Institutions",
-    subtitle = "Regional Distributions and Average Trend"
+plot_df |>
+  ggplot(aes(x = value, y = fct_reorder(cluster, value))) +
+  geom_segment(aes(x = 0, xend = value, yend = cluster), linewidth = 0.6) +
+  geom_point(size = 2.5, alpha = 0.9) +
+  facet_wrap(~ region, scales = "free_y") +
+  scale_x_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.25),
+    labels = scales::number_format(accuracy = 0.01)
   ) +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
-    shape = "Values",
-    color = "Region",
-    hjust = 0
+    title = "Institutional Capacity overview by Region (2020–2024)",
+    subtitle = "Regional Average CTF Scores by Institutional Cluster",
+    x = "CTF cluster score", y = NULL
   ) +
-  coord_cartesian(ylim = c(0, 1)) +
-  scale_color_brewer(palette = "Paired")
-
-ggsave_db(
-  here("figures","05-poli-arena-regional-dumbbells_color_2025.png")
-)
-
-
-# FIGURE 5. SOCIAL
-social_data <- ctf_static_wide |>
-  compute_regional_statistics("vars_social_avg")
-
-# Plot
-social_data |>
-  generate_regional_minmax_plot("Social Institutions") +
-  ggtitle(
-    "Social Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
-  labs(
-    x = "Region",
-    y = "CTF Average Score",
-    shape = "Values",
-    color = "Region",
-    hjust = 0
-  ) +
-  coord_cartesian(ylim = c(0, 1)) +
-  scale_color_brewer(palette = "Paired")
-
-ggsave_db(
-  here("figures","05-social-arena-regional-dumbbells_2025.png")
-)
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 
 
 
-# FIGURE 6. HRM
+# country-dummbells-visualizations --------------------------------------------
+
+
+
+# hrm ---------------------------------------------------------------------
+
+
 hrm_data <- ctf_static_wide |>
   compute_regional_statistics("vars_hrm_avg")
 
@@ -218,10 +224,13 @@ hrm_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","06-center-of-gov-hrm-regional-dumbbells_2025.png")
+  here("analysis", "figs", "dumbbells","hrm-regional-dumbbells.png")
 )
 
-# FIGURE 6. DIGITAL
+
+
+# data --------------------------------------------------------------------
+
 digital_data <- ctf_static_wide |>
   compute_regional_statistics("vars_digital_avg")
 
@@ -243,11 +252,13 @@ digital_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","06-center-of-gov-digital-regional-dumbbells_2025.png")
+  here("analysis", "figs", "dumbbells","digital-regional-dumbbells.png")
 )
 
 
-# FIGURE 7. INTEGRITY
+
+# integrity ---------------------------------------------------------------
+
 integrity_data <- ctf_static_wide |>
   compute_regional_statistics("vars_anticorruption_avg")
 
@@ -269,11 +280,12 @@ integrity_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","07-integrity-regional-dumbbells_2025.png")
+  here("analysis", "figs", "dumbbells","integrity-regional-dumbbells.png")
 )
 
 
-# FIGURE 7. TRANSPARENCY
+# transparency ------------------------------------------------------------
+
 transp_data <- ctf_static_wide |>
   compute_regional_statistics("vars_transp_avg")
 
@@ -295,11 +307,12 @@ transp_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","07-transp-regional-dumbbells_2025.png")
+  here("analysis", "figs", "dumbbells","transp-regional-dumbbells.png")
 )
 
 
-# FIGURE 8. JUSTICE
+# justice -----------------------------------------------------------------
+
 justice_data <- ctf_static_wide |>
   compute_regional_statistics("vars_leg_avg")
 
@@ -321,35 +334,9 @@ justice_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("figures","08-justice-regional-dumbbells_2025.png")
+  here("analysis", "figs", "dumbbells","justice-regional-dumbbells.png")
 )
 
-
-
-# FIGURE 8. ENVIROMENT
-climate_data <- ctf_static_wide |>
-  compute_regional_statistics("vars_climate_avg")
-
-# Plot
-climate_data |>
-  generate_regional_minmax_plot("Climate") +
-  ggtitle(
-    "Energy and Enviroment Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
-  labs(
-    x = "Region",
-    y = "CTF Average Score",
-    shape = "Values",
-    color = "Region",
-    hjust = 0
-  ) +
-  coord_cartesian(ylim = c(0, 1)) +
-  scale_color_brewer(palette = "Paired")
-
-ggsave_db(
-  here("figures","08-enviroment-regional-dumbbells_2025.png")
-)
 
 
 ### code-end

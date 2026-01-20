@@ -73,6 +73,7 @@ wrap_facet_titles <- function(x, width) {
   str_wrap(x, width = width)
 }
 
+
 #' A function to Generate a Min/Average/Max Labeled Plot by Region
 #'
 #' Creates a plot with labels for a specific dimension.
@@ -416,5 +417,134 @@ plot_cluster_appendix <- function(data, cluster_ctf, year_label) {
     )
   }
 }
+
+
+
+
+#' Plot CTF scores by indicator with extreme country labels
+#'
+#' Filters to one `family_name`, scales scores to 0–100, labels the top/bottom
+#' countries per indicator, and draws threshold lines at selected cutoffs.
+#'
+#' @param data A data frame with at least `family_name`, `var_name`, `country_code`, and `score`.
+#' @param family_name A single string. The `family_name` value to filter on.
+#' @param shape_var Unquoted column mapped to point `shape` (default: `income_group`).
+#' @param top_n Integer. Number of top countries to label per indicator (default: 3).
+#' @param bottom_n Integer. Number of bottom countries to label per indicator (default: 3).
+#' @param thresholds Numeric vector of x-intercepts for threshold lines (default: c(0,25,50,100)).
+#' @param threshold_cols Character vector of colors for `thresholds` (same length as `thresholds`).
+#' @param jitter_h Numeric. Vertical jitter height (default: 0.12).
+#' @param point_size Numeric. Point size (default: 2.5).
+#' @param point_alpha Numeric between 0 and 1. Point alpha (default: 0.5).
+#' @param base_size Numeric. Base font size for the plot theme (default: 11).
+#'
+#' @return A ggplot object.
+#' @export
+plot_ctf_extremes_fast <- function(data,
+                                   family_name,
+                                   shape_var = income_group,
+                                   top_n = 3,
+                                   bottom_n = 3,
+                                   thresholds = c(0, 25, 50, 100),
+                                   threshold_cols = c("red4", "yellow4", "yellow4", "green4"),
+                                   jitter_h = 0.12,
+                                   point_size = 2.5,
+                                   point_alpha = 0.5,
+                                   base_size = 11) {
+
+  if (!is.data.frame(data)) stop("`data` must be a data.frame / tibble.", call. = FALSE)
+  if (!is.character(family_name) || length(family_name) != 1) {
+    stop("`family_name` must be a single string.", call. = FALSE)
+  }
+
+  req <- c("family_name", "var_name", "country_code", "score")
+  miss <- setdiff(req, names(data))
+  if (length(miss) > 0) stop("`data` is missing: ", paste(miss, collapse = ", "), call. = FALSE)
+
+  shape_q  <- rlang::enquo(shape_var)
+  shape_nm <- rlang::as_label(shape_q)
+  if (!shape_nm %in% names(data)) stop("`shape_var` column not found: ", shape_nm, call. = FALSE)
+
+  if (length(threshold_cols) != length(thresholds)) {
+    stop("`threshold_cols` must have the same length as `thresholds`.", call. = FALSE)
+  }
+
+  df <- data |>
+       dplyr::mutate(score_100 = .data$score * 100)
+
+  df_lab <- df |>
+    dplyr::filter(!is.na(.data$score_100)) |>
+    dplyr::group_by(.data$var_name) |>
+    dplyr::mutate(
+      rk_hi = dplyr::min_rank(dplyr::desc(.data$score_100)),
+      rk_lo = dplyr::min_rank(.data$score_100)
+    ) |>
+    dplyr::filter(.data$rk_hi <= top_n | .data$rk_lo <= bottom_n) |>
+    dplyr::ungroup() |>
+    dplyr::distinct(.data$var_name, .data$country_code, .keep_all = TRUE) |>
+    dplyr::mutate(
+      lab_col = dplyr::case_when(
+        .data$score_100 < 25 ~ "red4",
+        .data$score_100 < 50 ~ "yellow4",
+        TRUE                 ~ "green4"
+      )
+    )
+
+  thr_df <- data.frame(
+    x = thresholds,
+    col = threshold_cols,
+    stringsAsFactors = FALSE
+  )
+
+  df |>
+    dplyr::filter(.data$family_name == family_name) |>
+    dplyr::mutate(var_name = forcats::fct_reorder(.data$var_name, .data$score_100, .fun = median)) |>
+    ggplot2::ggplot(ggplot2::aes(x = .data$score_100, y = .data$var_name)) +
+
+    ggplot2::geom_vline(
+      data = thr_df,
+      ggplot2::aes(xintercept = .data$x, color = .data$col),
+      linetype = "dashed",
+      linewidth = 1,
+      show.legend = FALSE
+    ) +
+
+    ggplot2::geom_point(
+      ggplot2::aes(shape = !!shape_q),
+      position = ggplot2::position_jitter(height = jitter_h, width = 0),
+      size = point_size,
+      color = "black",
+      alpha = point_alpha,
+      na.rm = TRUE
+    ) +
+
+    ggrepel::geom_text_repel(
+      data = df_lab,
+      ggplot2::aes(label = .data$country_code, color = .data$lab_col),
+      size = 3,
+      segment.color = NA,
+      box.padding = 0.2,
+      max.overlaps = Inf,
+      bg.color = "white", bg.r = 0.08
+    ) +
+
+    ggplot2::scale_color_identity(guide = "none") +
+    ggplot2::scale_x_continuous(breaks = seq(0, 100, 25)) +
+    ggplot2::coord_cartesian(xlim = c(0, 100)) +
+    ggplot2::scale_y_discrete(labels = \(x) stringr::str_wrap(x, width = 15)) +
+    ggplot2::labs(
+      title = paste0("CTF scores — ", family_name),
+      x = "CTF score (0–100)",
+      y = NULL,
+      shape = shape_nm
+    ) +
+    ggplot2::theme_minimal(base_size = base_size) +
+    ggplot2::theme(
+      panel.grid.major.y = ggplot2::element_blank(),
+      legend.position = "top"
+    )
+}
+
+
 
 

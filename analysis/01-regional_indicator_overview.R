@@ -1,6 +1,5 @@
-# UNPACKING CLUSTERS: REGIONAL INDICATORS HEATMAP
+# UNPACKING CLUSTERS: INDICATORS SLIDING SCALES
 
-# Static CTF scores: identify which countries have changed the most in their score.
 
 
 # set-up ------------------------------------------------------------------
@@ -64,11 +63,12 @@ set.seed(101010)
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0)
-  # filter(region != "North America")  # 2025
 
 dictionary <- cliaretl::db_variables
 
-# data-prepare ------------------------------------------------------------
+
+
+# prepare data ------------------------------------------------------------
 
 #Pivot ctf static
 ctf_static_long <- ctf_static |>
@@ -92,12 +92,12 @@ ctf_static_fam <- ctf_static_long |>
   filter(!is.na(family_var)) |>
   filter(benchmark_static_family_aggregate_download == "Yes") |>
   select(1:5,
-          var_name,
-          family_var,
-          family_name,
-          benchmark_static_family_aggregate_download,
-          indicator,
-          score)
+         var_name,
+         family_var,
+         family_name,
+         benchmark_static_family_aggregate_download,
+         indicator,
+         score)
 
 
 # Drop sectors
@@ -113,13 +113,9 @@ center_gov <-
 
 
 
-#compute the average by region and indicator to facet by cluster
-region_indicator_avg <- center_gov |>
-  group_by(region, family_name, indicator, var_name) |>
-  summarise(
-    avg_score = mean(score, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
+# Rename regions and create cliar areas
+indicator_wide_scores <- center_gov |>
+  group_by(region, family_name, indicator, var_name, score) |>
   mutate(
     region = case_when(
       region == "East Asia & Pacific" ~ "EAP",
@@ -137,232 +133,304 @@ region_indicator_avg <- center_gov |>
       TRUE                                                               ~ "center of gov"
     )
   ) |>
-  mutate(
-    var_name = str_wrap(var_name, width = 40),
-    var_name = fct_reorder(var_name, avg_score),
-    strength = case_when(
-      avg_score < 0.25 ~ "Weak (0–0.24)",
-      avg_score < 0.50 ~ "Emergent (0.25–0.49)",
-      TRUE             ~ "Strong (0.50–1.00)"
-    )
-  )
+  drop_na(score, income_group) |>
+  select(country_code, income_group, region, family_name, var_name, indicator, score, cliar_area)
 
 
-# lolipop-data-visualize ----------------------------------------------------------
 
 
-region_indicator_avg |>
-  plot_regional_indicators("Justice Institutions")
+# hrm ---------------------------------------------------------------------
 
+### data preparation
 
-# region_indicator_avg |>
-#   plot_regional_indicators("Social Institutions")
-#
-#
-# region_indicator_avg |>
-#   plot_regional_indicators("Political Institutions")
+df <- indicator_wide_scores |>
+  filter(family_name == "Public Human Resource Management Institutions") |>
+  mutate(score_100 = score * 100)
 
+df_plot <- df |>
+  mutate(var_name = fct_reorder(var_name, score_100, .fun = median, na.rm = TRUE)) |>
+  mutate(y = as.numeric(var_name))
 
-region_indicator_avg |>
-  plot_regional_indicators("Public Human Resource Management Institutions")
-
-region_indicator_avg |>
-  plot_regional_indicators("Degree of Integrity")
-
-
-region_indicator_avg |>
-  plot_regional_indicators("Transparency and Accountability Institutions")
-
-
-region_indicator_avg |>
-  plot_regional_indicators("Digital and Data Institutions")
-
-
-# radar-viz ---------------------------------------------------------------
-
-# Long format by cluster
-ctf_avgs <- ctf_static |>
-  # be a bit more explicit than 1:5 if you can, but this follows your structure
-  select(1:5, ends_with("_avg")) |>
-  rename(
-    `Degree of Integrity`             = vars_anticorruption_avg,
-    `Energy and Enviroment Institutions` = vars_climate_avg,
-    `Justice Institutions`            = vars_leg_avg,
-    `Political Institutions`          = vars_pol_avg,
-    `Social Institutions`             = vars_social_avg,
-    `Information Systems`            = vars_digital_avg,
-    `Transparency Institutions`       = vars_transp_avg,
-    `Bussines Enviroment`            = vars_mkt_avg,
-    `Public Financial Management`     = vars_pfm_avg,
-    `Public Sector Employment`        = vars_hrm_avg
-  ) |>
-  pivot_longer(
-    cols      = 6:last_col(),
-    names_to  = "cluster",
-    values_to = "value"
-  )
-
-# Regional × cluster averages
-ctf_avgs_center <- ctf_avgs |>
-  filter(
-    cluster %in% c(
-      "Justice Institutions",
-      "Degree of Integrity",
-      "Political Institutions",
-      "Social Institutions",
-      "Transparency Institutions",
-      "Information Systems",
-      "Public Sector Employment",
-      "Public Financial Management"
-    )
-  ) |>
-  group_by(region, cluster) |>
+# income-group mean (grey triangle)
+df_income_mean <- df_plot |>
+  group_by(var_name, income_group) |>
   summarise(
-    cluster_mean = mean(value, na.rm = TRUE),
-    n_obs        = sum(!is.na(value)),
-    .groups      = "drop"
+    xbar = ifelse(all(is.na(score_100)), NA_real_, mean(score_100, na.rm = TRUE)),
+    y    = first(y),
+    .groups = "drop"
   )
 
-library(dplyr)
-library(ggplot2)
-library(forcats)
-library(scales)
-
-# Regional × cluster averages (as you had)
-ctf_avgs_center <- ctf_avgs |>
-  filter(
-    cluster %in% c(
-      "Justice Institutions",
-      "Degree of Integrity",
-      "Political Institutions",
-      "Social Institutions",
-      "Transparency Institutions",
-      "Information Systems",
-      "Public Sector Employment",
-      "Public Financial Management"
-    )
-  ) |>
-  group_by(region, cluster) |>
+# indicator mean across ALL countries (grey segment)
+df_indicator_mean <- df_plot |>
+  group_by(var_name) |>
   summarise(
-    cluster_mean = mean(value, na.rm = TRUE),
-    n_obs        = sum(!is.na(value)),
-    .groups      = "drop"
-  )
-
-
-# 1. Regional × cluster averages
-ctf_avgs_center <- ctf_avgs |>
-  filter(
-    cluster %in% c(
-      # "Political Institutions",
-      # "Social Institutions",
-      # "Justice Institutions",
-      "Degree of Integrity",
-      "Transparency Institutions",
-      "Information Systems",
-      "Public Sector Employment",
-      "Public Financial Management"
-    )
+    xbar_ind = ifelse(all(is.na(score_100)), NA_real_, mean(score_100, na.rm = TRUE)),
+    y        = first(y),
+    .groups  = "drop"
   ) |>
-  group_by(region, cluster) |>
-  summarise(
-    cluster_mean = mean(value, na.rm = TRUE),
-    n_obs        = sum(!is.na(value)),
-    .groups      = "drop"
-  )
+  mutate(ymin = y - 0.5, ymax = y + 0.5)   # segment height around the row
 
-bands <- tibble(
-  ymin = c(0.00, 0.25, 0.50),
-  ymax = c(0.24, 0.49, 1.00),
-  band = factor(
-    c(
-      "Weak (0–0.24)",
-      "Emergent (0.25–0.49)",
-      "Strong (0.50–1.00)"
-    ),
-    levels = c(
-      "Weak (0–0.24)",
-      "Emergent (0.25–0.49)",
-      "Strong (0.50–1.00)"
-    )
-  )
-)
+y_levels <- levels(df_plot$var_name)
 
-# Plot with shaded polar bands and neutral bars
-ctf_avgs_center |>
-  mutate(
-    strength = case_when(
-      cluster_mean < 0.25           ~ "Weak (0–0.24)",
-      cluster_mean < 0.50           ~ "Emergent (0.25–0.49)",
-      TRUE                          ~ "Strong (0.50–1.00)"
-    ),
-    strength = factor(
-      strength,
-      levels = c(
-        "Weak (0–0.24)",
-        "Emergent (0.25–0.49)",
-        "Strong (0.50–1.00)"
-      )
-    ),
-    # optional: order clusters around the circle by their mean
-    cluster = str_wrap(cluster, 10)
-  ) |>
-  ggplot(aes(x = cluster, y = cluster_mean)) +
-  # background capacity bands (become rings in polar coordinates)
-  geom_rect(
-    data        = bands,
-    aes(
-      ymin  = ymin,
-      ymax  = ymax,
-      xmin  = -Inf,
-      xmax  = Inf,
-      fill  = band
-    ),
-    inherit.aes = FALSE,
-    alpha       = 0.5
+### Plot
+df_labels <- df_plot |>
+  filter(is.finite(score_100), !is.na(y), !is.na(country_code), !is.na(income_group))
+
+ggplot(df_plot, aes(x = score_100, y = y)) +
+
+  # country segments (0 -> score) per row
+  geom_segment(
+    aes(x = 0, xend = score_100, y = y, yend = y),
+    color = "grey90",
+    linewidth = 1,
+    na.rm = TRUE
   ) +
-  # neutral bars for the actual regional/cluster averages
-  geom_col(aes(fill = strength), alpha = .75, width = 0.8, color = NA) +
-  coord_polar(direction = 1) +
+
+  # thresholds
+  geom_vline(
+    xintercept = c(0, 25, 50, 75, 100),
+    color = "grey90", linetype = "dotted", linewidth = 1
+  ) +
+
+  # overall indicator mean triangle (shape 23)
+  geom_point(
+    data = df_indicator_mean,
+    aes(x = xbar_ind, y = y),
+    shape = 17, size = 7,
+    fill = "grey90", color = "grey90",
+    show.legend = FALSE,
+    na.rm = TRUE
+  ) +
+
+  # income-group mean dot per indicator
+  geom_point(
+    data = df_income_mean,
+    aes(x = xbar, y = y, color = income_group),
+    shape = 19, size = 5, stroke = 1,
+    na.rm = TRUE
+  ) +
+
+  ggrepel::geom_text_repel(
+    data = df_labels,
+    aes(label = country_code, color = income_group),
+    size = 2.5,
+    segment.color = NA,
+    box.padding = 0.25,
+    max.overlaps = Inf,
+    na.rm = TRUE
+  ) +
+
+  scale_color_brewer(palette = "Set2", name = "Income Group") +
   scale_y_continuous(
-    limits = c(0, 1),
-    breaks = seq(0, 1, by = 0.25)
+    breaks = seq_along(y_levels),
+    labels = \(i) str_wrap(y_levels[i], width = 15)
   ) +
-  scale_fill_manual(
-    name   = "Capacity level (CTF score)",
-    values = c(
-      "Weak (0–0.24)"        = "red3",
-      "Emergent (0.25–0.49)" = "goldenrod",
-      "Strong (0.50–1.00)"   = "darkgreen"
-    ),
-    limits = c(
-      "Weak (0–0.24)",
-      "Emergent (0.25–0.49)",
-      "Strong (0.50–1.00)"
-    ),
-    drop = FALSE
-  ) +
+  scale_x_continuous(breaks = seq(0, 100, 25), limits = c(0, 100)) +
   labs(
-    title    = "Institutional Capacity Overview by Region, 2020–2024",
-    subtitle = "Core Government Functions ",
-    y        = "Average CTF cluster score",
-    x        = NULL
+    title = "Benchmarking Public Sector Employment Institutions: CTF scores (2020–2024 average)",
+    subtitle = "Overall mean (grey triangle) and income-group means (colored dots) across indicators",
+    x = "CTF score (0–100)", y = NULL
   ) +
-  facet_wrap(~ region) +
-  theme_minimal() +
+  theme_minimal(base_size = 11) +
   theme(
-    axis.text.y        = element_text(size = 6),
-    axis.text.x        = element_text(size = 8, hjust = 1),
-    panel.grid.minor   = element_blank(),
-    panel.grid.major.y = element_line(color = "grey90"),
-    panel.grid.major.x = element_blank(),
-    strip.text         = element_text(face = "italic"),
-    legend.position    = "top"
+    panel.grid = element_blank(),
+    legend.position = "top"
   )
 
+ggsave_long(here("analysis","figs", "indicators_ctf", "hrm_institutions_indicators_final.png"
+    )
+  )
+# digital -----------------------------------------------------------------
 
-ggsave_db(
-  here("figures","radar-by-region_strengt_color_alpha.png")
+
+difital_df <- prep_indicator_data(
+  data = indicator_wide_scores,
+  family_name_value = "Digital Institutions",
+  group_var = income_group)
+
+
+
+ggsave_long(here("analysis","figs", "indicators_ctf", "digital_institutions_indicators.png"
+)
 )
 
 
+# integrity ---------------------------------------------------------------
+
+
+df <- indicator_wide_scores |>
+  filter(family_name == "Degree of Integrity") |>
+  mutate(score_100 = score * 100)
+
+# label ALL countries (one label per var_name x country_code)
+df_lab <- df |>
+  distinct(var_name, country_code, .keep_all = TRUE) |>
+  mutate(
+    lab_col = case_when(
+      score_100 < 25 ~ "red4",
+      score_100 < 50 ~ "yellow4",
+      TRUE           ~ "green4"
+    )
+  )
+
+df |>
+  mutate(var_name = fct_reorder(var_name, score_100, .fun = median)) |>
+  ggplot(aes(x = score_100, y = var_name)) +
+  geom_vline(xintercept = 0,   color = "red4",    linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 25,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 50,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 100, color = "green4",  linetype = "dashed", linewidth = 1) +
+  geom_point(
+    aes(shape = income_group),
+    position = position_jitter(height = 0.12, width = 0),
+    size = 2.5, color = "black", alpha = 0.5,
+    na.rm = TRUE
+  ) +
+  ggrepel::geom_text_repel(
+    data = df_lab,
+    aes(label = country_code, color = lab_col),
+    size = 2.5,
+    segment.color = NA,
+    box.padding = 0.25,
+    max.overlaps = Inf,
+    na.rm = TRUE
+  ) +
+  ggtitle(
+    "CTF Scores for Degree of Integrity Institutions Indicators",
+    subtitle = "Scores shown for individual countries (2020-2024 average)"
+  ) +
+  scale_color_identity(guide = "none") +
+  scale_y_discrete(labels = \(x) str_wrap(x, width = 15)) +
+  scale_x_continuous(breaks = seq(0, 100, 25)) +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(x = "CTF score (0–100)", y = NULL, shape = "Income Group") +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.major.y = element_blank(),
+        legend.position = "top")
+
+
+
+ggsave_long(here("analysis","figs", "indicators_ctf", "integrity_institutions_indicators.png"
+)
+)
+
+
+
+# transparency ------------------------------------------------------------
+
+
+df <- indicator_wide_scores |>
+  filter(family_name == "Transparency and Accountability Institutions") |>
+  mutate(score_100 = score * 100)
+
+# label ALL countries (one label per var_name x country_code)
+df_lab <- df |>
+  distinct(var_name, country_code, .keep_all = TRUE) |>
+  mutate(
+    lab_col = case_when(
+      score_100 < 25 ~ "red4",
+      score_100 < 50 ~ "yellow4",
+      TRUE           ~ "green4"
+    )
+  )
+
+df |>
+  mutate(var_name = fct_reorder(var_name, score_100, .fun = median)) |>
+  ggplot(aes(x = score_100, y = var_name)) +
+  geom_vline(xintercept = 0,   color = "red4",    linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 25,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 50,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 100, color = "green4",  linetype = "dashed", linewidth = 1) +
+  geom_point(
+    aes(shape = income_group),
+    position = position_jitter(height = 0.12, width = 0),
+    size = 2.5, color = "black", alpha = 0.5,
+    na.rm = TRUE
+  ) +
+  ggrepel::geom_text_repel(
+    data = df_lab,
+    aes(label = country_code, color = lab_col),
+    size = 2.5,
+    segment.color = NA,
+    box.padding = 0.25,
+    max.overlaps = Inf,
+    na.rm = TRUE
+  ) +
+  ggtitle(
+    "CTF Scores for Transparency and Accountability  Institutions Indicators",
+    subtitle = "Scores shown for individual countries (2020-2024 average)"
+  ) +
+  scale_color_identity(guide = "none") +
+  scale_y_discrete(labels = \(x) str_wrap(x, width = 15)) +
+  scale_x_continuous(breaks = seq(0, 100, 25)) +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(x = "CTF score (0–100)", y = NULL, shape = "Income Group") +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.major.y = element_blank(),
+        legend.position = "top")
+
+
+
+ggsave_long(here("analysis","figs", "indicators_ctf", "transparency_institutions_indicators.png"
+)
+)
+
+
+# pfm ---------------------------------------------------------------------
+
+
+df <- indicator_wide_scores |>
+  filter(family_name == "Public Finance Institutions") |>
+  mutate(score_100 = score * 100)
+
+# label ALL countries (one label per var_name x country_code)
+df_lab <- df |>
+  distinct(var_name, country_code, .keep_all = TRUE) |>
+  mutate(
+    lab_col = case_when(
+      score_100 < 25 ~ "red4",
+      score_100 < 50 ~ "yellow4",
+      TRUE           ~ "green4"
+    )
+  )
+
+df |>
+  mutate(var_name = fct_reorder(var_name, score_100, .fun = median)) |>
+  ggplot(aes(x = score_100, y = var_name)) +
+  geom_vline(xintercept = 0,   color = "red4",    linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 25,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 50,  color = "yellow4", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 100, color = "green4",  linetype = "dashed", linewidth = 1) +
+  geom_point(
+    aes(shape = income_group),
+    position = position_jitter(height = 0.12, width = 0),
+    size = 2.5, color = "black", alpha = 0.5,
+    na.rm = TRUE
+  ) +
+  ggrepel::geom_text_repel(
+    data = df_lab,
+    aes(label = country_code, color = lab_col),
+    size = 2.5,
+    segment.color = NA,
+    box.padding = 0.25,
+    max.overlaps = Inf,
+    na.rm = TRUE
+  ) +
+  ggtitle(
+    "CTF Scores for Public Finance Management Institutions Indicators",
+    subtitle = "Scores shown for individual countries (2020-2024 average)"
+  ) +
+  scale_color_identity(guide = "none") +
+  scale_y_discrete(labels = \(x) str_wrap(x, width = 15)) +
+  scale_x_continuous(breaks = seq(0, 100, 25)) +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(x = "CTF score (0–100)", y = NULL, shape = "Income Group") +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.major.y = element_blank(),
+        legend.position = "top")
+
+
+
+ggsave_long(here("analysis","figs", "indicators_ctf", "pfm_institutions_indicators.png"
+)
+)
