@@ -11,4 +11,5 @@ theme_set(
 )
 
 # visualize --------------------------------------------------------------
-wb_documents
+pigoar2026::wb_documents |> 
+  glimpse()
