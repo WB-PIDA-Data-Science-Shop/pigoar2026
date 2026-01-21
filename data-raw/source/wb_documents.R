@@ -93,6 +93,9 @@ gov_unit <- wb_documents |>
   select(
     owner,
     owner_code
+  ) |> 
+  mutate(
+    owner_label = "gov"
   )
 
 # subset to reports and ICRs produced by GOV units
@@ -105,9 +108,16 @@ wb_documents <- wb_documents |>
         "Implementation Completion Report Review"
       )
   ) |>
-  inner_join(
+  left_join(
     gov_unit,
     by = "owner"
+  ) |> 
+  mutate(
+    owner_label = if_else(
+      is.na(owner_label),
+      "other",
+      owner_label
+    )
   )
 
 wb_documents_themes <- wb_documents |>

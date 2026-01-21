@@ -2,6 +2,7 @@
 library(cliaretl)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 library(purrr)
 
 devtools::load_all()
@@ -11,5 +12,10 @@ theme_set(
 )
 
 # visualize --------------------------------------------------------------
-pigoar2026::wb_documents |> 
-  glimpse()
+gov_documents <- pigoar2026::wb_documents
+
+gov_documents |> 
+  count(doc_date) |> 
+  ggplot() +
+  geom_point() +
+  geom_line()
