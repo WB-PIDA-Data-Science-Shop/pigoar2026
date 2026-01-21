@@ -1,6 +1,8 @@
 ## code to prepare `wb_documents` dataset goes here
 library(dplyr)
 library(purrr)
+library(tidyr)
+library(stringr)
 
 skip_rows <- 0
 n_rows <- 500
@@ -119,15 +121,12 @@ wb_documents_themes <- wb_documents |>
   mutate(
     theme_category = case_when(
       str_detect(theme, "Public Finance Management|Public Expenditure Management|Domestic Revenue Administration|Debt Management") ~ "Public Finance Management",
-      str_detect(theme, "Public Administration|Administrative and Civil Service Reform|Institutional Strengthening and Capacity Building") ~ "Public Human Resource Management",
-      str_detect(theme, "E-Government, inc. E-services|Data Production, Accessibility, and Use") ~ "GovTech",
+      str_detect(theme, "Public Administration|Administrative and Civil Service Reform|Institutional Strengthening and Capacity Building") ~ "Personnel",
+      str_detect(theme, "E-Government, inc. E-services|Data Production, Accessibility, and Use") ~ "Digital and Data",
       str_detect(theme, "Transparency, Accountability and Good Governance") ~ "Transparency and Accountability",
       T ~ "Other"
     )
   )
-
-wb_documents |> 
-  write_csv("wb_documents.csv")
 
 usethis::use_data(wb_documents, overwrite = TRUE)
 usethis::use_data(gov_unit, overwrite = TRUE)
