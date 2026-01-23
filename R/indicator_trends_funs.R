@@ -1,173 +1,319 @@
-#' Prepare data for indicator CTF plot (segments + indicator mean + group mean)
+
+
+#' Prepare Indicator Data with Group and Overall Means for Plotting
 #'
-#' @param wide_data Data frame with at least: family_name, score, var_name, country_code, and grouping var.
-#' @param family_name_value Character. family_name to filter.
-#' @param group_var Grouping column (unquoted). Default: income_group.
-#' @param segment_half_height Half height of indicator-mean vertical segment (default 0.5).
-#' @return A list with df_plot, df_group_mean, df_indicator_mean, df_labels, y_levels, family_name, group_var_name
+#' This function prepares institutional capacity indicator data for visualization
+#' by computing group-level means, overall indicator means, and organizing data
+#' for plotting on a horizontal sliding scale plot. It filters data by institutional family,
+#' scales scores to 0-100, reorders indicators by overall mean score (descending), 
+#' reorders grouping variable by mean performance (descending), and creates
+#' separate data frames for different plot layers.
+#'
+#' @param data A data frame containing indicator scores with the following required columns:
+#'   \itemize{
+#'     \item \code{family_name}: Name of the institutional capacity family
+#'     \item \code{score}: Closeness-to-frontier (CTF) score (0-1 scale)
+#'     \item \code{var_name}: Human-readable indicator name
+#'     \item \code{country_code}: ISO country code
+#'   }
+#' @param family_name_value Character string specifying which institutional family
+#'   to filter. Examples: "Public Human Resource Management Institutions",
+#'   "Digital Institutions", "Degree of Integrity".
+#' @param group_var Unquoted column name for grouping variable (e.g., \code{income_group},
+#'   \code{region}). Used to calculate group-level means and order data.
+#'
+#' @return A named list with six components:
+#'   \describe{
+#'     \item{\code{plot_data}}{Main data frame with scaled scores (0-100), reordered
+#'       indicator names and grouping variable as factors, and numeric y-positions for plotting.
+#'       Indicators are ordered by mean performance (descending). Grouping variable is ordered
+#'       by overall performance (descending).}
+#'     \item{\code{group_means}}{Data frame with mean scores by indicator and grouping variable,
+#'       containing columns \code{var_name}, grouping variable, \code{xbar} (mean score), and \code{y}.
+#'       Both factors are ordered by performance (descending).}
+#'     \item{\code{indicator_means}}{Data frame with overall mean scores by indicator,
+#'       containing \code{var_name}, \code{xbar_ind} (overall mean), and \code{y}.
+#'       Indicators are ordered by mean performance (descending).}
+#'     \item{\code{labels}}{Filtered data frame for country labels, excluding missing values.
+#'       Both indicator and grouping variable factors are ordered.}
+#'     \item{\code{y_levels}}{Character vector of indicator names in factor order (high to low performance)}
+#'     \item{\code{group_var}}{Character string of the grouping variable name}
+#'   }
+#'
+#' @details
+#' The function performs the following transformations:
+#' \itemize{
+#'   \item Filters data to the specified institutional family
+#'   \item Converts scores from 0-1 scale to 0-100 scale
+#'   \item Calculates group-level means for each indicator
+#'   \item Calculates overall means across all countries for each indicator
+#'   \item Reorders indicators by overall mean score (descending - highest at top)
+#'   \item Reorders grouping variable levels by overall performance (descending - best first)
+#'   \item Updates numeric y-positions based on new ordering
+#'   \item Prepares a clean labels data frame for country annotations
+#' }
+#'
+#' Missing values are handled by excluding them from mean calculations and
+#' filtering them out of the labels data frame.
+#'
+#' @examples
+#' \dontrun{
+#' # Prepare HRM institutional data grouped by income
+#' hrm_data <- prep_indicator_data_with_means(
+#'   data = indicator_wide_scores,
+#'   family_name_value = "Public Human Resource Management Institutions",
+#'   group_var = income_group
+#' )
+#'
+#' # Access components
+#' hrm_data$plot_data          # Main plotting data
+#' hrm_data$group_means        # Income group means (ordered by performance)
+#' hrm_data$indicator_means    # Overall indicator means (ordered by performance)
+#'
+#' # Prepare data grouped by region instead
+#' pfm_data <- prep_indicator_data_with_means(
+#'   data = indicator_wide_scores,
+#'   family_name_value = "Public Finance Institutions",
+#'   group_var = region
+#' )
+#' }
+#'
+#' @seealso \code{\link{prep_indicator_data}} for a simpler version without means calculation
+#'
 #' @export
-prep_indicator_data <- function(wide_data,
-                                         family_name_value,
-                                         group_var = income_group,
-                                         segment_half_height = 0.5) {
-
-  group_var_q <- rlang::enquo(group_var)
-  group_var_nm <- rlang::as_name(group_var_q)
-
-  df <- indicator_wide_scores |>
-    dplyr::filter(.data$family_name == family_name_value) |>
-    dplyr::mutate(score_100 = .data$score * 100)
-
-  if (nrow(df) == 0) {
-    warning(sprintf("No rows found for family_name == '%s'. Returning NULL.", family_name_value))
-    return(NULL)
-  }
-
+prep_indicator_data_with_means <- function(data, family_name_value, group_var) {
+  
+  # Filter and scale scores
+  df <- data |>
+    filter(family_name == family_name_value) |>
+    mutate(score_100 = score * 100)
+  
+  # Create initial ordered factor and numeric y position (temporary ordering)
   df_plot <- df |>
-    dplyr::mutate(
-      var_name = forcats::fct_reorder(.data$var_name, .data$score_100, .fun = median, na.rm = TRUE),
-      y = as.numeric(.data$var_name)
+    mutate(
+      var_name = fct_reorder(var_name, score_100, .fun = median, na.rm = TRUE),
+      y = as.numeric(var_name)
     )
-
-  # group mean per indicator (diamond)
+  
+  # Group means (by income_group or other grouping variable)
+  group_var_sym <- rlang::ensym(group_var)
+  
   df_group_mean <- df_plot |>
-    dplyr::group_by(.data$var_name, !!group_var_q) |>
-    dplyr::summarise(
-      xbar = dplyr::if_else(all(is.na(.data$score_100)), NA_real_, mean(.data$score_100, na.rm = TRUE)),
-      y    = dplyr::first(.data$y),
+    group_by(var_name, !!group_var_sym) |>
+    summarise(
+      xbar = ifelse(all(is.na(score_100)), NA_real_, mean(score_100, na.rm = TRUE)),
+      y = first(y),
       .groups = "drop"
     )
-
-  # overall indicator mean (grey segment)
+  
+  # Overall indicator means
   df_indicator_mean <- df_plot |>
-    dplyr::group_by(.data$var_name) |>
-    dplyr::summarise(
-      xbar_ind = dplyr::if_else(all(is.na(.data$score_100)), NA_real_, mean(.data$score_100, na.rm = TRUE)),
-      y        = dplyr::first(.data$y),
-      .groups  = "drop"
-    ) |>
-    dplyr::mutate(
-      ymin = .data$y - segment_half_height,
-      ymax = .data$y + segment_half_height
+    group_by(var_name) |>
+    summarise(
+      xbar_ind = ifelse(all(is.na(score_100)), NA_real_, mean(score_100, na.rm = TRUE)),
+      y = first(y),
+      .groups = "drop"
     )
-
-  y_levels <- levels(df_plot$var_name)
-
+  
+  # Order the grouping variable factor levels by mean score (descending)
+  group_order <- df_group_mean |>
+    group_by(!!group_var_sym) |>
+    summarise(overall_mean = mean(xbar, na.rm = TRUE), .groups = "drop") |>
+    arrange(desc(overall_mean)) |>
+    pull(!!group_var_sym)
+  
+  # Reorder var_name by overall mean xbar across all groups (descending)
+  var_name_order <- df_group_mean |>
+    group_by(var_name) |>
+    summarise(indicator_mean = mean(xbar, na.rm = TRUE), .groups = "drop") |>
+    arrange(desc(indicator_mean)) |>
+    pull(var_name)
+  
+  # Apply ordering to all data frames
+  df_plot <- df_plot |>
+    mutate(
+      !!group_var_sym := factor(!!group_var_sym, levels = group_order),
+      var_name = factor(var_name, levels = var_name_order),
+      y = as.numeric(var_name)
+    )
+  
+  df_group_mean <- df_group_mean |>
+    mutate(
+      !!group_var_sym := factor(!!group_var_sym, levels = group_order),
+      var_name = factor(var_name, levels = var_name_order),
+      y = as.numeric(var_name)
+    )
+  
+  df_indicator_mean <- df_indicator_mean |>
+    mutate(
+      var_name = factor(var_name, levels = var_name_order),
+      y = as.numeric(var_name)
+    )
+  
+  # Labels data
   df_labels <- df_plot |>
-    dplyr::filter(is.finite(.data$score_100), !is.na(.data$y), !is.na(.data$country_code)) |>
-    dplyr::filter(!is.na(!!group_var_q))
-
+    filter(is.finite(score_100), !is.na(y), !is.na(country_code), !is.na(!!group_var_sym))
+  
+  # Return list with all components
   list(
-    df_plot = df_plot,
-    df_group_mean = df_group_mean,
-    df_indicator_mean = df_indicator_mean,
-    df_labels = df_labels,
-    y_levels = y_levels,
-    family_name = family_name_value,
-    group_var_name = group_var_nm
+    plot_data = df_plot,
+    group_means = df_group_mean,
+    indicator_means = df_indicator_mean,
+    labels = df_labels,
+    y_levels = var_name_order,
+    group_var = rlang::as_string(group_var_sym)
   )
 }
 
-
-
-#' Plot indicator CTF distribution with country segments, indicator mean, and group mean
+#' Plot Indicator Benchmark Means Visualization
 #'
-#' @param wide_data Data frame used for prep.
-#' @param family_name_value Character. family_name to plot.
-#' @param group_var Grouping column (unquoted). Default: income_group.
-#' @param thresholds Numeric vector of vertical threshold lines.
-#' @param palette Brewer palette name for grouping colors.
-#' @param mean_shape Shape for group means (default 5 = diamond). Use 23 for filled diamond.
-#' @param mean_size Size for group mean markers.
-#' @param mean_stroke Stroke for group mean markers.
-#' @param segment_half_height Half height of indicator-mean vertical segment.
-#' @param title Optional plot title (defaults to family name).
-#' @param subtitle Optional plot subtitle.
-#' @return A ggplot object
+#' Creates a horizontal sliding scale visualization displaying individual country 
+#' benchmark scores against group-level means (colored dots) and overall benchmark 
+#' means (grey triangles) for institutional capacity indicators. The plot orders 
+#' indicators by performance (highest at top) and groups by overall performance 
+#' (best performing group receives first color).
+#'
+#' @param data A list object returned by \code{\link{prep_indicator_data_with_means}}
+#'   containing six named components:
+#'   \itemize{
+#'     \item \code{plot_data}: Main data frame with benchmark scores and positions (pre-ordered)
+#'     \item \code{group_means}: Group-level benchmark mean scores (pre-ordered)
+#'     \item \code{indicator_means}: Overall benchmark mean scores (pre-ordered)
+#'     \item \code{labels}: Country labels for annotation (pre-ordered)
+#'     \item \code{y_levels}: Ordered indicator names (high to low benchmark performance)
+#'     \item \code{group_var}: Name of the grouping variable
+#'   }
+#' @param title Character string for the plot title. If NULL, no title is added.
+#' @param subtitle Character string for the plot subtitle. If NULL, uses a default
+#'   subtitle describing the benchmark visualization elements.
+#' @param color_palette Character string specifying the RColorBrewer palette name.
+#'   Default is "Set2".
+#' @param legend_title Character string for the legend title. Default is "Income Group".
+#' @param y_label_width Integer specifying the character width for wrapping y-axis
+#'   labels. Default is 15.
+#'
+#' @return A ggplot2 object showing the benchmark means visualization.
+#'
+#' @details
+#' The visualization includes:
+#' \itemize{
+#'   \item Grey horizontal segments showing individual country benchmark scores (0 to score)
+#'   \item Vertical dotted lines at 0, 25, 50, 75, and 100 as benchmark reference thresholds
+#'   \item Grey triangles indicating overall benchmark mean scores across all countries
+#'   \item Colored dots showing group-level benchmark means (e.g., by income group or region)
+#'   \item Country code labels colored by grouping variable
+#' }
+#'
+#' Indicators are ordered from highest to lowest benchmark performance (top to bottom),
+#' and colors are assigned to groups based on their overall benchmark performance 
+#' (best performing group receives the first color in the palette).
+#'
+#' @examples
+#' \dontrun{
+#' # Prepare data
+#' hrm_data <- prep_indicator_data_with_means(
+#'   data = indicator_wide_scores,
+#'   family_name_value = "Public Human Resource Management Institutions",
+#'   group_var = income_group
+#' )
+#'
+#' # Create plot with default settings
+#' plot_indicator_benchmark_means(hrm_data)
+#'
+#' # Customize plot
+#' plot_indicator_benchmark_means(
+#'   data = hrm_data,
+#'   title = "HRM Institutions Benchmark Performance",
+#'   color_palette = "Dark2",
+#'   legend_title = "Income Level"
+#' )
+#' }
+#'
+#' @seealso \code{\link{prep_indicator_data_with_means}} for preparing the input data
+#'
 #' @export
-plot_indicator_ctf <- function(wide_data,
-                               family_name_value,
-                               group_var = income_group,
-                               thresholds = c(0, 25, 50, 75, 100),
-                               palette = "Set2",
-                               mean_shape = 5,
-                               mean_size = 5,
-                               mean_stroke = 1,
-                               segment_half_height = 0.5,
-                               title = NULL,
-                               subtitle = "Grey segment is overall indicator mea.; squares are group means") {
-
-  prep <- prep_indicator_ctf_plot_data(
-    indicator_wide_scores = indicator_wide_scores,
-    family_name_value = family_name_value,
-    group_var = {{ group_var }},
-    segment_half_height = segment_half_height
-  )
-  if (is.null(prep)) return(NULL)
-
-  group_var_q <- rlang::enquo(group_var)
-  group_label <- prep$group_var_name
-
-  if (is.null(title)) title <- paste0("CTF Scores — ", family_name_value)
-
-  ggplot2::ggplot(prep$df_plot, ggplot2::aes(x = .data$score_100, y = .data$y)) +
-
-    # country segments (0 -> score) per row
-    ggplot2::geom_segment(
-      ggplot2::aes(x = 0, xend = .data$score_100, y = .data$y, yend = .data$y),
+plot_indicator_benchmark_means <- function(data,
+                                         title = NULL,
+                                         subtitle = "Overall mean (grey triangle) and group means (colored dots) across indicators",
+                                         color_palette = "Set2",
+                                         legend_title = "Income Group",
+                                         y_label_width = 15) {
+  
+  # Validate input
+  required_names <- c("plot_data", "group_means", "indicator_means", 
+                      "labels", "y_levels", "group_var")
+  if (!all(required_names %in% names(data))) {
+    stop("Input data must contain: ", paste(required_names, collapse = ", "))
+  }
+  
+  # Create plot (data is already ordered by prep_indicator_data_with_means)
+  p <- ggplot(data$plot_data, aes(x = score_100, y = y)) +
+    
+    # Country segments (0 -> score) per row
+    geom_segment(
+      aes(x = 0, xend = score_100, y = y, yend = y),
       color = "grey90",
       linewidth = 1,
       na.rm = TRUE
     ) +
-
-    # thresholds
-    ggplot2::geom_vline(
-      xintercept = thresholds,
-      color = "grey90", linetype = "dashed", linewidth = .75
+    
+    # Thresholds
+    geom_vline(
+      xintercept = c(0, 25, 50, 75, 100),
+      color = "grey90", linetype = "dotted", linewidth = 1
     ) +
-
-    # overall indicator mean segment
-    ggplot2::geom_segment(
-      data = prep$df_indicator_mean,
-      ggplot2::aes(x = .data$xbar_ind, xend = .data$xbar_ind, y = .data$ymin, yend = .data$ymax),
-      color = "grey90", linewidth = 3,
+    
+    # Overall indicator mean triangle (shape 17)
+    geom_point(
+      data = data$indicator_means,
+      aes(x = xbar_ind, y = y),
+      shape = 17, size = 7,
+      fill = "grey50", color = "grey50",
       show.legend = FALSE,
       na.rm = TRUE
     ) +
-
-    # group mean marker per indicator
-    ggplot2::geom_point(
-      data = prep$df_group_mean,
-      ggplot2::aes(x = .data$xbar, y = .data$y, color = !!group_var_q),
-      shape = mean_shape, size = mean_size, stroke = mean_stroke,
+    
+    # Group mean dot per indicator
+    geom_point(
+      data = data$group_means,
+      aes(x = xbar, y = y, color = .data[[data$group_var]]),
+      shape = 19, size = 5, stroke = 1,
       na.rm = TRUE
     ) +
-
-    # country labels (colored by grouping)
+    
+    # Country code labels
     ggrepel::geom_text_repel(
-      data = prep$df_labels,
-      ggplot2::aes(label = .data$country_code, color = !!group_var_q),
+      data = data$labels,
+      aes(label = country_code, color = .data[[data$group_var]]),
       size = 2.5,
       segment.color = NA,
       box.padding = 0.25,
       max.overlaps = Inf,
       na.rm = TRUE
     ) +
-
-    ggplot2::scale_color_brewer(palette = palette, name = group_label) +
-    ggplot2::scale_y_continuous(
-      breaks = seq_along(prep$y_levels),
-      labels = \(i) stringr::str_wrap(prep$y_levels[i], width = 15)
+    
+    # Scales
+    scale_color_brewer(palette = color_palette, name = legend_title) +
+    scale_y_continuous(
+      breaks = seq_along(data$y_levels),
+      labels = \(i) str_wrap(data$y_levels[i], width = y_label_width)
     ) +
-    ggplot2::scale_x_continuous(breaks = seq(0, 100, 25), limits = c(0, 100)) +
-    ggplot2::labs(
+    scale_x_continuous(breaks = seq(0, 100, 25), limits = c(0, 100)) +
+    
+    # Labels
+    labs(
       title = title,
       subtitle = subtitle,
-      x = "CTF score (0–100)", y = NULL
+      x = "CTF score (0-100)", 
+      y = NULL
     ) +
-    ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(
-      panel.grid = ggplot2::element_blank(),
+    
+    # Theme
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid = element_blank(),
       legend.position = "top"
     )
+  
+  return(p)
 }

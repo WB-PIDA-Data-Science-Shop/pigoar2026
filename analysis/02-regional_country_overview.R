@@ -55,6 +55,13 @@ ggsave_db <- partial(
   height = 9
 )
 
+ggsave_wide <- partial(
+  ggplot2::ggsave,
+  bg = "white",
+  width = 15,
+  height = 5
+)
+
 options(ggrepel.max.overlaps = Inf)
 
 set.seed(101010)
@@ -95,6 +102,7 @@ ctf_static <- cliaretl::closeness_to_frontier_static |>
 
 # radar overview ----------------------------------------------------------
 
+# Radar by region
 ctf_avgs <- ctf_static |>
   select(1:5, ends_with("_avg")
   ) |>
@@ -132,72 +140,132 @@ ctf_avgs <- ctf_static |>
       "Transparency Institutions",
       "Digital and Data Use",
       "Public Sector Employment"
-      # "Public Financial Management"
     )
   )
 
-plot_df <- ctf_avgs |>
+
+# Radar by region
+
+plot_df_facet <- ctf_avgs |>
   mutate(cluster_lab = str_wrap(cluster, 12)) |>
   group_by(region, cluster_lab) |>
-  summarise(value = mean(value, na.rm = TRUE))
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
+  mutate(value = value * 100)
 
-plot_df |>
-  ggplot(aes(x = reorder(cluster_lab, value), y = value)) +
-  geom_col(aes(fill = cluster_lab), alpha = 0.75, show.legend = FALSE) +
+plot_df_facet |>
+  ggplot(aes
+    (x = reorder(region, value), y = value)) +
+  geom_col(aes(fill = region), alpha = 0.75, show.legend = TRUE) +
   geom_segment(
-    aes(y = 0, yend = 1, xend = cluster_lab, color = cluster_lab),
+    aes(y = 0, yend = 100, xend = region, color = region),
     linetype = "dashed",
     show.legend = FALSE
   ) +
-  coord_polar(direction = 1) +
-  scale_y_continuous(
-    limits = c(0, 1),
-    breaks = seq(0, 1, by = 0.25),
-    labels = scales::number_format(accuracy = 0.01) # or percent_format()
+  coord_polar(
+    theta = "x",
+     direction = 1
   ) +
-  facet_wrap(~ region) +
+  geom_text(
+    aes(y = value + 7, label = round(value, 1), color = region),
+     size = 2.5, show.legend = FALSE
+    ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 25),
+    labels = scales::number_format(accuracy = 1),
+    expand = c(0, 0)
+  ) +
+  scale_fill_brewer(palette = "Paired") +
+  scale_color_brewer(palette = "Paired") +
+  facet_wrap(~ cluster_lab, nrow = 1) +
   labs(
-    title = "Institutional Capacity overview by Region (2020-2024)",
-    subtitle = "Regional Average CTF Scores by Institutional Cluster",
+    # title = "Institutional Capacity Overview (2020-2024)",
+    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
     y = "CTF cluster score",
     x = NULL
   ) +
-  theme_minimal() +
+  theme_void() +
   theme(
-    axis.text.y      = element_text(size = 7),
+    axis.text.x      = element_text(hjust = -10, size = 8),
+    axis.text.y      = element_text(size = 8, color = "grey40"),
     panel.grid.minor = element_blank(),
     panel.grid.major = element_line(color = "grey90"),
-    strip.text       = element_text(face = "bold", size = 12)   # <- facet titles
+    plot.margin      = margin(10, 10, 10, 10),
+    legend.position  = "top"
   )
 
-
-ggsave_db(
-  here("analysis", "figs", "dumbbells","overview-institutional-capacity-radar-by-region.png")
+ggsave_wide(
+  here(
+    "analysis",
+    "figs",
+    "overview_ctf",
+    "overview-cluster-radar-by-region.png"
+  )
 )
 
 
-plot_df |>
-  ggplot(aes(x = value, y = fct_reorder(cluster, value))) +
-  geom_segment(aes(x = 0, xend = value, yend = cluster), linewidth = 0.6) +
-  geom_point(size = 2.5, alpha = 0.9) +
-  facet_wrap(~ region, scales = "free_y") +
-  scale_x_continuous(
-    limits = c(0, 1),
-    breaks = seq(0, 1, 0.25),
-    labels = scales::number_format(accuracy = 0.01)
+# Radar by income level
+plot_income_facet <- ctf_avgs |>
+  mutate(cluster_lab = str_wrap(cluster, 12)) |>
+  group_by(income_group, cluster_lab) |>
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
+  mutate(value = value * 100) |> 
+  drop_na(
+    income_group
+  )
+
+plot_income_facet |>
+  ggplot(aes(x = reorder(income_group, value), y = value)) +
+  geom_col(aes(fill = income_group), alpha = 0.75, show.legend = TRUE) +
+  geom_segment(
+    aes(y = 0, yend = 100, xend = income_group, color = income_group),
+    linetype = "dashed",
+    show.legend = FALSE
   ) +
+  coord_polar(
+    theta = "x",
+     direction = 1
+  ) +
+  geom_text(
+    aes(y = value + 7, label = round(value, 1), color = income_group),
+     size = 2.5, show.legend = FALSE
+    ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 25),
+    labels = scales::number_format(accuracy = 1),
+    expand = c(0, 0)
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2") +
+  facet_wrap(~ cluster_lab, nrow = 1) +
   labs(
-    title = "Institutional Capacity overview by Region (2020–2024)",
-    subtitle = "Regional Average CTF Scores by Institutional Cluster",
-    x = "CTF cluster score", y = NULL
+    # title = "Institutional Capacity Overview (2020-2024)",
+    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
+    y = "CTF cluster score",
+    x = NULL
   ) +
-  theme_minimal() +
-  theme(panel.grid.minor = element_blank())
+  theme_void() +
+  theme(
+    axis.text.x      = element_text(hjust = -10, size = 8),
+    axis.text.y      = element_text(size = 8, color = "grey40"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "grey90"),
+    plot.margin      = margin(10, 10, 10, 10),
+    legend.position  = "top"
+  )
+
+ggsave_wide(
+  here(
+    "analysis",
+    "figs",
+    "overview_ctf",
+    "overview-cluster-radar-by-income.png"
+  )
+)
 
 
-
-# country-dummbells-visualizations --------------------------------------------
-
+# country-dummbells-Appendix --------------------------------------------
 
 
 # hrm ---------------------------------------------------------------------
@@ -224,7 +292,7 @@ hrm_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "dumbbells","hrm-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf","hrm-regional-dumbbells.png")
 )
 
 
@@ -252,7 +320,7 @@ digital_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "dumbbells","digital-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf","digital-regional-dumbbells.png")
 )
 
 
@@ -280,7 +348,7 @@ integrity_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "dumbbells","integrity-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf","integrity-regional-dumbbells.png")
 )
 
 
@@ -307,7 +375,7 @@ transp_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "dumbbells","transp-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf","transp-regional-dumbbells.png")
 )
 
 
@@ -334,7 +402,7 @@ justice_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "dumbbells","justice-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf","justice-regional-dumbbells.png")
 )
 
 

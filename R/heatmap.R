@@ -19,15 +19,15 @@ generate_capacity_levels_plot <- function(data, dimension) {
   # 1. Define capacity bands (become horizontal stripes in the background)
   # --------------------------------------------------------------------------
   capacity_levels <- c(
-    "Weak (0–0.24)",
-    "Emergent (0.25–0.49)",
-    "Strong (0.50–1.00)"
+    "Weak (0-0.24)",
+    "Emergent (0.25-0.49)",
+    "Strong (0.50-1.00)"
   )
 
   capacity_colors <- c(
-    "Weak (0–0.24)"        = "red3",
-    "Emergent (0.25–0.49)" = "goldenrod",
-    "Strong (0.50–1.00)"   = "darkgreen"
+    "Weak (0-0.24)"        = "red3",
+    "Emergent (0.25-0.49)" = "goldenrod",
+    "Strong (0.50-1.00)"   = "darkgreen"
   )
 
   bands <- tibble::tibble(
