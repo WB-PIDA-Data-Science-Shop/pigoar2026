@@ -5,6 +5,7 @@
 #' @param strdate Character. Start date in "YYYY-MM-DD" format.
 #' @param enddate Character. End date in "YYYY-MM-DD" format.
 #' @param os Integer. Offset (starting row).
+#' @param doc_type Character. A vector of document types, to be matched exactly.
 #' @param rows Integer. Number of rows to return.
 #'
 #' @return A list from the parsed JSON response.
@@ -15,20 +16,38 @@ fetch_wb_documents_json <- function(
     fl = "id,count,abstracts,authr,docdt,origu,owner,projectid,theme,topic,docty",
     strdate = "2021-01-01",
     enddate = "2025-12-31",
+    doc_type = NULL,
     os = 0,
     rows = 200
 ) {
-  httr2::request(base_url) |>
-    httr2::req_url_query(
-      format = "json",
-      fl = fl,
-      strdate = strdate,
-      enddate = enddate,
-      os = os,
-      rows = rows
-    ) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json()
+  if(is.null(doc_type)){
+    httr2::request(base_url) |>
+      httr2::req_url_query(
+        format = "json",
+        fl = fl,
+        strdate = strdate,
+        enddate = enddate,
+        os = os,
+        rows = rows
+      ) |>
+      httr2::req_perform() |>
+      httr2::resp_body_json()
+  }else{
+    httr2::request(base_url) |>
+      httr2::req_url_query(
+        format = "json",
+        fl = fl,
+        strdate = strdate,
+        enddate = enddate,
+        os = os,
+        rows = rows,
+        doc_ty_exact = paste(doc_type, collapse = "\\%E") |> 
+          stringr::str_replace_all("\\s", "\\%20") 
+      ) |>
+      httr2::req_perform() |>
+      httr2::resp_body_json()
+  }
+  
 }
 
 #' Extract World Bank API documents from JSON

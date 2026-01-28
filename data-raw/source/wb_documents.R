@@ -10,13 +10,24 @@ skip_rows <- 0
 n_rows <- 5000
 documents_tbl <- tibble()
 
-total <- fetch_wb_documents_json() |> 
+total <- fetch_wb_documents_json(
+  doc_type = c(
+        "Report",
+        "Implementation Completion and Results Report",
+        "Implementation Completion Report Review"
+      )
+) |> 
   pluck("total")
 
 while (skip_rows < total) {
   resp_json <- fetch_wb_documents_json(
     os = skip_rows,
-    rows = n_rows
+    rows = n_rows,
+    doc_type = c(
+        "Report",
+        "Implementation Completion and Results Report",
+        "Implementation Completion Report Review"
+    )
   )
 
   # flatten authors to avoid extra rows
@@ -96,9 +107,9 @@ wb_documents <- wb_documents |>
 # create thematic tags and round dates
 wb_documents <- mutate(
     theme_category = case_when(
-      str_detect(theme, "Public Finance Management|Public Expenditure Management|Domestic Revenue Administration|Debt Management") ~ "Public Finance Management",
+      str_detect(theme, "Public Finance Management|Public Expenditure Management|Domestic Revenue Administration|Debt Management") ~ "Financial Resources",
       str_detect(theme, "Public Administration|Administrative and Civil Service Reform|Institutional Strengthening and Capacity Building") ~ "Personnel",
-      str_detect(theme, "E-Government, inc. E-services|Data Production, Accessibility, and Use") ~ "Digital and Data",
+      str_detect(theme, "E-Government, inc. E-services|Data Production, Accessibility, and Use") ~ "Information systems",
       str_detect(theme, "Transparency, Accountability and Good Governance") ~ "Transparency and Accountability",
       T ~ "Other"
     )
@@ -109,7 +120,7 @@ wb_documents <- mutate(
       lubridate::ymd_hms(doc_date), 
       unit = "month"
     )
-  ) 
+  )
 
 wb_documents_themes <- wb_documents |>
   select(theme) |> 

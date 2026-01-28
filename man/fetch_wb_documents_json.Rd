@@ -9,6 +9,7 @@ fetch_wb_documents_json(
   fl = "id,count,abstracts,authr,docdt,origu,owner,projectid,theme,topic,docty",
   strdate = "2021-01-01",
   enddate = "2025-12-31",
+  doc_type = NULL,
   os = 0,
   rows = 200
 )
@@ -21,6 +22,8 @@ fetch_wb_documents_json(
 \item{strdate}{Character. Start date in "YYYY-MM-DD" format.}
 
 \item{enddate}{Character. End date in "YYYY-MM-DD" format.}
+
+\item{doc_type}{Character. A vector of document types, to be matched exactly.}
 
 \item{os}{Integer. Offset (starting row).}
 
