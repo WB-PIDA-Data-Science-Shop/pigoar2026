@@ -73,6 +73,7 @@ wrap_facet_titles <- function(x, width) {
   str_wrap(x, width = width)
 }
 
+
 #' A function to Generate a Min/Average/Max Labeled Plot by Region
 #'
 #' Creates a plot with labels for a specific dimension.
@@ -338,7 +339,7 @@ plot_budget_execution <- function(data,
 #' @return Invisibly returns `NULL`. Side effect: writes one PNG per indicator to disk.
 #' @export
 plot_cluster_appendix <- function(data, cluster_ctf, year_label) {
-  # make a file‐system–safe folder name:
+  # make a file-system-safe folder name:
   safe_cluster <- gsub("[^A-Za-z0-9]+", "_", cluster_ctf)
   out_dir     <- here("figures", "appendix", safe_cluster)
 
@@ -416,5 +417,4 @@ plot_cluster_appendix <- function(data, cluster_ctf, year_label) {
     )
   }
 }
-
 
