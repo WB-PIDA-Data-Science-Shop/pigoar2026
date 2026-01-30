@@ -2,7 +2,7 @@
 
 ###
 # remember:
-# include Northj America
+# include North America
 # income level class
 # Graph: labels colred, no points
 
