@@ -185,16 +185,16 @@ ctf_avgs <- ctf_static |>
   # be a bit more explicit than 1:5 if you can, but this follows your structure
   select(1:5, ends_with("_avg")) |>
   rename(
-    `Degree of Integrity`             = vars_anticorruption_avg,
-    `Energy and Enviroment Institutions` = vars_climate_avg,
-    `Justice Institutions`            = vars_leg_avg,
-    `Political Institutions`          = vars_pol_avg,
-    `Social Institutions`             = vars_social_avg,
-    `Information Systems`            = vars_digital_avg,
-    `Transparency Institutions`       = vars_transp_avg,
-    `Bussines Enviroment`            = vars_mkt_avg,
-    `Public Financial Management`     = vars_pfm_avg,
-    `Public Sector Employment`        = vars_hrm_avg
+    `Degree of Integrity`                 = vars_anticorruption_avg,
+    `Energy and Environment Institutions` = vars_climate_avg,
+    `Justice Institutions`                = vars_leg_avg,
+    `Political Institutions`              = vars_pol_avg,
+    `Social Institutions`                 = vars_social_avg,
+    `Information Systems`                 = vars_digital_avg,
+    `Transparency Institutions`           = vars_transp_avg,
+    `Business Environment`                = vars_mkt_avg,
+    `Public Financial Management`         = vars_pfm_avg,
+    `Public Sector Employment`            = vars_hrm_avg
   ) |>
   pivot_longer(
     cols      = 6:last_col(),
