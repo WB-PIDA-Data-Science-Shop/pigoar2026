@@ -1,6 +1,7 @@
 ﻿#' @importFrom ggplot2 facet_wrap element_blank scale_y_continuous ggsave
 #' @importFrom forcats fct_reorder
 #' @importFrom here here
+#' @importFrom stats median
 NULL
 
 # Suppress CMD check notes for global variables used in dplyr/tidyr/ggplot2
@@ -12,5 +13,7 @@ utils::globalVariables(c(
   "sector", "type", "value", "var_name", "variable", "year",
   "wb_income_and_region", "total_events",
   "geom_sf", "unzip", "download.file",
-  ".N", "val", "N", "sd", "quantile", "theme_void"
+  ".N", "val", "N", "sd", "quantile", "theme_void",
+  "band", "indicator_mean", "median", "overall_mean", "score", "score_100", 
+  "xbar", "xbar_ind", "y", "ymax", "ymin"
 ))
