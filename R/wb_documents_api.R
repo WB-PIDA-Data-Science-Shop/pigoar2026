@@ -41,8 +41,8 @@ fetch_wb_documents_json <- function(
         enddate = enddate,
         os = os,
         rows = rows,
-        doc_ty_exact = paste(doc_type, collapse = "\\%E") |> 
-          stringr::str_replace_all("\\s", "\\%20") 
+        docty_exact = paste(doc_type, collapse = "^") |> 
+          stringr::str_replace_all("\\s", "%20") 
       ) |>
       httr2::req_perform() |>
       httr2::resp_body_json()
