@@ -19,6 +19,7 @@
 #' @param family_name_value Character string specifying which institutional family
 #'   to filter. Examples: "Public Human Resource Management Institutions",
 #'   "Digital Institutions", "Degree of Integrity".
+#' @param select_var_name Character string. A vector with names of the variables to be selected for analysis.
 #' @param group_var Unquoted column name for grouping variable (e.g., \code{income_group},
 #'   \code{region}). Used to calculate group-level means and order data.
 #'
@@ -59,7 +60,7 @@
 #' @examples
 #' \dontrun{
 #' # Prepare HRM institutional data grouped by income
-#' hrm_data <- prep_indicator_data_with_means(
+#' hrm_data <- prep_benchmark_data(
 #'   data = indicator_wide_scores,
 #'   family_name_value = "Public Human Resource Management Institutions",
 #'   group_var = income_group
@@ -71,7 +72,7 @@
 #' hrm_data$indicator_means    # Overall indicator means (ordered by performance)
 #'
 #' # Prepare data grouped by region instead
-#' pfm_data <- prep_indicator_data_with_means(
+#' pfm_data <- prep_benchmark_data(
 #'   data = indicator_wide_scores,
 #'   family_name_value = "Public Finance Institutions",
 #'   group_var = region
@@ -81,12 +82,20 @@
 #' @seealso \code{\link{prep_indicator_data}} for a simpler version without means calculation
 #'
 #' @export
-prep_indicator_data_with_means <- function(data, family_name_value, group_var) {
+prep_benchmark_data <- function(data, family_name_value, select_var_name = NULL, group_var) {
   
   # Filter and scale scores
   df <- data |>
     filter(family_name == family_name_value) |>
     mutate(score_100 = score * 100)
+
+  # Add a filter for selecting indicators
+  if(!is.null(select_var_name)){
+    df <- df |> 
+      filter(
+        var_name %in% select_var_name
+      )
+  }
   
   # Create initial ordered factor and numeric y position (temporary ordering)
   df_plot <- df |>
@@ -169,11 +178,9 @@ prep_indicator_data_with_means <- function(data, family_name_value, group_var) {
 #'
 #' Creates a horizontal sliding scale visualization displaying individual country 
 #' benchmark scores against group-level means (colored dots) and overall benchmark 
-#' means (grey triangles) for institutional capacity indicators. The plot orders 
-#' indicators by performance (highest at top) and groups by overall performance 
-#' (best performing group receives first color).
+#' means (grey triangles) for institutional capacity indicators.
 #'
-#' @param data A list object returned by \code{\link{prep_indicator_data_with_means}}
+#' @param data A list object returned by \code{\link{prep_benchmark_data}}
 #'   containing six named components:
 #'   \itemize{
 #'     \item \code{plot_data}: Main data frame with benchmark scores and positions (pre-ordered)
@@ -211,17 +218,17 @@ prep_indicator_data_with_means <- function(data, family_name_value, group_var) {
 #' @examples
 #' \dontrun{
 #' # Prepare data
-#' hrm_data <- prep_indicator_data_with_means(
+#' hrm_data <- prep_benchmark_data(
 #'   data = indicator_wide_scores,
 #'   family_name_value = "Public Human Resource Management Institutions",
 #'   group_var = income_group
 #' )
 #'
 #' # Create plot with default settings
-#' plot_indicator_benchmark_means(hrm_data)
+#' plot_benchmark(hrm_data)
 #'
 #' # Customize plot
-#' plot_indicator_benchmark_means(
+#' plot_benchmark(
 #'   data = hrm_data,
 #'   title = "HRM Institutions Benchmark Performance",
 #'   color_palette = "Dark2",
@@ -229,13 +236,12 @@ prep_indicator_data_with_means <- function(data, family_name_value, group_var) {
 #' )
 #' }
 #'
-#' @seealso \code{\link{prep_indicator_data_with_means}} for preparing the input data
+#' @seealso \code{\link{prep_benchmark_data}} for preparing the input data
 #'
 #' @export
-plot_indicator_benchmark_means <- function(data,
+plot_benchmark <- function(data,
                                          title = NULL,
-                                         subtitle = "Overall mean (grey triangle) and group means (colored dots) across indicators",
-                                         color_palette = "Set2",
+                                         color_palette = "Paired",
                                          legend_title = "Income Group",
                                          y_label_width = 15) {
   
@@ -246,7 +252,7 @@ plot_indicator_benchmark_means <- function(data,
     stop("Input data must contain: ", paste(required_names, collapse = ", "))
   }
   
-  # Create plot (data is already ordered by prep_indicator_data_with_means)
+  # Create plot (data is already ordered by prep_benchmark_data)
   p <- ggplot(data$plot_data, aes(x = score_100, y = y)) +
     
     # Country segments (0 -> score) per row
@@ -285,7 +291,7 @@ plot_indicator_benchmark_means <- function(data,
     ggrepel::geom_text_repel(
       data = data$labels,
       aes(label = country_code, color = .data[[data$group_var]]),
-      size = 2.5,
+      size = 4.5,
       segment.color = NA,
       box.padding = 0.25,
       max.overlaps = Inf,
@@ -296,20 +302,19 @@ plot_indicator_benchmark_means <- function(data,
     scale_color_brewer(palette = color_palette, name = legend_title) +
     scale_y_continuous(
       breaks = seq_along(data$y_levels),
-      labels = \(i) str_wrap(data$y_levels[i], width = y_label_width)
+      labels = \(i) str_wrap(data$y_levels[i], width = y_label_width),
+      limits = c(0.5, length(data$y_levels) + 0.5)  # Add padding
     ) +
     scale_x_continuous(breaks = seq(0, 100, 25), limits = c(0, 100)) +
     
     # Labels
     labs(
       title = title,
-      subtitle = subtitle,
       x = "CTF score (0-100)", 
       y = NULL
     ) +
     
     # Theme
-    theme_minimal(base_size = 11) +
     theme(
       panel.grid = element_blank(),
       legend.position = "top"

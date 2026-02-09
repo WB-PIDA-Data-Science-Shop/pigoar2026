@@ -26,9 +26,9 @@ devtools::load_all()
 theme_set(
   theme_minimal() +
     theme(
-      text = element_text(family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 14, hjust = .5),
-      axis.text.y = element_text(size = 14),
+      text = element_text(size = 16, family = "Segoe UI Semibold"),
+      axis.text.x = element_text(size = 18, hjust = .5),
+      axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
       plot.background = element_blank(),
@@ -62,6 +62,7 @@ set.seed(101010)
 # data-load ---------------------------------------------------------------
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
+  # only retain countries
   filter(country_group == 0)
 
 dictionary <- cliaretl::db_variables
@@ -77,7 +78,7 @@ ctf_static_long <- ctf_static |>
     values_to = "score"
   )
 
-# Add families to inticators
+# Add families to indicators
 ctf_static_fam <- ctf_static_long |>
   left_join(
     dictionary |>
@@ -93,14 +94,14 @@ ctf_static_fam <- ctf_static_long |>
   filter(!is.na(family_var)) |>
   filter(benchmark_static_family_aggregate_download == "Yes") |>
   select(
-    1:5,
+    country_code:country_group,
     var_name,
     family_var,
     family_name,
     benchmark_static_family_aggregate_download,
-    indicator
+    indicator,
+    score
   )
-
 
 # Drop sectors
 center_gov <-
@@ -114,10 +115,8 @@ center_gov <-
   ) |>
   select(-benchmark_static_family_aggregate_download)
 
-
 # Rename regions and create cliar areas
 indicator_wide_scores <- center_gov |>
-  group_by(region, family_name, indicator, var_name, score) |>
   mutate(
     region = case_when(
       region == "East Asia & Pacific" ~ "EAP",
@@ -148,17 +147,16 @@ indicator_wide_scores <- center_gov |>
     cliar_area
   )
 
-
 # hrm ---------------------------------------------------------------------
 
-hrm_data <- prep_indicator_data_with_means(
+hrm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Human Resource Management Institutions",
   group_var = income_group
 )
 
 # Create hrm plot
-plot_indicator_benchmark_means(
+plot_benchmark(
   data = hrm_data,
   title = "Benchmarking Public Sector Employment Institutions: CTF scores (2020–2024 average)"
 )
@@ -170,21 +168,40 @@ ggsave_long(here(
   "0_hrm_capacity_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |> 
+  prep_benchmark_data(
+    family_name_value = "Public Human Resource Management Institutions",
+    select_var_name = c(
+      "Criteria for appointment decisions in the state administration",
+      "Rigorous and impartial public administration"
+    ),
+    group_var = income_group
+  ) |> 
+  plot_benchmark()
+
+ggsave_db(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_hrm_capacity_pruned.png"
+  )
+)
 
 # digital -----------------------------------------------------------------
 
-digital_data <- prep_indicator_data_with_means(
+digital_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Digital and Data Institutions",
   group_var = income_group
 )
 
 # Create digital plot
-plot_indicator_benchmark_means(
+plot_benchmark(
   data = digital_data,
   title = "Benchmarking Digital and Data Institutions: CTF scores (2020–2024 average)"
 )
-
 
 ggsave_long(here(
   "analysis",
@@ -193,16 +210,15 @@ ggsave_long(here(
   "0_digital_capacity_final_order.png"
 ))
 
-
 # integrity ---------------------------------------------------------------
-integrity_data <- prep_indicator_data_with_means(
+integrity_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Degree of Integrity",
   group_var = income_group
 )
 
 # Create integrity plot
-plot_indicator_benchmark_means(
+plot_benchmark(
   data = integrity_data,
   title = "Benchmarking Integrity Institutions: CTF scores (2020–2024 average)"
 )
@@ -217,14 +233,14 @@ ggsave_long(here(
 
 # transparency ------------------------------------------------------------
 
-transparency_data <- prep_indicator_data_with_means(
+transparency_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Transparency and Accountability Institutions",
   group_var = income_group
 )
 
 # Create transparency plot
-plot_indicator_benchmark_means(
+plot_benchmark(
   data = transparency_data,
   title = "Benchmarking Transparency and Accountability Institutions: CTF scores (2020–2024 average)"
 )
@@ -236,18 +252,16 @@ ggsave_long(here(
   "0_transparency_institutions_final_order.png"
 ))
 
-
 # pfm ---------------------------------------------------------------------
 
-
-pfm_data <- prep_indicator_data_with_means(
+pfm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Finance Institutions",
   group_var = income_group
 )
 
 # Create pfm plot
-plot_indicator_benchmark_means(
+plot_benchmark(
   data = pfm_data,
   title = "Benchmarking Public Finance Institutions: CTF scores (2020–2024 average)"
 )
@@ -258,4 +272,3 @@ ggsave_long(here(
   "indicators_ctf",
   "0_pfm_institutions_finanl_order.png"
 ))
- 
