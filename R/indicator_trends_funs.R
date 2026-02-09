@@ -190,11 +190,7 @@ prep_benchmark_data <- function(data, family_name_value, select_var_name = NULL,
 #'     \item \code{y_levels}: Ordered indicator names (high to low benchmark performance)
 #'     \item \code{group_var}: Name of the grouping variable
 #'   }
-#' @param title Character string for the plot title. If NULL, no title is added.
-#' @param subtitle Character string for the plot subtitle. If NULL, uses a default
-#'   subtitle describing the benchmark visualization elements.
-#' @param color_palette Character string specifying the RColorBrewer palette name.
-#'   Default is "Set2".
+#' @param country_label_size Numeric value for the size of the country labels.
 #' @param legend_title Character string for the legend title. Default is "Income Group".
 #' @param y_label_width Integer specifying the character width for wrapping y-axis
 #'   labels. Default is 15.
@@ -242,9 +238,8 @@ prep_benchmark_data <- function(data, family_name_value, select_var_name = NULL,
 #' 
 #' @export
 plot_benchmark <- function(data,
-                                         title = NULL,
-                                         color_palette = "Set2",
                                          legend_title = "Income Group",
+                                         country_label_size = 4.5,
                                          y_label_width = 15) {
   
   # Validate input
@@ -293,7 +288,7 @@ plot_benchmark <- function(data,
     ggrepel::geom_text_repel(
       data = data$labels,
       aes(label = country_code, color = .data[[data$group_var]]),
-      size = 4.5,
+      size = country_label_size,
       segment.color = NA,
       box.padding = 0.25,
       max.overlaps = Inf,
@@ -301,7 +296,9 @@ plot_benchmark <- function(data,
     ) +
     
     # Scales
-    ggthemes::scale_color_solarized() +
+    ggthemes::scale_color_solarized(
+      name = legend_title
+    ) +
     scale_y_continuous(
       breaks = seq_along(data$y_levels),
       labels = \(i) str_wrap(data$y_levels[i], width = y_label_width),
@@ -311,7 +308,6 @@ plot_benchmark <- function(data,
     
     # Labels
     labs(
-      title = title,
       x = "CTF score (0-100)", 
       y = NULL
     ) +

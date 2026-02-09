@@ -6,9 +6,8 @@
 \usage{
 plot_benchmark(
   data,
-  title = NULL,
-  color_palette = "Paired",
   legend_title = "Income Group",
+  country_label_size = 4.5,
   y_label_width = 15
 )
 }
@@ -24,18 +23,12 @@ containing six named components:
 \item \code{group_var}: Name of the grouping variable
 }}
 
-\item{title}{Character string for the plot title. If NULL, no title is added.}
-
-\item{color_palette}{Character string specifying the RColorBrewer palette name.
-Default is "Set2".}
-
 \item{legend_title}{Character string for the legend title. Default is "Income Group".}
+
+\item{country_label_size}{Numeric value for the size of the country labels.}
 
 \item{y_label_width}{Integer specifying the character width for wrapping y-axis
 labels. Default is 15.}
-
-\item{subtitle}{Character string for the plot subtitle. If NULL, uses a default
-subtitle describing the benchmark visualization elements.}
 }
 \value{
 A ggplot2 object showing the benchmark means visualization.

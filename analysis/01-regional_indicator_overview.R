@@ -210,6 +210,31 @@ ggsave_long(here(
   "0_digital_capacity_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |> 
+  prep_benchmark_data(
+    family_name_value = "Digital and Data Institutions",
+    select_var_name = c(
+      "Core government systems index (cgsi)",
+      "Public service delivery index (psdi)",
+      "Censuses and surveys"
+    ),
+    group_var = income_group
+  ) |> 
+  plot_benchmark()
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_digital_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)
+
 # integrity ---------------------------------------------------------------
 integrity_data <- prep_benchmark_data(
   data = indicator_wide_scores,
@@ -272,3 +297,29 @@ ggsave_long(here(
   "indicators_ctf",
   "0_pfm_institutions_finanl_order.png"
 ))
+
+# pruned
+indicator_wide_scores |> 
+  prep_benchmark_data(
+    family_name_value = "Public Finance Institutions",
+    select_var_name = c(
+      "In-year budget reports",
+      "External audit",
+      "Revenue administration",
+      "Pfm management information systems"
+    ),
+    group_var = income_group
+  ) |> 
+  plot_benchmark()
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_pfm_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 16,
+  bg = "white"
+)
