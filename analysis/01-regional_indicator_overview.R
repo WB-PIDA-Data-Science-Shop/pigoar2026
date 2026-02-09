@@ -255,6 +255,30 @@ ggsave_long(here(
   "0_integrity_institutions_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |> 
+  prep_benchmark_data(
+    family_name_value = "Degree of Integrity",
+    select_var_name = c(
+      "Executive corruption",
+      "Legislative corruption",
+      "Public sector corruption"
+    ),
+    group_var = income_group
+  ) |> 
+  plot_benchmark()
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_integrity_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)
 
 # transparency ------------------------------------------------------------
 
@@ -276,6 +300,32 @@ ggsave_long(here(
   "indicators_ctf",
   "0_transparency_institutions_final_order.png"
 ))
+
+# pruned
+indicator_wide_scores |> 
+  prep_benchmark_data(
+    family_name_value = "Transparency and Accountability Institutions",
+    select_var_name = c(
+      "Publicized laws and government data",
+      "Digital citizen engagement index score",
+      "Right to information",
+      "Open budget index"
+    ),
+    group_var = income_group
+  ) |> 
+  plot_benchmark()
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_transparency_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 16,
+  bg = "white"
+)
 
 # pfm ---------------------------------------------------------------------
 
