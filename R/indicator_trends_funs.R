@@ -237,11 +237,13 @@ prep_benchmark_data <- function(data, family_name_value, select_var_name = NULL,
 #' }
 #'
 #' @seealso \code{\link{prep_benchmark_data}} for preparing the input data
-#'
+#' 
+#' @importFrom ggthemes scale_color_solarized
+#' 
 #' @export
 plot_benchmark <- function(data,
                                          title = NULL,
-                                         color_palette = "Paired",
+                                         color_palette = "Set2",
                                          legend_title = "Income Group",
                                          y_label_width = 15) {
   
@@ -299,7 +301,7 @@ plot_benchmark <- function(data,
     ) +
     
     # Scales
-    scale_color_brewer(palette = color_palette, name = legend_title) +
+    ggthemes::scale_color_solarized() +
     scale_y_continuous(
       breaks = seq_along(data$y_levels),
       labels = \(i) str_wrap(data$y_levels[i], width = y_label_width),
