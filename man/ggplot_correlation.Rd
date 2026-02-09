@@ -4,7 +4,7 @@
 \alias{ggplot_correlation}
 \title{Plot correlation between a numeric outcome and a predictor with regional coloring}
 \usage{
-ggplot_correlation(data, x, y, filename = NULL)
+ggplot_correlation(data, x, y, group, filename = NULL)
 }
 \arguments{
 \item{data}{A data frame or tibble containing the variables to plot. Must include
@@ -13,6 +13,8 @@ columns named by \code{x}, \code{y}, and a \code{region} column for color mappin
 \item{x}{A string naming the predictor column in \code{data}. Used on the x-axis.}
 
 \item{y}{A string naming the outcome column in \code{data}. Used on the y-axis.}
+
+\item{group}{A string naming the grouping column in \code{data} (e.g., "region")}
 
 \item{filename}{Optional string path to save the plot. If \code{NULL}, the plot
 is not saved. Passed to \code{ggplot2::ggsave()}.}

@@ -157,6 +157,7 @@
 #'   \item{count}{Character. Country or count field as returned by the API (often country name).}
 #'   \item{doc_type}{Character. Document type (docty).}
 #'   \item{theme}{Character. Comma-separated themes associated with the document.}
+#'   \item{theme_category}{Character. Tab separated thematic categories associated with the document. Programmatically encoded using World Bank theme taxonomy.}
 #'   \item{lang}{Character. Language code/name.}
 #'   \item{doc_date}{Character or date-time string. Document date (docdt) as returned by the API.}
 #'   \item{display_title}{Character. Human-readable title.}
