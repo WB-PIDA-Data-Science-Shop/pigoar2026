@@ -58,10 +58,10 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
     income_group = forcats::fct_relevel(
             income_group,
             c(
-                "Low income",
-                "Lower middle income",
-                "Upper middle income",
-                "High income"
+              "High income",
+              "Upper middle income",
+              "Lower middle income",
+              "Low income"
             )
         )
   )
