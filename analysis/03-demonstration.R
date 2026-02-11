@@ -39,7 +39,7 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
     left_join(
         cliaretl::wdi_indicators,
         by = c("country_code", "year")
-    ) |> 
+    ) |>
     left_join(
         pigoar2026::population,
         by = c("country_code", "year")
@@ -47,8 +47,7 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
 
 acled_regional_summary <- pigoar2026::acled_regional |>
     filter(
-        year %in% c(2020:2024) &
-            event_type %in% c("Protests", "Riots")
+        year %in% c(2020:2024) & event_type %in% c("Protests", "Riots")
     ) |>
     group_by(
         region,
@@ -78,14 +77,14 @@ acled_estimation <- acled_regional_summary |>
                 wb_spi_std_and_methods,
                 wjp_rol_2,
                 wjp_rol_3_1,
-                log_gdp 
-            ) |> 
-          mutate(
-            across(
-                vdem_core_v2stcritrecadm:wjp_rol_3_1,
-                \(x) as.vector(scale(x))
-            )
-          ),
+                log_gdp
+            ) |>
+            mutate(
+                across(
+                    vdem_core_v2stcritrecadm:wjp_rol_3_1,
+                    \(x) as.vector(scale(x))
+                )
+            ),
         by = c("country_code", "year")
     )
 
@@ -160,13 +159,13 @@ acled_events |>
     left_join(
         pigoar2026::population,
         by = c("country_code", "year")
-    ) |> 
+    ) |>
     filter(!is.na(region)) |>
     group_by(region, year) |>
     summarize(
         events_sum = sum(events, na.rm = TRUE),
         total_population = sum(total_population, na.rm = TRUE),
-        events_per_capita = events_sum/total_population,
+        events_per_capita = events_sum / total_population,
         .groups = "drop"
     ) |>
     ggplot(aes(x = year, y = events_per_capita, color = region)) +
@@ -204,27 +203,27 @@ acled_demonstrations_regional |>
         fns = "sum",
         groups = "quarter"
     ) |>
-  mutate(
-    events_index = value/value[quarter == min(quarter)] * 100
-  ) |> 
-  ggplot(aes(x = quarter, y = events_index)) +
-  geom_line() +
-  scale_y_continuous(
-      limits = c(0, 200)
-  ) +
-  geom_hline(
-    yintercept = 100,
-    linetype = "dashed"
-  ) +
-  labs(
-      x = "Time",
-      y = "Protests (Baseline = 100)"
-  )
+    mutate(
+        events_index = value / value[quarter == min(quarter)] * 100
+    ) |>
+    ggplot(aes(x = quarter, y = events_index)) +
+    geom_line() +
+    scale_y_continuous(
+        limits = c(0, 200)
+    ) +
+    geom_hline(
+        yintercept = 100,
+        linetype = "dashed"
+    ) +
+    labs(
+        x = "Time",
+        y = "Protests (Baseline = 100)"
+    )
 
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends.png"),
     width = 12,
-    height = 9,
+    height = 12,
     bg = "white"
 )
 
@@ -233,7 +232,14 @@ acled_demonstrations_regional |>
     plot_events_index(
         "income_group",
         "Income Group"
-   )
+    ) +
+    guides(
+        color = guide_legend(
+            "Income Group",
+            nrow = 2
+        )
+    )
+
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_income.png"),
     width = 12,
@@ -243,11 +249,11 @@ ggsave(
 
 # by region
 acled_demonstrations_regional |>
-   plot_events_index(
+    plot_events_index(
         "region",
         "Region",
         facet_group = TRUE
-   )
+    )
 
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_region.png"),
@@ -458,14 +464,14 @@ list(
             size = 5
         ),
         whisker_args = list(size = 1.5)
-    ) |> 
+    ) |>
     relabel_predictors(
-      c(
-        vdem_core_v2stcritrecadm = "Meritocratic criteria for appointment",
-        wb_spi_std_and_methods = "Standards and methods for data",
-        wjp_rol_2 = "Degree of integrity",
-        wjp_rol_3_1 = "Publicized laws and government data"
-      )
+        c(
+            vdem_core_v2stcritrecadm = "Meritocratic criteria for appointment",
+            wb_spi_std_and_methods = "Standards and methods for data",
+            wjp_rol_2 = "Degree of integrity",
+            wjp_rol_3_1 = "Publicized laws and government data"
+        )
     ) +
     xlab("Coefficient") +
     ylab("") +
