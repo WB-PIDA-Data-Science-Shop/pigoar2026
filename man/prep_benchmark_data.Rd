@@ -89,7 +89,5 @@ pfm_data <- prep_benchmark_data(
 )
 }
 
-}
-\seealso{
-\code{\link{prep_indicator_data}} for a simpler version without means calculation
+
 }

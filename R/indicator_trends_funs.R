@@ -79,7 +79,6 @@
 #' )
 #' }
 #'
-#' @seealso \code{\link{prep_indicator_data}} for a simpler version without means calculation
 #'
 #' @export
 prep_benchmark_data <- function(data, family_name_value, select_var_name = NULL, group_var) {
