@@ -234,11 +234,10 @@ acled_demonstrations_regional |>
         "income_group",
         "Income Group"
    )
-
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_income.png"),
     width = 12,
-    height = 9,
+    height = 12,
     bg = "white"
 )
 

@@ -152,6 +152,12 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
     theme(
       legend.position = "bottom"
     ) +
+    guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
+    ) +
     labs(
         x = "Time",
         y = "Protests (Baseline = 100)"
