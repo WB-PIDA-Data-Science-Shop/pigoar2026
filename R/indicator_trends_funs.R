@@ -384,7 +384,8 @@ plot_distribution_range <- function(
     ) +
     geom_jitter(
       aes(x = .data[[outcome_var]]),
-      height = jitter_height,
+      height = jitter_height,,
+      width = 0,
       shape = 1
     ) +
     ggthemes::scale_color_solarized(
