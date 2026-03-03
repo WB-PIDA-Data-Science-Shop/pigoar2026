@@ -2,92 +2,47 @@
 % Please edit documentation in R/indicator_trends_funs.R
 \name{prep_benchmark_data}
 \alias{prep_benchmark_data}
-\title{Prepare Indicator Data with Group and Overall Means for Plotting}
+\title{Prepare benchmark indicator data for plotting}
 \usage{
 prep_benchmark_data(data, family_name_value, select_var_name = NULL, group_var)
 }
 \arguments{
-\item{data}{A data frame containing indicator scores with the following required columns:
-\itemize{
-\item \code{family_name}: Name of the institutional capacity family
-\item \code{score}: Closeness-to-frontier (CTF) score (0-1 scale)
-\item \code{var_name}: Human-readable indicator name
-\item \code{country_code}: ISO country code
-}}
+\item{data}{Data frame with columns: \code{family_name}, \code{score} (0-1 scale),
+\code{var_name}, \code{country_code}, and a grouping variable.}
 
-\item{family_name_value}{Character string specifying which institutional family
-to filter. Examples: "Public Human Resource Management Institutions",
-"Digital Institutions", "Degree of Integrity".}
+\item{family_name_value}{Character. Institutional family to filter (e.g.,
+"Public Human Resource Management Institutions").}
 
-\item{select_var_name}{Character string. A vector with names of the variables to be selected for analysis.}
+\item{select_var_name}{Optional character vector. Indicator names to include.
+If NULL (default), all indicators in the family are used.}
 
-\item{group_var}{Unquoted column name for grouping variable (e.g., \code{income_group},
-\code{region}). Used to calculate group-level means and order data.}
+\item{group_var}{Unquoted column name for grouping (e.g., \code{income_group},
+\code{region}).}
 }
 \value{
-A named list with six components:
+Named list with six elements:
 \describe{
-\item{\code{plot_data}}{Main data frame with scaled scores (0-100), reordered
-indicator names and grouping variable as factors, and numeric y-positions for plotting.
-Indicators are ordered by mean performance (descending). Grouping variable is ordered
-by overall performance (descending).}
-\item{\code{group_means}}{Data frame with mean scores by indicator and grouping variable,
-containing columns \code{var_name}, grouping variable, \code{xbar} (mean score), and \code{y}.
-Both factors are ordered by performance (descending).}
-\item{\code{indicator_means}}{Data frame with overall mean scores by indicator,
-containing \code{var_name}, \code{xbar_ind} (overall mean), and \code{y}.
-Indicators are ordered by mean performance (descending).}
-\item{\code{labels}}{Filtered data frame for country labels, excluding missing values.
-Both indicator and grouping variable factors are ordered.}
-\item{\code{y_levels}}{Character vector of indicator names in factor order (high to low performance)}
-\item{\code{group_var}}{Character string of the grouping variable name}
+\item{\code{plot_data}}{Main data with scores (0-100), ordered factors, and y-positions}
+\item{\code{group_means}}{Group means by indicator (\code{xbar})}
+\item{\code{indicator_means}}{Overall means by indicator (\code{xbar_ind})}
+\item{\code{labels}}{Country labels (excludes NAs)}
+\item{\code{y_levels}}{Ordered indicator names (high to low performance)}
+\item{\code{group_var}}{Grouping variable name (character)}
 }
 }
 \description{
-This function prepares institutional capacity indicator data for visualization
-by computing group-level means, overall indicator means, and organizing data
-for plotting on a horizontal sliding scale plot. It filters data by institutional family,
-scales scores to 0-100, reorders indicators by overall mean score (descending),
-reorders grouping variable by mean performance (descending), and creates
-separate data frames for different plot layers.
-}
-\details{
-The function performs the following transformations:
-\itemize{
-\item Filters data to the specified institutional family
-\item Converts scores from 0-1 scale to 0-100 scale
-\item Calculates group-level means for each indicator
-\item Calculates overall means across all countries for each indicator
-\item Reorders indicators by overall mean score (descending - highest at top)
-\item Reorders grouping variable levels by overall performance (descending - best first)
-\item Updates numeric y-positions based on new ordering
-\item Prepares a clean labels data frame for country annotations
-}
-
-Missing values are handled by excluding them from mean calculations and
-filtering them out of the labels data frame.
+Filters institutional capacity indicators by family, scales scores to 0-100,
+computes group and overall means, and orders data by performance (descending).
 }
 \examples{
 \dontrun{
-# Prepare HRM institutional data grouped by income
 hrm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Human Resource Management Institutions",
   group_var = income_group
 )
 
-# Access components
-hrm_data$plot_data          # Main plotting data
-hrm_data$group_means        # Income group means (ordered by performance)
-hrm_data$indicator_means    # Overall indicator means (ordered by performance)
-
-# Prepare data grouped by region instead
-pfm_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Public Finance Institutions",
-  group_var = region
-)
+plot_benchmark(hrm_data)
 }
-
 
 }

@@ -2,78 +2,52 @@
 % Please edit documentation in R/indicator_trends_funs.R
 \name{plot_benchmark}
 \alias{plot_benchmark}
-\title{Plot Indicator Benchmark Means Visualization}
+\title{Plot benchmark indicator scores with group means (faceted)}
 \usage{
 plot_benchmark(
   data,
   legend_title = "Income Group",
-  country_label_size = 4.5,
-  y_label_width = 15
+  geom_type = "point",
+  country_label_size = 3.5,
+  facet_ncol = 1
 )
 }
 \arguments{
-\item{data}{A list object returned by \code{\link{prep_benchmark_data}}
-containing six named components:
-\itemize{
-\item \code{plot_data}: Main data frame with benchmark scores and positions (pre-ordered)
-\item \code{group_means}: Group-level benchmark mean scores (pre-ordered)
-\item \code{indicator_means}: Overall benchmark mean scores (pre-ordered)
-\item \code{labels}: Country labels for annotation (pre-ordered)
-\item \code{y_levels}: Ordered indicator names (high to low benchmark performance)
-\item \code{group_var}: Name of the grouping variable
-}}
+\item{data}{List returned by \code{\link{prep_benchmark_data}} with components:
+\code{plot_data}, \code{group_means}, \code{indicator_means}, \code{labels},
+\code{y_levels}, \code{group_var}.}
 
-\item{legend_title}{Character string for the legend title. Default is "Income Group".}
+\item{legend_title}{Character. Legend title. Default: "Income Group".}
 
-\item{country_label_size}{Numeric value for the size of the country labels.}
+\item{geom_type}{Character. Plot type: "label" for country labels, "point" for
+jittered points. Default: "point".}
 
-\item{y_label_width}{Integer specifying the character width for wrapping y-axis
-labels. Default is 15.}
+\item{country_label_size}{Numeric. Size of country code labels. Default: 3.5.}
+
+\item{facet_ncol}{Integer. Number of columns for faceting. Default: 1.}
 }
 \value{
-A ggplot2 object showing the benchmark means visualization.
+A ggplot object with facets for each indicator.
 }
 \description{
-Creates a horizontal sliding scale visualization displaying individual country
-benchmark scores against group-level means (colored dots) and overall benchmark
-means (grey triangles) for institutional capacity indicators.
-}
-\details{
-The visualization includes:
-\itemize{
-\item Grey horizontal segments showing individual country benchmark scores (0 to score)
-\item Vertical dotted lines at 0, 25, 50, 75, and 100 as benchmark reference thresholds
-\item Grey triangles indicating overall benchmark mean scores across all countries
-\item Colored dots showing group-level benchmark means (e.g., by income group or region)
-\item Country code labels colored by grouping variable
-}
-
-Indicators are ordered from highest to lowest benchmark performance (top to bottom),
-and colors are assigned to groups based on their overall benchmark performance
-(best performing group receives the first color in the palette).
+Creates a faceted horizontal plot showing country scores (grey segments),
+group means (colored dots), and overall means (grey triangles) for each
+institutional capacity indicator.
 }
 \examples{
 \dontrun{
-# Prepare data
 hrm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Human Resource Management Institutions",
   group_var = income_group
 )
 
-# Create plot with default settings
 plot_benchmark(hrm_data)
-
-# Customize plot
-plot_benchmark(
-  data = hrm_data,
-  title = "HRM Institutions Benchmark Performance",
-  color_palette = "Dark2",
-  legend_title = "Income Level"
-)
+plot_benchmark(hrm_data, geom_type = "label")
+plot_benchmark(hrm_data, geom_type = "point")
 }
 
 }
 \seealso{
-\code{\link{prep_benchmark_data}} for preparing the input data
+\code{\link{prep_benchmark_data}}
 }

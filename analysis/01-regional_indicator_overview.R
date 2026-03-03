@@ -6,7 +6,7 @@
 library(haven)
 library(dplyr)
 library(here)
-library(tidyverse)
+library(dplyr)
 library(ggplot2)
 library(janitor)
 library(scales)
@@ -58,7 +58,6 @@ options(ggrepel.max.overlaps = Inf)
 
 set.seed(101010)
 
-
 # data-load ---------------------------------------------------------------
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
@@ -66,7 +65,6 @@ ctf_static <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0)
 
 dictionary <- cliaretl::db_variables
-
 
 # prepare data ------------------------------------------------------------
 
@@ -156,10 +154,7 @@ hrm_data <- prep_benchmark_data(
 )
 
 # Create hrm plot
-plot_benchmark(
-  data = hrm_data,
-  title = "Benchmarking Public Sector Employment Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = hrm_data)
 
 ggsave_long(here(
   "analysis",
@@ -169,16 +164,18 @@ ggsave_long(here(
 ))
 
 # pruned
-indicator_wide_scores |> 
-  prep_benchmark_data(
-    family_name_value = "Public Human Resource Management Institutions",
-    select_var_name = c(
+indicator_wide_scores |>
+  filter(
+    var_name %in% c(
       "Criteria for appointment decisions in the state administration",
       "Rigorous and impartial public administration"
-    ),
-    group_var = income_group
-  ) |> 
-  plot_benchmark()
+    )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name"
+  )
 
 ggsave_db(
   here(
@@ -198,10 +195,7 @@ digital_data <- prep_benchmark_data(
 )
 
 # Create digital plot
-plot_benchmark(
-  data = digital_data,
-  title = "Benchmarking Digital and Data Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = digital_data)
 
 ggsave_long(here(
   "analysis",
@@ -211,17 +205,19 @@ ggsave_long(here(
 ))
 
 # pruned
-indicator_wide_scores |> 
-  prep_benchmark_data(
-    family_name_value = "Digital and Data Institutions",
-    select_var_name = c(
+indicator_wide_scores |>
+  filter(
+    var_name %in% c(
       "Core government systems index (cgsi)",
       "Public service delivery index (psdi)",
       "Censuses and surveys"
-    ),
-    group_var = income_group
-  ) |> 
-  plot_benchmark()
+    )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name"
+  )
 
 ggsave(
   here(
@@ -243,10 +239,7 @@ integrity_data <- prep_benchmark_data(
 )
 
 # Create integrity plot
-plot_benchmark(
-  data = integrity_data,
-  title = "Benchmarking Integrity Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = integrity_data)
 
 ggsave_long(here(
   "analysis",
@@ -255,18 +248,20 @@ ggsave_long(here(
   "0_integrity_institutions_final_order.png"
 ))
 
-# pruned
+# distribution
 indicator_wide_scores |> 
-  prep_benchmark_data(
-    family_name_value = "Degree of Integrity",
-    select_var_name = c(
+  filter(
+    var_name %in% c(
       "Executive corruption",
       "Legislative corruption",
       "Public sector corruption"
-    ),
-    group_var = income_group
+    )
   ) |> 
-  plot_benchmark()
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name"
+  )
 
 ggsave(
   here(
@@ -289,10 +284,7 @@ transparency_data <- prep_benchmark_data(
 )
 
 # Create transparency plot
-plot_benchmark(
-  data = transparency_data,
-  title = "Benchmarking Transparency and Accountability Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = transparency_data)
 
 ggsave_long(here(
   "analysis",
@@ -302,18 +294,20 @@ ggsave_long(here(
 ))
 
 # pruned
-indicator_wide_scores |> 
-  prep_benchmark_data(
-    family_name_value = "Transparency and Accountability Institutions",
-    select_var_name = c(
+indicator_wide_scores |>
+  filter(
+    var_name %in% c(
       "Publicized laws and government data",
       "Digital citizen engagement index score",
       "Right to information",
       "Open budget index"
-    ),
-    group_var = income_group
-  ) |> 
-  plot_benchmark()
+    )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name"
+  )
 
 ggsave(
   here(
@@ -336,10 +330,7 @@ pfm_data <- prep_benchmark_data(
 )
 
 # Create pfm plot
-plot_benchmark(
-  data = pfm_data,
-  title = "Benchmarking Public Finance Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = pfm_data)
 
 ggsave_long(here(
   "analysis",
@@ -349,18 +340,20 @@ ggsave_long(here(
 ))
 
 # pruned
-indicator_wide_scores |> 
-  prep_benchmark_data(
-    family_name_value = "Public Finance Institutions",
-    select_var_name = c(
+indicator_wide_scores |>
+  filter(
+    var_name %in% c(
       "In-year budget reports",
       "External audit",
       "Revenue administration",
       "Pfm management information systems"
-    ),
-    group_var = income_group
-  ) |> 
-  plot_benchmark()
+    )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name"
+  )
 
 ggsave(
   here(
