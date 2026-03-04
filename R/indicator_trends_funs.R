@@ -311,8 +311,6 @@ plot_benchmark <- function(
 #' @param outcome_var Character string. Column name for the outcome variable (e.g.,
 #'   "mean", "score").
 #' @param facet_var Optional character string. Column name for faceting. Default: NULL.
-#' @param point_size Numeric. Size of min/max/mean points. Default: 5.
-#' @param jitter_height Numeric. Vertical jitter amount. Default: 0.2.
 #'
 #' @return A ggplot object.
 #'
