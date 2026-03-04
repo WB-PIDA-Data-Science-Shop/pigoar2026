@@ -338,6 +338,7 @@ plot_benchmark <- function(
 #' @import ggplot2
 #' @importFrom dplyr group_by mutate ungroup across all_of
 #' @importFrom ggthemes scale_color_solarized
+#' @importFrom stats reorder
 #' 
 #' @export
 plot_distribution_range <- function(
@@ -345,8 +346,7 @@ plot_distribution_range <- function(
   group_var,
   outcome_var,
   facet_var = NULL,
-  point_size = 5,
-  jitter_height = 0.2
+  legend_name = NULL
 ) {
   # Primary group variable drives y-axis ordering and color
   primary_var <- group_var[[1]]
@@ -364,41 +364,46 @@ plot_distribution_range <- function(
   # Create plot
   p <- plot_data |>
     ggplot(
-      aes(y = reorder(.data[[primary_var]], average), color = .data[[primary_var]])
+      aes(y = stats::reorder(.data[[primary_var]], .data[["average"]]), color = .data[[primary_var]])
     ) +
     geom_linerange(
-      aes(xmin = lower, xmax = upper)
+      aes(xmin = .data[["lower"]], xmax = .data[["upper"]])
     ) +
     geom_point(
-      aes(x = upper),
+      aes(x = .data[["upper"]]),
       size = 2
     ) +
     geom_point(
-      aes(x = lower),
+      aes(x = .data[["lower"]]),
       size = 2
     ) +
     geom_point(
-      aes(x = average),
+      aes(x = .data[["average"]]),
       shape = 15,
-      size = point_size
+      size = 8
     ) +
     geom_jitter(
       aes(x = .data[[outcome_var]]),
-      height = jitter_height,,
+      height = 0.4,
+      size = 5,
       width = 0,
       shape = 1
     ) +
     ggthemes::scale_color_solarized(
-      name = primary_var
+      name = legend_name
     ) +
     labs(
       x = "Benchmarking score",
       y = NULL
     ) +
+    guides(
+      color = guide_legend(nrow = 2)
+    ) +
     theme(
       legend.position = "bottom",
-      axis.text.y = element_text(size = 10),
-      strip.text.x = element_text(size = 14)
+      legend.text = element_text(size = 18),
+      axis.text.y = element_blank(),
+      strip.text.x = element_text(size = 24)
     )
 
   if (!is.null(facet_var)) {

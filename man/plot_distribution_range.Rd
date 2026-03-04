@@ -9,8 +9,7 @@ plot_distribution_range(
   group_var,
   outcome_var,
   facet_var = NULL,
-  point_size = 5,
-  jitter_height = 0.2
+  legend_name = NULL
 )
 }
 \arguments{

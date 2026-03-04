@@ -174,7 +174,8 @@ indicator_wide_scores |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
-    facet_var = "var_name"
+    facet_var = "var_name",
+    legend_name = "Income Group"
   )
 
 ggsave_db(
@@ -216,7 +217,8 @@ indicator_wide_scores |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
-    facet_var = "var_name"
+    facet_var = "var_name",
+    legend_name = "Income Group"
   )
 
 ggsave(
@@ -260,7 +262,8 @@ indicator_wide_scores |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
-    facet_var = "var_name"
+    facet_var = "var_name",
+    legend_name = "Income Group"
   )
 
 ggsave(
@@ -306,7 +309,8 @@ indicator_wide_scores |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
-    facet_var = "var_name"
+    facet_var = "var_name",
+    legend_name = "Income Group"
   )
 
 ggsave(
@@ -352,7 +356,8 @@ indicator_wide_scores |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
-    facet_var = "var_name"
+    facet_var = "var_name",
+    legend_name = "Income Group"
   )
 
 ggsave(
