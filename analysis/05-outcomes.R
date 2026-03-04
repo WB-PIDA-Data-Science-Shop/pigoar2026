@@ -78,10 +78,10 @@ institutional_clusters <- c(
 )
 
 names(institutional_clusters) <- c(
-  "Public HRM",
+  "Public Human Resource Management",
   "Public Financial Management",
   "Digital and Data",
-  "Integrity and Anticorruption",
+  "Integrity",
   "Transparency and Accountability"
 )
 

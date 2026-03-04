@@ -310,7 +310,8 @@ plot_benchmark <- function(
 #'   ordering and color.
 #' @param outcome_var Character string. Column name for the outcome variable (e.g.,
 #'   "mean", "score").
-#' @param facet_var Optional character string. Column name for faceting. Default: NULL.
+#' @param facet_var Optional character string. Column name for faceting.
+#' @param legend_name Optional character string. Legend name.
 #'
 #' @return A ggplot object.
 #'

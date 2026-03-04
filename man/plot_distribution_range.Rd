@@ -22,11 +22,9 @@ ordering and color.}
 \item{outcome_var}{Character string. Column name for the outcome variable (e.g.,
 "mean", "score").}
 
-\item{facet_var}{Optional character string. Column name for faceting. Default: NULL.}
+\item{facet_var}{Optional character string. Column name for faceting.}
 
-\item{point_size}{Numeric. Size of min/max/mean points. Default: 5.}
-
-\item{jitter_height}{Numeric. Vertical jitter amount. Default: 0.2.}
+\item{legend_name}{Optional character string. Legend name.}
 }
 \value{
 A ggplot object.
