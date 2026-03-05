@@ -98,7 +98,7 @@ outcomes <- c(
   "Unemployment rate" = "unemployment_rate",
   "Labor income" = "labor_income",
   "Literacy rate (Adult)" = "literacy_rate",
-  "Infant mortality rate" = "mortality_rate"
+  "Infant mortality rate (logged)" = "mortality_rate"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"
@@ -136,7 +136,7 @@ correlation_plots <- purrr::pmap(
         )
       )
     
-    if(y_val == "poverty_gap_215"){
+    if(y_val == "poverty_gap_215" | y_val == "mortality_rate"){
       plot <- plot +
         scale_y_log10()
     }
