@@ -33,6 +33,10 @@
 #' plot_benchmark(hrm_data)
 #' }
 #'
+#' @importFrom dplyr filter mutate group_by summarise arrange pull first
+#' @importFrom forcats fct_reorder
+#' @importFrom rlang ensym as_string
+#'
 #' @export
 prep_benchmark_data <- function(
   data,
@@ -381,8 +385,17 @@ plot_distribution_range <- function(
       shape = 15,
       size = 8
     ) +
+    # geom_text_repel(
+    #  aes(label = "○", x = .data[[outcome_var]]),
+    #   size = 8,
+    #   segment.color = NA,
+    #   box.padding = 0.25,
+    #   max.overlaps = Inf,
+    #   na.rm = TRUE
+    # ) +
     geom_jitter(
       aes(x = .data[[outcome_var]]),
+      alpha = 0.6,
       height = 0.4,
       size = 5,
       width = 0,

@@ -13,6 +13,7 @@ Imports:
     data.table,
     dplyr,
     forcats,
+    ggbeeswarm,
     ggplot2,
     ggrepel,
     ggthemes,

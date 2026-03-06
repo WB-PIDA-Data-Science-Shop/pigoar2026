@@ -24,7 +24,7 @@ library(cliaretl)
 devtools::load_all()
 
 theme_set(
-  theme_minimal() +
+  theme_light() +
     theme(
       text = element_text(size = 16, family = "Segoe UI Semibold"),
       axis.text.x = element_text(size = 18, hjust = .5),
@@ -143,6 +143,17 @@ indicator_wide_scores <- center_gov |>
     indicator,
     score,
     cliar_area
+  ) |>
+  mutate(
+    income_group = forcats::fct_relevel(
+      income_group,
+      c(
+        "High income",
+        "Upper middle income",
+        "Lower middle income",
+        "Low income"
+      )
+    )
   )
 
 # hrm ---------------------------------------------------------------------
@@ -166,10 +177,11 @@ ggsave_long(here(
 # pruned
 indicator_wide_scores |>
   filter(
-    var_name %in% c(
-      "Criteria for appointment decisions in the state administration",
-      "Rigorous and impartial public administration"
-    )
+    var_name %in%
+      c(
+        "Criteria for appointment decisions in the state administration",
+        "Rigorous and impartial public administration"
+      )
   ) |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
@@ -208,11 +220,12 @@ ggsave_long(here(
 # pruned
 indicator_wide_scores |>
   filter(
-    var_name %in% c(
-      "Core government systems index (cgsi)",
-      "Public service delivery index (psdi)",
-      "Censuses and surveys"
-    )
+    var_name %in%
+      c(
+        "Core government systems index (cgsi)",
+        "Public service delivery index (psdi)",
+        "Censuses and surveys"
+      )
   ) |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
@@ -251,14 +264,15 @@ ggsave_long(here(
 ))
 
 # distribution
-indicator_wide_scores |> 
+indicator_wide_scores |>
   filter(
-    var_name %in% c(
-      "Executive corruption",
-      "Legislative corruption",
-      "Public sector corruption"
-    )
-  ) |> 
+    var_name %in%
+      c(
+        "Executive corruption",
+        "Legislative corruption",
+        "Public sector corruption"
+      )
+  ) |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
     outcome_var = "score",
@@ -299,12 +313,13 @@ ggsave_long(here(
 # pruned
 indicator_wide_scores |>
   filter(
-    var_name %in% c(
-      "Publicized laws and government data",
-      "Digital citizen engagement index score",
-      "Right to information",
-      "Open budget index"
-    )
+    var_name %in%
+      c(
+        "Publicized laws and government data",
+        "Digital citizen engagement index score",
+        "Right to information",
+        "Open budget index"
+      )
   ) |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
@@ -340,18 +355,18 @@ ggsave_long(here(
   "analysis",
   "figs",
   "indicators_ctf",
-  "0_pfm_institutions_finanl_order.png"
+  "0_pfm_institutions_final_order.png"
 ))
 
 # pruned
 indicator_wide_scores |>
   filter(
-    var_name %in% c(
-      "In-year budget reports",
-      "External audit",
-      "Revenue administration",
-      "Pfm management information systems"
-    )
+    var_name %in%
+      c(
+        "In-year budget reports",
+        "External audit",
+        "Pfm management information systems"
+      )
   ) |>
   plot_distribution_range(
     group_var = c("income_group", "var_name"),
@@ -368,6 +383,6 @@ ggsave(
     "0_pfm_capacity_pruned.png"
   ),
   width = 14,
-  height = 16,
+  height = 14,
   bg = "white"
 )
