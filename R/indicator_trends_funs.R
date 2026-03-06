@@ -385,14 +385,6 @@ plot_distribution_range <- function(
       shape = 15,
       size = 8
     ) +
-    # geom_text_repel(
-    #  aes(label = "○", x = .data[[outcome_var]]),
-    #   size = 8,
-    #   segment.color = NA,
-    #   box.padding = 0.25,
-    #   max.overlaps = Inf,
-    #   na.rm = TRUE
-    # ) +
     geom_jitter(
       aes(x = .data[[outcome_var]]),
       alpha = 0.6,
