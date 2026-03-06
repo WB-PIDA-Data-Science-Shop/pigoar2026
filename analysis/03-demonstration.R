@@ -222,8 +222,9 @@ acled_demonstrations_regional |>
 
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends.png"),
-    width = 12,
-    height = 12,
+    width = 10,
+    height = 10,
+    dpi = 300,
     bg = "white"
 )
 
@@ -242,8 +243,9 @@ acled_demonstrations_regional |>
 
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_income.png"),
-    width = 12,
-    height = 12,
+    width = 10,
+    height = 10,
+    dpi = 300,
     bg = "white"
 )
 
@@ -258,8 +260,8 @@ acled_demonstrations_regional |>
 ggsave(
     here("analysis", "figs", "acled", "global_demonstration_trends_region.png"),
     dpi = 300,
-    height = 9,
-    width = 12,
+    height = 6,
+    width = 9,
     bg = "white"
 )
 
