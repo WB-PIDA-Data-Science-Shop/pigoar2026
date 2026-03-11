@@ -300,7 +300,7 @@ digital_data <- ctf_static_wide |>
 # Plot
 digital_data |>
   generate_regional_minmax_plot() +
-  ggtitle("Digital and Data") +
+  ggtitle("Information Systems") +
   labs(
     x = "",
     y = "Benchmarking score",
@@ -313,7 +313,6 @@ digital_data |>
 ggsave_db(
   here("analysis", "figs", "overview_ctf", "digital-regional-dumbbells.png")
 )
-
 
 # integrity ---------------------------------------------------------------
 
