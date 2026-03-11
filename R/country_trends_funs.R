@@ -74,27 +74,31 @@ wrap_facet_titles <- function(x, width) {
 }
 
 
-#' A function to Generate a Min/Average/Max Labeled Plot by Region
+#' Generate a regional min/average/max plot by dimension
 #'
-#' Creates a plot with labels for a specific dimension.
+#' Creates a dot-and-segment plot showing the min, average, and max values
+#' by region for a given institutional dimension, with country code labels
+#' at the average position.
 #'
-#' @param data A data frame containing the input data.
-#' @param dimension The column name (as a string or symbol) representing the dimension to filter and plot.
-#' @return A ggplot object with the generated labels plot.
+#' @param data Data frame returned by \code{\link{compute_regional_statistics}},
+#'   with columns: \code{region_long}, \code{type} ("Min", "Average", "Max"),
+#'   \code{value}, \code{min_value}, \code{max_value}, \code{country_dimension_av},
+#'   and \code{country_code}.
 #'
-#' @importFrom rlang !!
+#' @return A ggplot object with points, segments, and country code labels faceted
+#'   by region.
+#'
 #' @importFrom dplyr filter mutate
 #' @importFrom ggplot2 ggplot aes geom_point geom_segment scale_shape_manual theme element_text
 #' @importFrom ggrepel geom_text_repel
 #' @export
-generate_regional_minmax_plot <- function(data, dimension) {
-  # Filter data for the specific dimension
-  filtered_data <- data |>
-    filter(dimension == !!dimension) |>
+generate_regional_minmax_plot <- function(data) {
+  # Prepare data for plotting
+  plot_data <- data |>
     mutate(region_w = wrap_facet_titles(region_long, width = 15))
 
   # Generate the plot
-  ggplot(filtered_data, aes(x = region_w,
+  ggplot(plot_data, aes(x = region_w,
                             y = value,
                             shape = type,
                             color = region_w)) +
@@ -112,7 +116,7 @@ generate_regional_minmax_plot <- function(data, dimension) {
     geom_text_repel(aes(x = region_w,
                         y = country_dimension_av,
                         label = country_code),
-                    data = filtered_data |> filter(type == "Average"),
+                    data = plot_data |> filter(type == "Average"),
                     size = 4,
                     nudge_x = -0.3,
                     segment.color = NA,

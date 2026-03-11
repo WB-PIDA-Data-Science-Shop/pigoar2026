@@ -75,18 +75,18 @@ set.seed(101010)
 
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0) |>
-  filter(region != "North America") |>
-  mutate(
-    region = case_when(
-      region == "East Asia & Pacific" ~ "EAP",
-      region == "Europe & Central Asia" ~ "ECA",
-      region == "Latin America & Caribbean" ~ "LAC",
-      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-      region == "South Asia" ~ "SAR",
-      region == "Sub-Saharan Africa" ~ "SSA",
-      TRUE ~ region
-    )
-  )
+  filter(region != "North America") 
+  # mutate(
+  #   region = case_when(
+  #     region == "East Asia & Pacific" ~ "EAP",
+  #     region == "Europe & Central Asia" ~ "ECA",
+  #     region == "Latin America & Caribbean" ~ "LAC",
+  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+  #     region == "South Asia" ~ "SAR",
+  #     region == "Sub-Saharan Africa" ~ "SSA",
+  #     TRUE ~ region
+  #   )
+  # )
 
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
@@ -100,17 +100,17 @@ ctf_static <- cliaretl::closeness_to_frontier_static |>
 ctf_avgs <- ctf_static |>
   select(1:5, ends_with("_avg")) |>
   rename(
-    `Integrity and Anticorruption` = vars_anticorruption_avg,
+    `Integrity` = vars_anticorruption_avg,
     `Energy and Enviroment Institutions` = vars_climate_avg,
     `Justice Institutions` = vars_leg_avg,
     `Political Institutions` = vars_pol_avg,
     `Social Institutions` = vars_social_avg,
-    `Digital and Data` = vars_digital_avg,
+    `Information Systems` = vars_digital_avg,
     `Justice Institutions` = vars_leg_avg,
     `Transparency and Accountability` = vars_transp_avg,
     `Bussines Enviroment` = vars_mkt_avg,
     `Public Financial Management` = vars_pfm_avg,
-    `Public HRM` = vars_hrm_avg
+    `Public Human Resource Management` = vars_hrm_avg
   ) |>
   pivot_longer(
     cols = 6:last_col(),
@@ -142,10 +142,10 @@ ctf_avgs <- ctf_static |>
   filter(
     cluster %in%
       c(
-        "Integrity and Anticorruption",
+        "Integrity",
         "Transparency and Accountability",
-        "Digital and Data",
-        "Public HRM"
+        "Information Systems",
+        "Public Human Resource Management"
       )
   )
 
@@ -276,14 +276,13 @@ hrm_data <- ctf_static_wide |>
 
 # Plot
 hrm_data |>
-  generate_regional_minmax_plot("Personnel") +
-  ggtitle("Public HRM") +
+  generate_regional_minmax_plot() +
+  ggtitle("Public Human Resource Management") +
   labs(
-    x = "Region",
+    x = "",
     y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
@@ -300,14 +299,13 @@ digital_data <- ctf_static_wide |>
 
 # Plot
 digital_data |>
-  generate_regional_minmax_plot("Digital") +
+  generate_regional_minmax_plot() +
   ggtitle("Digital and Data") +
   labs(
-    x = "Region",
+    x = "",
     y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
@@ -324,14 +322,13 @@ integrity_data <- ctf_static_wide |>
 
 # Plot
 integrity_data |>
-  generate_regional_minmax_plot("Accountability") +
-  ggtitle("Integrity and Anticorruption") +
+  generate_regional_minmax_plot() +
+  ggtitle("Integrity") +
   labs(
-    x = "Region",
+    x = "",
     y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
@@ -348,14 +345,13 @@ transp_data <- ctf_static_wide |>
 
 # Plot
 transp_data |>
-  generate_regional_minmax_plot("Transparency") +
+  generate_regional_minmax_plot() +
   ggtitle("Transparency and Accountability") +
   labs(
-    x = "Region",
+    x = "",
     y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
@@ -364,7 +360,6 @@ ggsave_db(
   here("analysis", "figs", "overview_ctf", "transp-regional-dumbbells.png")
 )
 
-
 # justice -----------------------------------------------------------------
 
 justice_data <- ctf_static_wide |>
@@ -372,14 +367,13 @@ justice_data <- ctf_static_wide |>
 
 # Plot
 justice_data |>
-  generate_regional_minmax_plot("Justice") +
+  generate_regional_minmax_plot() +
   ggtitle("Justice Institutions") +
   labs(
-    x = "Region",
+    x = "",
     y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
@@ -387,5 +381,3 @@ justice_data |>
 ggsave_db(
   here("analysis", "figs", "overview_ctf", "justice-regional-dumbbells.png")
 )
-
-### code-end
