@@ -6,7 +6,7 @@
 library(haven)
 library(dplyr)
 library(here)
-library(tidyverse)
+library(dplyr)
 library(ggplot2)
 library(janitor)
 library(scales)
@@ -24,11 +24,11 @@ library(cliaretl)
 devtools::load_all()
 
 theme_set(
-  theme_minimal() +
+  theme_light() +
     theme(
-      text = element_text(family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 14, hjust = .5),
-      axis.text.y = element_text(size = 14),
+      text = element_text(size = 16, family = "Segoe UI Semibold"),
+      axis.text.x = element_text(size = 18, hjust = .5),
+      axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
       plot.background = element_blank(),
@@ -58,14 +58,13 @@ options(ggrepel.max.overlaps = Inf)
 
 set.seed(101010)
 
-
 # data-load ---------------------------------------------------------------
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
+  # only retain countries
   filter(country_group == 0)
 
 dictionary <- cliaretl::db_variables
-
 
 # prepare data ------------------------------------------------------------
 
@@ -77,7 +76,7 @@ ctf_static_long <- ctf_static |>
     values_to = "score"
   )
 
-# Add families to inticators
+# Add families to indicators
 ctf_static_fam <- ctf_static_long |>
   left_join(
     dictionary |>
@@ -93,14 +92,14 @@ ctf_static_fam <- ctf_static_long |>
   filter(!is.na(family_var)) |>
   filter(benchmark_static_family_aggregate_download == "Yes") |>
   select(
-    1:5,
+    country_code:country_group,
     var_name,
     family_var,
     family_name,
     benchmark_static_family_aggregate_download,
-    indicator
+    indicator,
+    score
   )
-
 
 # Drop sectors
 center_gov <-
@@ -114,10 +113,8 @@ center_gov <-
   ) |>
   select(-benchmark_static_family_aggregate_download)
 
-
 # Rename regions and create cliar areas
 indicator_wide_scores <- center_gov |>
-  group_by(region, family_name, indicator, var_name, score) |>
   mutate(
     region = case_when(
       region == "East Asia & Pacific" ~ "EAP",
@@ -146,22 +143,29 @@ indicator_wide_scores <- center_gov |>
     indicator,
     score,
     cliar_area
+  ) |>
+  mutate(
+    income_group = forcats::fct_relevel(
+      income_group,
+      c(
+        "High income",
+        "Upper middle income",
+        "Lower middle income",
+        "Low income"
+      )
+    )
   )
-
 
 # hrm ---------------------------------------------------------------------
 
-hrm_data <- prep_indicator_data_with_means(
+hrm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Human Resource Management Institutions",
   group_var = income_group
 )
 
 # Create hrm plot
-plot_indicator_benchmark_means(
-  data = hrm_data,
-  title = "Benchmarking Public Sector Employment Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = hrm_data)
 
 ggsave_long(here(
   "analysis",
@@ -170,21 +174,41 @@ ggsave_long(here(
   "0_hrm_capacity_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Criteria for appointment decisions in the state administration",
+        "Rigorous and impartial public administration"
+      )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name",
+    legend_name = "Income Group"
+  )
+
+ggsave_db(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_hrm_capacity_pruned.png"
+  )
+)
 
 # digital -----------------------------------------------------------------
 
-digital_data <- prep_indicator_data_with_means(
+digital_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Digital and Data Institutions",
   group_var = income_group
 )
 
 # Create digital plot
-plot_indicator_benchmark_means(
-  data = digital_data,
-  title = "Benchmarking Digital and Data Institutions: CTF scores (2020–2024 average)"
-)
-
+plot_benchmark(data = digital_data)
 
 ggsave_long(here(
   "analysis",
@@ -193,19 +217,44 @@ ggsave_long(here(
   "0_digital_capacity_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Core government systems index (cgsi)",
+        "Public service delivery index (psdi)",
+        "Censuses and surveys"
+      )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name",
+    legend_name = "Income Group"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_digital_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)
 
 # integrity ---------------------------------------------------------------
-integrity_data <- prep_indicator_data_with_means(
+integrity_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Degree of Integrity",
   group_var = income_group
 )
 
 # Create integrity plot
-plot_indicator_benchmark_means(
-  data = integrity_data,
-  title = "Benchmarking Integrity Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = integrity_data)
 
 ggsave_long(here(
   "analysis",
@@ -214,20 +263,45 @@ ggsave_long(here(
   "0_integrity_institutions_final_order.png"
 ))
 
+# distribution
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Executive corruption",
+        "Legislative corruption",
+        "Public sector corruption"
+      )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name",
+    legend_name = "Income Group"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_integrity_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)
 
 # transparency ------------------------------------------------------------
 
-transparency_data <- prep_indicator_data_with_means(
+transparency_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Transparency and Accountability Institutions",
   group_var = income_group
 )
 
 # Create transparency plot
-plot_indicator_benchmark_means(
-  data = transparency_data,
-  title = "Benchmarking Transparency and Accountability Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = transparency_data)
 
 ggsave_long(here(
   "analysis",
@@ -236,26 +310,79 @@ ggsave_long(here(
   "0_transparency_institutions_final_order.png"
 ))
 
+# pruned
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Publicized laws and government data",
+        "Digital citizen engagement index score",
+        "Right to information",
+        "Open budget index"
+      )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name",
+    legend_name = "Income Group"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_transparency_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 16,
+  bg = "white"
+)
 
 # pfm ---------------------------------------------------------------------
 
-
-pfm_data <- prep_indicator_data_with_means(
+pfm_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Public Finance Institutions",
   group_var = income_group
 )
 
 # Create pfm plot
-plot_indicator_benchmark_means(
-  data = pfm_data,
-  title = "Benchmarking Public Finance Institutions: CTF scores (2020–2024 average)"
-)
+plot_benchmark(data = pfm_data)
 
 ggsave_long(here(
   "analysis",
   "figs",
   "indicators_ctf",
-  "0_pfm_institutions_finanl_order.png"
+  "0_pfm_institutions_final_order.png"
 ))
- 
+
+# pruned
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "In-year budget reports",
+        "External audit",
+        "Pfm management information systems"
+      )
+  ) |>
+  plot_distribution_range(
+    group_var = c("income_group", "var_name"),
+    outcome_var = "score",
+    facet_var = "var_name",
+    legend_name = "Income Group"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_pfm_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)

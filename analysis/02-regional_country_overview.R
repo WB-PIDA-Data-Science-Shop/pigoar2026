@@ -2,7 +2,6 @@
 
 # Static CTF scores: identify which countries have changed the most in their score.
 
-
 # set-up ------------------------------------------------------------------
 library(haven)
 library(dplyr)
@@ -33,9 +32,9 @@ devtools::load_all()
 theme_set(
   theme_minimal() +
     theme(
-      text = element_text(family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 14, hjust = .5),
-      axis.text.y = element_text(size = 14),
+      text = element_text(size = 20, family = "Segoe UI Semibold"),
+      axis.text.x = element_text(size = 18, hjust = .5),
+      axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
       plot.background = element_blank(),
@@ -46,7 +45,6 @@ theme_set(
       legend.position = "none"
     )
 )
-
 
 ggsave_db <- partial(
   ggplot2::ggsave,
@@ -80,24 +78,22 @@ set.seed(101010)
 # install.packages('pointblank')
 # remotes::install_github("WB-PIDA-Data-Science-Shop/cliaretl")
 
-
 # data-load ---------------------------------------------------------------
 
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0) |>
-  filter(region != "North America") |>
-  mutate(
-    region = case_when(
-      region == "East Asia & Pacific" ~ "EAP",
-      region == "Europe & Central Asia" ~ "ECA",
-      region == "Latin America & Caribbean" ~ "LAC",
-      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-      region == "South Asia" ~ "SAR",
-      region == "Sub-Saharan Africa" ~ "SSA",
-      TRUE ~ region
-    )
-  )
-
+  filter(region != "North America") 
+  # mutate(
+  #   region = case_when(
+  #     region == "East Asia & Pacific" ~ "EAP",
+  #     region == "Europe & Central Asia" ~ "ECA",
+  #     region == "Latin America & Caribbean" ~ "LAC",
+  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+  #     region == "South Asia" ~ "SAR",
+  #     region == "Sub-Saharan Africa" ~ "SSA",
+  #     TRUE ~ region
+  #   )
+  # )
 
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
@@ -197,8 +193,7 @@ regional_pop <- ctf_static |>
 # gov dimension averages -------------------------------------------------
 
 ctf_avgs <- ctf_static |>
-  select(1:5, ends_with("_avg")
-  ) |>
+  select(1:5, ends_with("_avg")) |>
   rename(
     `Integrity` = vars_anticorruption_avg,
     `Energy and Enviroment Institutions` = vars_climate_avg,
@@ -212,9 +207,10 @@ ctf_avgs <- ctf_static |>
     `Public Financial Management` = vars_pfm_avg,
     `Public Human Resources Management` = vars_hrm_avg
   ) |>
-  pivot_longer(cols = 6:last_col(),
-               names_to = "cluster",
-               values_to = "value"
+  pivot_longer(
+    cols = 6:last_col(),
+    names_to = "cluster",
+    values_to = "value"
   ) |>
   mutate(
     region = case_when(
@@ -234,6 +230,15 @@ ctf_avgs <- ctf_static |>
       "Information Systems",
       "Public Human Resources Management"
     )
+  ) |>
+  filter(
+    cluster %in%
+      c(
+        "Integrity",
+        "Transparency and Accountability",
+        "Information Systems",
+        "Public Human Resource Management"
+      )
   )
 
 
@@ -249,7 +254,7 @@ plot_income_facet <- ctf_avgs |>
   mutate(cluster_lab = str_wrap(cluster, 12)) |>
   group_by(income_group, cluster_lab) |>
   summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
-  mutate(value = value * 100) |> 
+  mutate(value = value * 100) |>
   drop_na(
     income_group
   ) 
@@ -374,34 +379,27 @@ ggsave_bubble(
 
 # country-dummbells-Appendix --------------------------------------------
 
-
 # hrm ---------------------------------------------------------------------
-
 
 hrm_data <- ctf_static_wide |>
   compute_regional_statistics("vars_hrm_avg")
 
 # Plot
 hrm_data |>
-  generate_regional_minmax_plot("Personnel") +
-  ggtitle(
-    "Public HRM Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Public Human Resource Management") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","hrm-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "hrm-regional-dumbbells.png")
 )
-
 
 
 # data --------------------------------------------------------------------
@@ -411,25 +409,20 @@ digital_data <- ctf_static_wide |>
 
 # Plot
 digital_data |>
-  generate_regional_minmax_plot("Digital") +
-  ggtitle(
-    "Digital and Data Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Digital and Data") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","digital-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "digital-regional-dumbbells.png")
 )
-
 
 
 # integrity ---------------------------------------------------------------
@@ -439,23 +432,19 @@ integrity_data <- ctf_static_wide |>
 
 # Plot
 integrity_data |>
-  generate_regional_minmax_plot("Accountability") +
-  ggtitle(
-    "Degree of Integrity",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Integrity") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","integrity-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "integrity-regional-dumbbells.png")
 )
 
 
@@ -466,25 +455,20 @@ transp_data <- ctf_static_wide |>
 
 # Plot
 transp_data |>
-  generate_regional_minmax_plot("Transparency") +
-  ggtitle(
-    "Transparency & Accountability Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Transparency and Accountability") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","transp-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "transp-regional-dumbbells.png")
 )
-
 
 # justice -----------------------------------------------------------------
 
@@ -493,27 +477,17 @@ justice_data <- ctf_static_wide |>
 
 # Plot
 justice_data |>
-  generate_regional_minmax_plot("Justice") +
-  ggtitle(
-    "Justice Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Justice Institutions") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","justice-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "justice-regional-dumbbells.png")
 )
-
-
-
-### code-end
-
-

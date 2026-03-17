@@ -1,3 +1,7 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/WB-PIDA-Data-Science-Shop/pigoar2026/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WB-PIDA-Data-Science-Shop/pigoar2026/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 ## Overview
 This repository reproduces the analysis presented in the Public Institutions Global Observatory (PIGO): Annual Review 2026.
 
