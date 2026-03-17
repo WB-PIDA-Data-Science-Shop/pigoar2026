@@ -2,18 +2,22 @@
 % Please edit documentation in R/country_trends_funs.R
 \name{generate_regional_minmax_plot}
 \alias{generate_regional_minmax_plot}
-\title{A function to Generate a Min/Average/Max Labeled Plot by Region}
+\title{Generate a regional min/average/max plot by dimension}
 \usage{
-generate_regional_minmax_plot(data, dimension)
+generate_regional_minmax_plot(data)
 }
 \arguments{
-\item{data}{A data frame containing the input data.}
-
-\item{dimension}{The column name (as a string or symbol) representing the dimension to filter and plot.}
+\item{data}{Data frame returned by \code{\link{compute_regional_statistics}},
+with columns: \code{region_long}, \code{type} ("Min", "Average", "Max"),
+\code{value}, \code{min_value}, \code{max_value}, \code{country_dimension_av},
+and \code{country_code}.}
 }
 \value{
-A ggplot object with the generated labels plot.
+A ggplot object with points, segments, and country code labels faceted
+by region.
 }
 \description{
-Creates a plot with labels for a specific dimension.
+Creates a dot-and-segment plot showing the min, average, and max values
+by region for a given institutional dimension, with country code labels
+at the average position.
 }

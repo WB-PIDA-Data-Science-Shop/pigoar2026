@@ -2,7 +2,6 @@
 
 # Static CTF scores: identify which countries have changed the most in their score.
 
-
 # set-up ------------------------------------------------------------------
 library(haven)
 library(dplyr)
@@ -33,9 +32,9 @@ devtools::load_all()
 theme_set(
   theme_minimal() +
     theme(
-      text = element_text(family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 14, hjust = .5),
-      axis.text.y = element_text(size = 14),
+      text = element_text(size = 20, family = "Segoe UI Semibold"),
+      axis.text.x = element_text(size = 18, hjust = .5),
+      axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
       plot.background = element_blank(),
@@ -46,7 +45,6 @@ theme_set(
       legend.position = "none"
     )
 )
-
 
 ggsave_db <- partial(
   ggplot2::ggsave,
@@ -73,24 +71,22 @@ set.seed(101010)
 # install.packages('pointblank')
 # remotes::install_github("WB-PIDA-Data-Science-Shop/cliaretl")
 
-
 # data-load ---------------------------------------------------------------
 
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0) |>
-  filter(region != "North America") |>
-  mutate(
-    region = case_when(
-      region == "East Asia & Pacific" ~ "EAP",
-      region == "Europe & Central Asia" ~ "ECA",
-      region == "Latin America & Caribbean" ~ "LAC",
-      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-      region == "South Asia" ~ "SAR",
-      region == "Sub-Saharan Africa" ~ "SSA",
-      TRUE ~ region
-    )
-  )
-
+  filter(region != "North America") 
+  # mutate(
+  #   region = case_when(
+  #     region == "East Asia & Pacific" ~ "EAP",
+  #     region == "Europe & Central Asia" ~ "ECA",
+  #     region == "Latin America & Caribbean" ~ "LAC",
+  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+  #     region == "South Asia" ~ "SAR",
+  #     region == "Sub-Saharan Africa" ~ "SSA",
+  #     TRUE ~ region
+  #   )
+  # )
 
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
@@ -98,30 +94,28 @@ ctf_static <- cliaretl::closeness_to_frontier_static |>
   filter(region != "North America")
 
 
-
-
 # radar overview ----------------------------------------------------------
 
 # Radar by region
 ctf_avgs <- ctf_static |>
-  select(1:5, ends_with("_avg")
-  ) |>
+  select(1:5, ends_with("_avg")) |>
   rename(
-    `Degree of Integrity` = vars_anticorruption_avg,
+    `Integrity` = vars_anticorruption_avg,
     `Energy and Enviroment Institutions` = vars_climate_avg,
     `Justice Institutions` = vars_leg_avg,
     `Political Institutions` = vars_pol_avg,
     `Social Institutions` = vars_social_avg,
-    `Digital and Data Use` = vars_digital_avg,
+    `Information Systems` = vars_digital_avg,
     `Justice Institutions` = vars_leg_avg,
-    `Transparency Institutions` = vars_transp_avg,
+    `Transparency and Accountability` = vars_transp_avg,
     `Bussines Enviroment` = vars_mkt_avg,
     `Public Financial Management` = vars_pfm_avg,
-    `Public Sector Employment` = vars_hrm_avg
+    `Public Human Resource Management` = vars_hrm_avg
   ) |>
-  pivot_longer(cols = 6:last_col(),
-               names_to = "cluster",
-               values_to = "value"
+  pivot_longer(
+    cols = 6:last_col(),
+    names_to = "cluster",
+    values_to = "value"
   ) |>
   mutate(
     region = case_when(
@@ -134,15 +128,26 @@ ctf_avgs <- ctf_static |>
       TRUE ~ region
     )
   ) |>
-  filter(
-    cluster %in% c(
-      "Degree of Integrity",
-      "Transparency Institutions",
-      "Digital and Data Use",
-      "Public Sector Employment"
+  mutate(
+    income_group = fct_relevel(
+      income_group,
+      c(
+        "Low income",
+        "Lower middle income",
+        "Upper middle income",
+        "High income"
+      )
     )
+  ) |>
+  filter(
+    cluster %in%
+      c(
+        "Integrity",
+        "Transparency and Accountability",
+        "Information Systems",
+        "Public Human Resource Management"
+      )
   )
-
 
 # Radar by region
 
@@ -153,8 +158,7 @@ plot_df_facet <- ctf_avgs |>
   mutate(value = value * 100)
 
 plot_df_facet |>
-  ggplot(aes
-    (x = reorder(region, value), y = value)) +
+  ggplot(aes(x = reorder(region, value), y = value)) +
   geom_col(aes(fill = region), alpha = 0.75, show.legend = TRUE) +
   geom_segment(
     aes(y = 0, yend = 100, xend = region, color = region),
@@ -163,35 +167,35 @@ plot_df_facet |>
   ) +
   coord_polar(
     theta = "x",
-     direction = 1
+    direction = 1
   ) +
   geom_text(
     aes(y = value + 7, label = round(value, 1), color = region),
-     size = 2.5, show.legend = FALSE
-    ) +
+    size = 4,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(
     limits = c(0, 100),
     breaks = seq(0, 100, by = 25),
     labels = scales::number_format(accuracy = 1),
     expand = c(0, 0)
   ) +
-  scale_fill_brewer(palette = "Paired") +
-  scale_color_brewer(palette = "Paired") +
-  facet_wrap(~ cluster_lab, nrow = 1) +
+  ggthemes::scale_fill_solarized() +
+  ggthemes::scale_color_solarized() +
+  facet_wrap(~cluster_lab, nrow = 1) +
   labs(
-    # title = "Institutional Capacity Overview (2020-2024)",
-    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
-    y = "CTF cluster score",
+    y = "Benchmarking score",
     x = NULL
   ) +
   theme_void() +
   theme(
-    axis.text.x      = element_text(hjust = -10, size = 8),
-    axis.text.y      = element_text(size = 8, color = "grey40"),
+    axis.text.x = element_text(hjust = -10, size = 8),
+    axis.text.y = element_text(size = 12, color = "grey40"),
     panel.grid.minor = element_blank(),
     panel.grid.major = element_line(color = "grey90"),
-    plot.margin      = margin(10, 10, 10, 10),
-    legend.position  = "top"
+    plot.margin = margin(10, 10, 10, 10),
+    legend.position = "none",
+    strip.text = element_text(size = 16, face = "bold")
   )
 
 ggsave_wide(
@@ -203,13 +207,12 @@ ggsave_wide(
   )
 )
 
-
 # Radar by income level
 plot_income_facet <- ctf_avgs |>
   mutate(cluster_lab = str_wrap(cluster, 12)) |>
   group_by(income_group, cluster_lab) |>
   summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
-  mutate(value = value * 100) |> 
+  mutate(value = value * 100) |>
   drop_na(
     income_group
   )
@@ -224,35 +227,35 @@ plot_income_facet |>
   ) +
   coord_polar(
     theta = "x",
-     direction = 1
+    direction = 1
   ) +
   geom_text(
     aes(y = value + 7, label = round(value, 1), color = income_group),
-     size = 2.5, show.legend = FALSE
-    ) +
+    size = 2.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(
     limits = c(0, 100),
     breaks = seq(0, 100, by = 25),
     labels = scales::number_format(accuracy = 1),
     expand = c(0, 0)
   ) +
-  scale_fill_brewer(palette = "Set2") +
-  scale_color_brewer(palette = "Set2") +
-  facet_wrap(~ cluster_lab, nrow = 1) +
+  ggthemes::scale_fill_solarized() +
+  ggthemes::scale_color_solarized() +
+  facet_wrap(~cluster_lab, nrow = 1) +
   labs(
-    # title = "Institutional Capacity Overview (2020-2024)",
-    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
-    y = "CTF cluster score",
+    y = "Benchmarking score",
     x = NULL
   ) +
   theme_void() +
   theme(
-    axis.text.x      = element_text(hjust = -10, size = 8),
-    axis.text.y      = element_text(size = 8, color = "grey40"),
+    axis.text.x = element_text(hjust = -10, size = 10),
+    axis.text.y = element_text(size = 12, color = "grey40"),
     panel.grid.minor = element_blank(),
     panel.grid.major = element_line(color = "grey90"),
-    plot.margin      = margin(10, 10, 10, 10),
-    legend.position  = "top"
+    plot.margin = margin(10, 10, 10, 10),
+    legend.position = "none",
+    strip.text = element_text(size = 16, face = "bold")
   )
 
 ggsave_wide(
@@ -264,37 +267,29 @@ ggsave_wide(
   )
 )
 
-
 # country-dummbells-Appendix --------------------------------------------
 
-
 # hrm ---------------------------------------------------------------------
-
 
 hrm_data <- ctf_static_wide |>
   compute_regional_statistics("vars_hrm_avg")
 
 # Plot
 hrm_data |>
-  generate_regional_minmax_plot("Personnel") +
-  ggtitle(
-    "Public HRM Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Public Human Resource Management") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","hrm-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "hrm-regional-dumbbells.png")
 )
-
 
 
 # data --------------------------------------------------------------------
@@ -304,25 +299,20 @@ digital_data <- ctf_static_wide |>
 
 # Plot
 digital_data |>
-  generate_regional_minmax_plot("Digital") +
-  ggtitle(
-    "Digital and Data Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Digital and Data") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","digital-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "digital-regional-dumbbells.png")
 )
-
 
 
 # integrity ---------------------------------------------------------------
@@ -332,23 +322,19 @@ integrity_data <- ctf_static_wide |>
 
 # Plot
 integrity_data |>
-  generate_regional_minmax_plot("Accountability") +
-  ggtitle(
-    "Degree of Integrity",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Integrity") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","integrity-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "integrity-regional-dumbbells.png")
 )
 
 
@@ -359,25 +345,20 @@ transp_data <- ctf_static_wide |>
 
 # Plot
 transp_data |>
-  generate_regional_minmax_plot("Transparency") +
-  ggtitle(
-    "Transparency & Accountability Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Transparency and Accountability") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","transp-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "transp-regional-dumbbells.png")
 )
-
 
 # justice -----------------------------------------------------------------
 
@@ -386,27 +367,17 @@ justice_data <- ctf_static_wide |>
 
 # Plot
 justice_data |>
-  generate_regional_minmax_plot("Justice") +
-  ggtitle(
-    "Justice Institutions",
-    subtitle = "Regional Distributions and Average Trend"
-  ) +
+  generate_regional_minmax_plot() +
+  ggtitle("Justice Institutions") +
   labs(
-    x = "Region",
-    y = "CTF Average Score",
+    x = "",
+    y = "Benchmarking score",
     shape = "Values",
-    color = "Region",
-    hjust = 0
+    color = "Region"
   ) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf","justice-regional-dumbbells.png")
+  here("analysis", "figs", "overview_ctf", "justice-regional-dumbbells.png")
 )
-
-
-
-### code-end
-
-

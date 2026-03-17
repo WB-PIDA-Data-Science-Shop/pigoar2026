@@ -29,7 +29,9 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
     gni_per_capita = mean(log(wdi_nygnppcapkd), na.rm = TRUE),
     poverty_gap_215 = mean(wdi_sipovlmicgp, na.rm = TRUE),
     gdp_growth = mean(wdi_nygdpmktpkdzg, na.rm = TRUE),
-    unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE)
+    unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE),
+    literacy_rate = mean(wdi_seadtlitrzs, na.rm = TRUE),
+    mortality_rate = mean(wdi_shdynmort, na.rm = TRUE)
   )
 
 labor_income_average <- pigoar2026::labor_income |> 
@@ -58,10 +60,10 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
     income_group = forcats::fct_relevel(
             income_group,
             c(
-                "Low income",
-                "Lower middle income",
-                "Upper middle income",
-                "High income"
+              "High income",
+              "Upper middle income",
+              "Lower middle income",
+              "Low income"
             )
         )
   )
@@ -76,11 +78,11 @@ institutional_clusters <- c(
 )
 
 names(institutional_clusters) <- c(
-  "Public HRM Institutions",
+  "Public Human Resource Management",
   "Public Financial Management",
-  "Digital Institutions",
-  "Degree of Integrity",
-  "Transparency"
+  "Information systems",
+  "Integrity",
+  "Transparency and Accountability"
 )
 
 institutional_clusters <- institutional_clusters |> 
@@ -94,7 +96,9 @@ outcomes <- c(
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
   "Annual GDP Growth" = "gdp_growth",
   "Unemployment rate" = "unemployment_rate",
-  "Labor income" = "labor_income"
+  "Labor income" = "labor_income",
+  "Literacy rate (Adult)" = "literacy_rate",
+  "Infant mortality rate (logged)" = "mortality_rate"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"
@@ -132,7 +136,7 @@ correlation_plots <- purrr::pmap(
         )
       )
     
-    if(y_val == "poverty_gap_215"){
+    if(y_val == "poverty_gap_215" | y_val == "mortality_rate"){
       plot <- plot +
         scale_y_log10()
     }
