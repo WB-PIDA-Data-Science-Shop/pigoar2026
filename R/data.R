@@ -228,3 +228,34 @@
 #' @seealso \code{countrycode::countrycode()} for country code mappings,
 #'   ILOSTAT indicator metadata for SDG 10.4.1.
 "labor_income"
+
+#' UN World Population Prospects 2024 - Income Group Population Growth Rates
+#'
+#' A dataset containing annual population growth rate projections by income group
+#' for the period 2025-2035, extracted from the UN World Population Prospects 2024.
+#'
+#' @format A data frame with 7 columns:
+#' \describe{
+#'   \item{country_code}{Character. ISO 3166-1 alpha-3 country code.}
+#'   \item{group_class}{Character. Income group or region classification
+#'         (e.g. "High income", "Low income").}
+#'   \item{type}{Character. Aggregation type, either Region or Income Group.}
+#'   \item{year}{Numeric. Reference year of the projection (2025-2035).}
+#'   \item{population_growth_rate}{Numeric. Annual population growth rate
+#'         expressed as a percentage.}
+#'   \item{total_population}{Numeric. Total population as of 1 January,
+#'         in thousands.}
+#'   \item{median_age}{Numeric. Median age of the population as of 1 July,
+#'         in years.}
+#' }
+#'
+#' @source UN Population Division, World Population Prospects 2024.
+#'   Standard Projections, Most Used indicators.
+#'   \url{https://population.un.org/wpp/downloads?folder=Standard%20Projections&group=Most%20used}
+#'
+#' @examples
+#' \dontrun{
+#'   data(unwpp_data)
+#'   head(unwpp_data)
+#' }
+"unwpp_data"

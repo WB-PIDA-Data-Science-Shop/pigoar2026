@@ -55,6 +55,13 @@ ggsave_db <- partial(
   height = 9
 )
 
+ggsave_bubble <- partial(
+  ggplot2::ggsave,
+  bg = "white",
+  width = 9,
+  height = 8
+)
+
 ggsave_wide <- partial(
   ggplot2::ggsave,
   bg = "white",
@@ -98,26 +105,112 @@ ctf_static <- cliaretl::closeness_to_frontier_static |>
   filter(region != "North America")
 
 
+# Also load population data 
+population_data <- pigoar2026::unwpp_data
+
+# Add country naming conventions
+
+country_names <- cliaretl::wb_country_list
 
 
-# radar overview ----------------------------------------------------------
+# population data transformations ----------------------------------------
 
-# Radar by region
+# Build region abbreviation lookup from ctf_static
+region_lookup <- ctf_static |>
+  select(country_code, region) |>
+  distinct() |>
+  mutate(
+    region_code = case_when(
+      region == "East Asia & Pacific"                                ~ "EAP",
+      region == "Europe & Central Asia"                             ~ "ECA",
+      region == "Latin America & Caribbean"                         ~ "LAC",
+      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+      region == "South Asia"                                        ~ "SAR",
+      region == "Sub-Saharan Africa"                                ~ "SSA",
+      TRUE ~ region
+    )
+  ) |>
+  left_join(country_names |> select(country_code, group_code), by = "country_code")
+
+# Match UN country names in population_data to WB ISO3 codes via countrycode,
+# then attach WB region and income_group from ctf_static
+population_country <- population_data |>
+  dplyr::filter(type == "Country/Area") |>
+  dplyr::mutate(
+    country_code = suppressWarnings(
+      countrycode::countrycode(group_class, origin = "country.name", destination = "wb")
+    )
+  ) |>
+  dplyr::filter(!is.na(country_code)) |>
+  dplyr::left_join(
+    ctf_static |> dplyr::select(country_code, region, income_group) |> dplyr::distinct(),
+    by = "country_code"
+  )
+
+# Region-level population growth: aggregate from country-level UN WPP data
+avg_pop_region <- population_country |>
+  dplyr::filter(!is.na(region), year >= 2027, year <= 2036) |>
+  dplyr::mutate(
+    region_code = case_when(
+      region == "East Asia & Pacific"                                ~ "EAP",
+      region == "Europe & Central Asia"                             ~ "ECA",
+      region == "Latin America & Caribbean"                         ~ "LAC",
+      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+      region == "South Asia"                                        ~ "SAR",
+      region == "Sub-Saharan Africa"                                ~ "SSA",
+      TRUE ~ region
+    )
+  ) |>
+  dplyr::group_by(region_code) |>
+  dplyr::summarise(
+    pop_growth_avg   = mean(population_growth_rate, na.rm = TRUE),
+    total_population = sum(total_population, na.rm = TRUE),
+    median_age       = mean(median_age, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Income-group-level population growth: use pre-computed UN WPP aggregates directly
+avg_pop_income <- population_data |>
+  dplyr::filter(type == "Income Group", year >= 2027, year <= 2036) |>
+  dplyr::group_by(group_class) |>
+  dplyr::summarise(
+    pop_growth_avg   = mean(population_growth_rate, na.rm = TRUE),
+    # total_population = mean(total_population, na.rm = TRUE),
+    # median_age       = mean(median_age, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Join both to ctf_static for downstream use
+regional_pop <- ctf_static |>
+  select(country_code, region, income_group) |>
+  distinct() |>
+  left_join(region_lookup |> select(country_code, region_code, group_code),
+            by = "country_code") |>
+  left_join(avg_pop_region  |> select(region_code, pop_growth_region = pop_growth_avg),
+            by = "region_code") |>
+  left_join(avg_pop_income  |> select(group_class, pop_growth_income = pop_growth_avg),
+            by = join_by(income_group == group_class))
+
+
+
+
+# gov dimension averages -------------------------------------------------
+
 ctf_avgs <- ctf_static |>
   select(1:5, ends_with("_avg")
   ) |>
   rename(
-    `Degree of Integrity` = vars_anticorruption_avg,
+    `Integrity` = vars_anticorruption_avg,
     `Energy and Enviroment Institutions` = vars_climate_avg,
     `Justice Institutions` = vars_leg_avg,
     `Political Institutions` = vars_pol_avg,
     `Social Institutions` = vars_social_avg,
-    `Digital and Data Use` = vars_digital_avg,
+    `Information Systems` = vars_digital_avg,
     `Justice Institutions` = vars_leg_avg,
-    `Transparency Institutions` = vars_transp_avg,
+    `Transparency and Accountability` = vars_transp_avg,
     `Bussines Enviroment` = vars_mkt_avg,
     `Public Financial Management` = vars_pfm_avg,
-    `Public Sector Employment` = vars_hrm_avg
+    `Public Human Resources Management` = vars_hrm_avg
   ) |>
   pivot_longer(cols = 6:last_col(),
                names_to = "cluster",
@@ -136,73 +229,20 @@ ctf_avgs <- ctf_static |>
   ) |>
   filter(
     cluster %in% c(
-      "Degree of Integrity",
-      "Transparency Institutions",
-      "Digital and Data Use",
-      "Public Sector Employment"
+      "Integrity",
+      "Transparency and Accountability",
+      "Information Systems",
+      "Public Human Resources Management"
     )
   )
 
 
-# Radar by region
 
-plot_df_facet <- ctf_avgs |>
-  mutate(cluster_lab = str_wrap(cluster, 12)) |>
-  group_by(region, cluster_lab) |>
-  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
-  mutate(value = value * 100)
+regional_pop |> count(type)
 
-plot_df_facet |>
-  ggplot(aes
-    (x = reorder(region, value), y = value)) +
-  geom_col(aes(fill = region), alpha = 0.75, show.legend = TRUE) +
-  geom_segment(
-    aes(y = 0, yend = 100, xend = region, color = region),
-    linetype = "dashed",
-    show.legend = FALSE
-  ) +
-  coord_polar(
-    theta = "x",
-     direction = 1
-  ) +
-  geom_text(
-    aes(y = value + 7, label = round(value, 1), color = region),
-     size = 2.5, show.legend = FALSE
-    ) +
-  scale_y_continuous(
-    limits = c(0, 100),
-    breaks = seq(0, 100, by = 25),
-    labels = scales::number_format(accuracy = 1),
-    expand = c(0, 0)
-  ) +
-  scale_fill_brewer(palette = "Paired") +
-  scale_color_brewer(palette = "Paired") +
-  facet_wrap(~ cluster_lab, nrow = 1) +
-  labs(
-    # title = "Institutional Capacity Overview (2020-2024)",
-    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
-    y = "CTF cluster score",
-    x = NULL
-  ) +
-  theme_void() +
-  theme(
-    axis.text.x      = element_text(hjust = -10, size = 8),
-    axis.text.y      = element_text(size = 8, color = "grey40"),
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(color = "grey90"),
-    plot.margin      = margin(10, 10, 10, 10),
-    legend.position  = "top"
-  )
-
-ggsave_wide(
-  here(
-    "analysis",
-    "figs",
-    "overview_ctf",
-    "overview-cluster-radar-by-region.png"
-  )
-)
-
+regional_pop |>  count(income_group)
+  
+# Bubble plot by income -----------------------------------------------------
 
 # Radar by income level
 plot_income_facet <- ctf_avgs |>
@@ -212,57 +252,124 @@ plot_income_facet <- ctf_avgs |>
   mutate(value = value * 100) |> 
   drop_na(
     income_group
-  )
+  ) 
 
-plot_income_facet |>
-  ggplot(aes(x = reorder(income_group, value), y = value)) +
-  geom_col(aes(fill = income_group), alpha = 0.75, show.legend = TRUE) +
-  geom_segment(
-    aes(y = 0, yend = 100, xend = income_group, color = income_group),
-    linetype = "dashed",
-    show.legend = FALSE
-  ) +
-  coord_polar(
-    theta = "x",
-     direction = 1
-  ) +
-  geom_text(
-    aes(y = value + 7, label = round(value, 1), color = income_group),
-     size = 2.5, show.legend = FALSE
-    ) +
-  scale_y_continuous(
+merged_income <- avg_pop_income |>
+  inner_join(plot_income_facet, 
+             by = join_by(group_class == income_group))
+
+cluster_order <- str_wrap(
+  c(
+    "Public Human Resources Management",
+    "Information Systems",
+    "Integrity",
+    "Transparency and Accountability"
+  ),
+  width = 12
+)
+
+merged_income |>
+  mutate(cluster_lab = factor(cluster_lab, levels = cluster_order)) |>
+  mutate(
+    group_class = factor(group_class, levels = c(
+      "Low income",
+      "Lower middle income",
+      "Upper middle income",
+      "High income"
+    )),
+    value = if_else(cluster_lab == "Institutional\nCapacity", value / 100, value)
+  ) |>
+  ggplot(aes(x = value, y = group_class, 
+             size = pop_growth_avg, color = group_class)) +
+  geom_segment(aes(x = 0, xend = value, 
+                   y = group_class, yend = group_class),
+               linewidth = 0.4, alpha = 0.5) +
+  geom_point(alpha = 0.7) +
+  facet_wrap(~cluster_lab, scales = "free_x") +
+  scale_size_continuous(range = c(1,20)) +
+  ggthemes::scale_color_solarized() +
+  scale_x_continuous(
     limits = c(0, 100),
     breaks = seq(0, 100, by = 25),
     labels = scales::number_format(accuracy = 1),
     expand = c(0, 0)
   ) +
-  scale_fill_brewer(palette = "Set2") +
-  scale_color_brewer(palette = "Set2") +
-  facet_wrap(~ cluster_lab, nrow = 1) +
   labs(
-    # title = "Institutional Capacity Overview (2020-2024)",
-    # subtitle = "Regional Average CTF Scores by Institutional Cluster",
-    y = "CTF cluster score",
-    x = NULL
+    x        = "Benchmarking score (0-100)",
+    y        = NULL,
+    size     = "Average Annual population growth,\nUN projection (2027–2036)"
   ) +
-  theme_void() +
-  theme(
-    axis.text.x      = element_text(hjust = -10, size = 8),
-    axis.text.y      = element_text(size = 8, color = "grey40"),
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(color = "grey90"),
-    plot.margin      = margin(10, 10, 10, 10),
-    legend.position  = "top"
-  )
+  guides(
+    color = "none",        # drop color legend since y axis already labels groups
+    size  = guide_legend()
+  ) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "bottom")
 
-ggsave_wide(
+
+ggsave_bubble(
   here(
     "analysis",
     "figs",
     "overview_ctf",
-    "overview-cluster-radar-by-income.png"
+    "population_vs_income_level_panel.png"
   )
 )
+
+
+# Bubble plot by region ---------------------------------------------------
+
+plot_region_facet <- ctf_avgs |>
+  mutate(cluster_lab = str_wrap(cluster, 12)) |>
+  group_by(region, cluster_lab) |>
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") |>
+  mutate(value = value * 100)
+
+merged_region <- avg_pop_region |>
+  inner_join(plot_region_facet,
+             by = join_by(region_code == region))
+
+merged_region |>
+  mutate(cluster_lab = factor(cluster_lab, levels = cluster_order)) |>
+  ggplot(aes(x = value, y = region_code,
+             size = pop_growth_avg, color = region_code)) +
+  geom_segment(aes(x = 0, xend = value,
+                   y = region_code, yend = region_code),
+               linewidth = 0.4, alpha = 0.5) +
+  geom_point(alpha = 0.7) +
+  facet_wrap(~cluster_lab, scales = "free_x") +
+  scale_size_continuous(range = c(1, 15)) +
+  ggthemes::scale_color_solarized() +
+  scale_x_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 25),
+    labels = scales::number_format(accuracy = 1),
+    expand = c(0, 0)
+  ) +
+  labs(
+    x        = "Benchmarking score (0-100)",
+    y        = NULL,
+    size     = "Average Annual population growth,\nUN projection (2027–2036)"
+  ) +
+  guides(
+    color = "none",
+    size  = guide_legend()
+  ) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "bottom")
+
+ggsave_bubble(
+  here(
+    "analysis",
+    "figs",
+    "overview_ctf",
+    "population_vs_region_panel.png"
+  )
+)
+
+
 
 
 # country-dummbells-Appendix --------------------------------------------
