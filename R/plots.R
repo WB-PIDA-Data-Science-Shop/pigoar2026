@@ -167,3 +167,106 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 
   plot
 }
+
+#' Plot quantile-classified jittered points with group means
+#'
+#' Creates a scatter plot with jittered points colored by quantile classification
+#' (Weak/Emerging/Strong), overlaid with group mean points and a global average
+#' reference line.
+#'
+#' @param .data A data frame.
+#' @param x Character string. Column name for the x-axis.
+#' @param y Character string. Column name for the y-axis.
+#' @param quantile_group Character vector. Column name(s) used to compute quantile.
+#'
+#' @return A ggplot object with jittered points colored by quantile level, large
+#'   orange points for group means, and a dashed global average line.
+#'
+#' @examples
+#' \dontrun{
+#' indicator_wide_scores |>
+#'   filter(var_name == "Core government systems index (cgsi)") |>
+#'   plot_quantile(
+#'     x = "income_group",
+#'     y = "score",
+#'     quantile_group = "indicator"
+#'   )
+#' }
+#'
+#' @import ggplot2
+#' @importFrom dplyr group_by mutate summarise across all_of between
+#'
+#' @export
+plot_quantile <- function(.data, x, y, quantile_group){
+  data_quantile <- .data |> 
+    group_by(
+      across(all_of(quantile_group))
+    ) |> 
+    mutate(
+      quantile_indicator = case_when(
+        .data[[y]] < quantile(.data[[y]],c(0.25)) ~ "Weak",
+        between(.data[[y]], quantile(.data[[y]], c(0.25)), quantile(.data[[y]], c(0.5))) ~ "Emerging",
+        .data[[y]] > quantile(.data[[y]], c(0.5)) ~ "Strong"
+      )
+    ) 
+
+  plot_quantile <- data_quantile |> 
+    ggplot(
+      aes(x = .data[[x]], y = .data[[y]])
+    ) +
+    stat_summary(
+      aes(group = .data[[x]]),
+      fun = mean,
+      geom = "point",
+      shape = 21,
+      size = 16,
+      fill = "orange2",
+      color = "grey20",
+      stroke = 1.5
+    ) +
+    geom_point(
+      aes(color = .data[["quantile_indicator"]]),
+      position = position_jitter(seed = 42, width = 0.2),
+      shape = 1,
+      size = 4,
+      stroke = 1,
+      alpha = 0.8
+    ) +
+    scale_color_manual(
+      values = c(
+        "Weak" = "red",
+        "Emerging" = "goldenrod2",
+        "Strong" = "forestgreen"
+      ),
+      name = "Global Level",
+      na.value = "grey60"
+    ) +
+    theme(
+      legend.position = "bottom"
+    ) +
+    labs(x = "", y = "")
+
+  plot_quantile <- plot_quantile +
+    geom_hline(
+    aes(yintercept = mean(.data[[y]], na.rm = TRUE)),
+    linetype = "dashed",
+    linewidth = 0.8,
+    color = "grey40"
+    ) +
+    geom_text(
+      aes(
+        x = Inf,
+        y = mean(.data[[y]], na.rm = TRUE),
+        label = "Global average"
+      ),
+      hjust = 1.1,
+      vjust = -0.5,
+      size = 8,
+      color = "grey40",
+      inherit.aes = FALSE,
+      data = \(d) d |> summarise(score = mean(score, na.rm = TRUE))
+    )
+
+    plot_quantile
+}
+
