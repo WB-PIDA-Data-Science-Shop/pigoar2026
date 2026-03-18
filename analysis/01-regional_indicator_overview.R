@@ -115,17 +115,17 @@ center_gov <-
 
 # Rename regions and create cliar areas
 indicator_wide_scores <- center_gov |>
-  mutate(
-    region = case_when(
-      region == "East Asia & Pacific" ~ "EAP",
-      region == "Europe & Central Asia" ~ "ECA",
-      region == "Latin America & Caribbean" ~ "LAC",
-      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-      region == "South Asia" ~ "SAR",
-      region == "Sub-Saharan Africa" ~ "SSA",
-      TRUE ~ region
-    )
-  ) |>
+  # mutate(
+  #   region = case_when(
+  #     region == "East Asia & Pacific" ~ "EAP",
+  #     region == "Europe & Central Asia" ~ "ECA",
+  #     region == "Latin America & Caribbean" ~ "LAC",
+  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+  #     region == "South Asia" ~ "SAR",
+  #     region == "Sub-Saharan Africa" ~ "SSA",
+  #     TRUE ~ region
+  #   )
+  # ) |>
   mutate(
     cliar_area = case_when(
       family_name %in%
@@ -144,6 +144,7 @@ indicator_wide_scores <- center_gov |>
     score,
     cliar_area
   ) |>
+  # ensure that income levels reflect accurate ordering
   mutate(
     income_group = forcats::fct_relevel(
       income_group,
@@ -245,6 +246,33 @@ ggsave(
   height = 14,
   bg = "white"
 )
+
+# classified
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Core government systems index (cgsi)"
+      )
+  ) |>
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "indicator"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_digital_capacity_pruned.png"
+  ),
+  width = 14,
+  height = 14,
+  bg = "white"
+)
+
 
 # integrity ---------------------------------------------------------------
 integrity_data <- prep_benchmark_data(
