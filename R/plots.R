@@ -205,8 +205,8 @@ plot_quantile <- function(.data, x, y, quantile_group){
     mutate(
       quantile_indicator = case_when(
         .data[[y]] < quantile(.data[[y]],c(0.25)) ~ "Weak",
-        between(.data[[y]], quantile(.data[[y]], c(0.25)), quantile(.data[[y]], c(0.75))) ~ "Emerging",
-        .data[[y]] > quantile(.data[[y]], c(0.75)) ~ "Strong"
+        between(.data[[y]], quantile(.data[[y]], c(0.25)), quantile(.data[[y]], c(0.5))) ~ "Emerging",
+        .data[[y]] > quantile(.data[[y]], c(0.5)) ~ "Strong"
       )
     ) 
 
@@ -226,11 +226,10 @@ plot_quantile <- function(.data, x, y, quantile_group){
     ) +
     geom_point(
       aes(color = .data[["quantile_indicator"]]),
-      position = position_jitter(seed = 42),
+      position = position_jitter(seed = 42, width = 0.2),
       shape = 1,
       size = 4,
       stroke = 1,
-      width = 0.2,
       alpha = 0.8
     ) +
     scale_color_manual(
