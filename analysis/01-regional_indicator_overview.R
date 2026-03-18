@@ -155,15 +155,6 @@ indicator_wide_scores <- center_gov |>
         "Low income"
       )
     )
-  ) |> 
-  # create cliar quantiles
-  group_by(indicator) |> 
-  mutate(
-    quantile_indicator = case_when(
-      score < quantile(score,c(0.25)) ~ "Weak",
-      between(score, quantile(score, c(0.25)), quantile(score, c(0.75))) ~ "Emerging",
-      score > quantile(score, c(0.75)) ~ "Strong"
-    )
   )
 
 # hrm ---------------------------------------------------------------------
@@ -264,59 +255,11 @@ indicator_wide_scores |>
         "Core government systems index (cgsi)"
       )
   ) |>
-  ggplot(
-    aes(x = income_group, y = score)
-  ) +
-  stat_summary(
-    aes(group = income_group),
-    fun = mean,
-    geom = "point",
-    shape = 21,
-    size = 16,
-    fill = "orange2",
-    color = "grey20",
-    stroke = 1.5
-  ) +
-  geom_jitter(
-    aes(color = quantile_indicator),
-    shape = 1,
-    size = 4,
-    stroke = 1,
-    width = 0.2,
-    alpha = 0.8
-  ) +
-  geom_hline(
-    aes(yintercept = mean(score, na.rm = TRUE)),
-    linetype = "dashed",
-    linewidth = 0.8,
-    color = "grey40"
-  ) +
-  geom_text(
-    aes(
-      x = Inf,
-      y = mean(score, na.rm = TRUE),
-      label = "Global average"
-    ),
-    hjust = 1.1,
-    vjust = -0.5,
-    size = 8,
-    color = "grey40",
-    inherit.aes = FALSE,
-    data = \(d) d |> summarise(score = mean(score, na.rm = TRUE))
-  ) +
-  scale_color_manual(
-    values = c(
-      "Weak" = "red",
-      "Emerging" = "goldenrod2",
-      "Strong" = "forestgreen"
-    ),
-    name = "Level",
-    na.value = "grey60"
-  ) +
-  theme(
-    legend.position = "bottom"
-  ) +
-  labs(x = "", y = "")
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "indicator"
+  )
 
 ggsave(
   here(
@@ -329,7 +272,6 @@ ggsave(
   height = 14,
   bg = "white"
 )
-
 
 
 # integrity ---------------------------------------------------------------
