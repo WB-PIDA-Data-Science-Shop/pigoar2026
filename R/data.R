@@ -268,3 +268,14 @@
 #' }
 #' @source <https://ddh-openapi.worldbank.org/resources/DR0095333/download/>
 "countryclass"
+
+#' @title Budget Execution Rate
+#' @description Primary government expenditures as a proportion of original approved budget (%)
+#' @source <https://data360.worldbank.org/en/indicator/WB_WDI_GF_XPD_BUDG_ZS>
+#' @format A data frame with 3154 rows and 3 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character World Bank country code}
+#'   \item{\code{year}}{character Year}
+#'   \item{\code{budget_execution_rate}}{double Primary government expenditure (%)}
+#'}
+"budget_execution"
