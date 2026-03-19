@@ -9,10 +9,10 @@ budget_execution_input <- get_data360_api(
 )
 
 budget_execution <- budget_execution_input |> 
-  select(
+  transmute(
     country_code,
     year,
-    budget_execution_rate = wb_wdi_gf_xpd_budg_zs
+    budget_execution_rate = as.numeric(wb_wdi_gf_xpd_budg_zs)
   )
 
 usethis::use_data(budget_execution, overwrite = TRUE)
