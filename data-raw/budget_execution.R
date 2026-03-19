@@ -1,6 +1,6 @@
 ## code to prepare `budget_execution` dataset goes here
 # source: https://data360.worldbank.org/en/indicator/WB_WDI_GF_XPD_BUDG_ZS
-# accessed in: 4/21/2025
+# accessed in: 3/19/2026
 library(readr)
 library(tidyr)
 
@@ -14,5 +14,5 @@ budget_execution <- budget_execution_input |>
     year,
     budget_execution_rate = wb_wdi_gf_xpd_budg_zs
   )
-  
+
 usethis::use_data(budget_execution, overwrite = TRUE)
