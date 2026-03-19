@@ -179,6 +179,8 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param y Character string. Column name for the y-axis.
 #' @param quantile_group Character vector. Column name(s) used to compute quantile.
 #' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
+#' @param reorder Logical. If TRUE, reorders x-axis labels by mean of \code{y}
+#'   (descending).
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.
@@ -191,26 +193,37 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #'     x = "income_group",
 #'     y = "score",
 #'     quantile_group = "indicator",
-#'     facet_group = "indicator_name"
+#'     facet_group = "indicator_name",
+#'     reorder_x = TRUE
 #'   )
 #' }
 #'
 #' @import ggplot2
 #' @importFrom dplyr group_by mutate summarise across all_of between
+#' @importFrom forcats fct_reorder
 #'
 #' @export
-plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL){
+plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reorder = FALSE){
   data_quantile <- .data |> 
     group_by(
       across(all_of(quantile_group))
     ) |> 
     mutate(
       quantile_indicator = case_when(
-        .data[[y]] < quantile(.data[[y]],c(0.25)) ~ "Weak",
+        .data[[y]] < quantile(.data[[y]], c(0.25)) ~ "Weak",
         between(.data[[y]], quantile(.data[[y]], c(0.25)), quantile(.data[[y]], c(0.5))) ~ "Emerging",
         .data[[y]] > quantile(.data[[y]], c(0.5)) ~ "Strong"
       )
-    ) 
+    ) |>
+    ungroup()
+
+  # Optionally reorder x by mean of y (descending)
+  if (reorder) {
+    data_quantile <- data_quantile |>
+      mutate(
+        !!x := fct_reorder(.data[[x]], .data[[y]], .fun = base::mean, .desc = TRUE)
+      )
+  }
 
   plot_quantile <- data_quantile |> 
     ggplot(
@@ -221,7 +234,7 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL){
       fun = mean,
       geom = "point",
       shape = 21,
-      size = 16,
+      size = 12,
       fill = "orange2",
       color = "grey20",
       stroke = 1.5

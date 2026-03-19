@@ -204,7 +204,6 @@ ggsave_db(
 )
 
 # digital -----------------------------------------------------------------
-
 digital_data <- prep_benchmark_data(
   data = indicator_wide_scores,
   family_name_value = "Digital and Data Institutions",
