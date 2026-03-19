@@ -228,3 +228,27 @@
 #' @seealso \code{countrycode::countrycode()} for country code mappings,
 #'   ILOSTAT indicator metadata for SDG 10.4.1.
 "labor_income"
+
+#' @title Global Survey of Public Servants
+#' @description This dataset is a set of surveys of public servants produced by the Bureaucracy Lab at the World Bank and partnering academic institutions.
+#' @format A data frame with 229467 rows and 10 variables:
+#' \describe{
+#'   \item{\code{country_code}}{World Bank country code}
+#'   \item{\code{economy}}{character Country name}
+#'   \item{\code{category}}{character Category name}
+#'   \item{\code{year}}{double Year}
+#'   \item{\code{region}}{character World Bank region}
+#'   \item{\code{income_group}}{character World Bank income group}
+#'   \item{\code{respondent_group}}{character Respondent group}
+#'   \item{\code{topic_group}}{character Topic grouping}
+#'   \item{\code{indicator}}{character Indicator}
+#'   \item{\code{indicator_group}}{character Indicator grouping}
+#'   \item{\code{question_text}}{character Survey question}
+#'   \item{\code{mean}}{double Average for the group. See scale}
+#'   \item{\code{lower_ci}}{double Lower bound for the average}
+#'   \item{\code{upper_ci}}{double Upper bound for the average}
+#'   \item{\code{scale}}{character Scale for the average}
+#'   \item{\code{response_rate}}{double Response rate for the group}
+#'}
+#' @source <https://www.globalsurveyofpublicservants.org/data-downloads>
+"gsps"

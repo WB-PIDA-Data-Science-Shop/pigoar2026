@@ -178,6 +178,7 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param x Character string. Column name for the x-axis.
 #' @param y Character string. Column name for the y-axis.
 #' @param quantile_group Character vector. Column name(s) used to compute quantile.
+#' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.
@@ -189,7 +190,8 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #'   plot_quantile(
 #'     x = "income_group",
 #'     y = "score",
-#'     quantile_group = "indicator"
+#'     quantile_group = "indicator",
+#'     facet_group = "indicator_name"
 #'   )
 #' }
 #'
@@ -197,7 +199,7 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @importFrom dplyr group_by mutate summarise across all_of between
 #'
 #' @export
-plot_quantile <- function(.data, x, y, quantile_group){
+plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL){
   data_quantile <- .data |> 
     group_by(
       across(all_of(quantile_group))
@@ -244,29 +246,62 @@ plot_quantile <- function(.data, x, y, quantile_group){
     theme(
       legend.position = "bottom"
     ) +
-    labs(x = "", y = "")
-
-  plot_quantile <- plot_quantile +
-    geom_hline(
-    aes(yintercept = mean(.data[[y]], na.rm = TRUE)),
-    linetype = "dashed",
-    linewidth = 0.8,
-    color = "grey40"
-    ) +
-    geom_text(
-      aes(
-        x = Inf,
-        y = mean(.data[[y]], na.rm = TRUE),
-        label = "Global average"
-      ),
-      hjust = 1.1,
-      vjust = -0.5,
-      size = 8,
-      color = "grey40",
-      inherit.aes = FALSE,
-      data = \(d) d |> summarise(score = mean(score, na.rm = TRUE))
+    labs(x = "", y = "") +
+    scale_x_discrete(
+      labels = \(x) str_wrap(x, width = 15)
     )
 
-    plot_quantile
+  if(!is.null(facet_group)){
+    plot_quantile <- plot_quantile +
+      facet_wrap(
+        vars(.data[[facet_group]]),
+        labeller = label_wrap_gen(width = 40),
+        ncol = 1
+      ) +
+      geom_hline(
+        aes(yintercept = .data[[y]]),
+        linetype = "dashed",
+        linewidth = 0.8,
+        color = "grey40",
+        data = \(d) d |>
+          group_by(across(all_of(facet_group))) |>
+          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+      ) +
+      geom_text(
+        aes(x = Inf, y = .data[[y]], label = "Global average"),
+        hjust = 1.1,
+        vjust = -0.5,
+        size = 6,
+        color = "grey40",
+        inherit.aes = FALSE,
+        data = \(d) d |>
+          group_by(across(all_of(facet_group))) |>
+          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+      )
+  }else{
+    plot_quantile <- plot_quantile +
+      geom_hline(
+        aes(yintercept = .data[[y]]),
+        linetype = "dashed",
+        linewidth = 0.8,
+        color = "grey40",
+        data = \(d) d |>
+          group_by(across(all_of(quantile_group))) |>
+          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+      ) +
+      geom_text(
+        aes(x = Inf, y = .data[[y]], label = "Global average"),
+        hjust = 1.1,
+        vjust = -0.5,
+        size = 6,
+        color = "grey40",
+        inherit.aes = FALSE,
+        data = \(d) d |>
+          group_by(across(all_of(quantile_group))) |>
+          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+      )
+  }
+  
+  plot_quantile
 }
 

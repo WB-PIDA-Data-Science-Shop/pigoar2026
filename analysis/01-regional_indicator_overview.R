@@ -26,8 +26,8 @@ devtools::load_all()
 theme_set(
   theme_light() +
     theme(
-      text = element_text(size = 16, family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 18, hjust = .5),
+      text = element_text(size = 22, family = "Segoe UI Semibold"),
+      axis.text.x = element_text(size = 20, hjust = .5),
       axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
@@ -36,7 +36,10 @@ theme_set(
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       panel.border = element_blank(),
-      legend.position = "none"
+      legend.position = "none",
+      strip.text = element_text(size = 20, face = "bold"),
+      legend.text = element_text(size = 18),
+      legend.title = element_text(size = 16, face = "bold")
     )
 )
 
@@ -247,7 +250,7 @@ ggsave(
   bg = "white"
 )
 
-# classified
+# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -266,13 +269,13 @@ ggsave(
     "analysis",
     "figs",
     "indicators_ctf",
-    "0_digital_capacity_pruned.png"
+    "0_digital_capacity_quantile.png"
   ),
-  width = 14,
-  height = 14,
+  width = 12,
+  height = 10,
+  dpi = 300,
   bg = "white"
 )
-
 
 # integrity ---------------------------------------------------------------
 integrity_data <- prep_benchmark_data(
@@ -316,7 +319,34 @@ ggsave(
     "0_integrity_capacity_pruned.png"
   ),
   width = 14,
-  height = 14,
+  height = 1,
+  bg = "white"
+)
+
+# quantile
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Public sector corruption"
+      )
+  ) |>
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "indicator"
+  ) 
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_integrity_capacity_quantile.png"
+  ),
+  width = 12,
+  height = 10,
+  dpi = 300,
   bg = "white"
 )
 
@@ -365,6 +395,36 @@ ggsave(
   ),
   width = 14,
   height = 16,
+  bg = "white"
+)
+
+# quantile
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Publicized laws and government data",
+        "Right to information",
+        "Open budget index"
+      )
+  ) |>
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "indicator",
+    facet_group = "var_name"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_transparency_capacity_quantile.png"
+  ),
+  width = 12,
+  height = 14,
+  dpi = 300,
   bg = "white"
 )
 
