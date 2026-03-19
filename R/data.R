@@ -252,3 +252,19 @@
 #'}
 #' @source <https://www.globalsurveyofpublicservants.org/data-downloads>
 "gsps"
+
+#' World Bank Country and Lending Groups
+#'
+#' This dataset is produced by the World Bank Group to classify countries as to their income levels and other groups.
+#'
+#' @format ## `countryclass`
+#' A data frame with 267 rows and 4 columns:
+#' \describe{
+#'   \item{country_code}{World Bank country code}
+#'   \item{economy}{Country name}
+#'   \item{region}{World Bank region}
+#'   \item{income_group}{World Bank income classification}
+#'   ...
+#' }
+#' @source <https://ddh-openapi.worldbank.org/resources/DR0095333/download/>
+"countryclass"

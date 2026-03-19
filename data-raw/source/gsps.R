@@ -25,7 +25,7 @@ if(!file.exists(lcl)){
 }
 
 gsps_input <- read_xlsx(
-  here("data-raw", "input", "gsps_macro.xlsx"),
+  here("data-raw", "input", "gsps", "gsps_macro.xlsx"),
   sheet = 1
   ) |>
   clean_names()
