@@ -234,7 +234,13 @@ plot_quantile <- function(
         .data[[y]] > quantile(.data[[y]], c(0.5), na.rm = TRUE) ~ "Strong"
       )
     ) |>
-    ungroup()
+    ungroup() |> 
+    mutate(
+      quantile_indicator = forcats::fct_relevel(
+        quantile_indicator,
+        c("Strong", "Emerging", "Weak")
+      )
+    )
 
   # Optionally reorder x by mean of y (descending)
   if (reorder) {

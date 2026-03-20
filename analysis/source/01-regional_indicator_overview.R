@@ -473,3 +473,30 @@ ggsave(
   height = 14,
   bg = "white"
 )
+
+# quantile
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Pfm management information systems"
+      )
+  ) |>
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "indicator"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_pfm_capacity_quantile.png"
+  ),
+  width = 14,
+  height = 10,
+  dpi = 300,
+  bg = "white"
+)
