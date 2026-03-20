@@ -318,3 +318,62 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
   plot_quantile
 }
 
+#' Plot group mean trends over time as connected points
+#'
+#' Summarises a numeric outcome by a grouping variable and a time variable (x),
+#' then plots group means as points connected by lines. A dashed horizontal
+#' reference line is drawn at y = 100. Rows with missing group values are dropped.
+#'
+#' @param .data A data frame or tibble.
+#' @param x A string naming the time/x-axis column in \code{.data}.
+#' @param y A string naming the numeric outcome column in \code{.data}.
+#' @param group A string naming the grouping column in \code{.data} (e.g.,
+#'   \code{"income_group"}). Used for color mapping and faceting.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' \dontrun{
+#' budget_execution |>
+#'   plot_point_line(
+#'     x = "year",
+#'     y = "budget_execution_rate",
+#'     group = "income_group"
+#'   )
+#' }
+#'
+#' @import ggplot2
+#' @importFrom dplyr group_by summarise filter
+#' @importFrom ggthemes scale_color_solarized
+#'
+#' @export
+plot_point_line <- function(.data, x, y, group) {
+  .data |>
+    group_by(.data[[group]], .data[[x]]) |>
+    summarise(
+      y_mean = mean(.data[[y]], na.rm = TRUE),
+      n = n(),
+      .groups = "drop"
+    ) |>
+    filter(!is.na(.data[[group]])) |>
+    ggplot(
+      aes(x = .data[[x]], y = .data[["y_mean"]], color = .data[[group]])
+    ) +
+    geom_point(
+      size = 5
+    ) +
+    geom_line(
+      linewidth = 2
+    ) +
+    geom_hline(
+      aes(yintercept = 100),
+      linetype = "dashed"
+    ) +
+    scale_color_solarized(
+      name = group
+    ) +
+    theme(
+      legend.position = "bottom"
+    ) +
+    labs(x = x, y = y)
+}
