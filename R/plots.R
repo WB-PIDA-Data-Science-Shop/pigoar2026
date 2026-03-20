@@ -37,40 +37,46 @@
 #'
 #' @import ggplot2
 #' @importFrom scales pretty_breaks
-#' 
+#'
 #' @export
-ggplot_correlation <- function(data, x, y, group, filename = NULL){
-    plot <- data |> 
-      ggplot(
-        aes(
-          y = .data[[y]], 
-          x = .data[[x]], 
-          color = .data[[group]]
-        )
-      ) +
-      geom_point(size = 4) +
-      geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE, color = "black", linetype = "dashed") +
-      scale_color_solarized() +
-      scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-      scale_y_continuous(
-        breaks = scales::pretty_breaks(n = 5), 
-        limits = c(min(data[[y]]), max(data[[y]]))
-      ) +
-      theme(legend.position = "bottom")
-    
-    if(!is_null(filename)){
-      ggsave(
-        plot = plot,
-        filename = filename,
-        width = 12, 
-        height = 12, 
-        dpi = 300, 
-        bg = "white"
+ggplot_correlation <- function(data, x, y, group, filename = NULL) {
+  plot <- data |>
+    ggplot(
+      aes(
+        y = .data[[y]],
+        x = .data[[x]],
+        color = .data[[group]]
       )
-    }
-    
-    return(plot)
+    ) +
+    geom_point(size = 4) +
+    geom_smooth(
+      method = "lm",
+      formula = y ~ poly(x, 2),
+      se = FALSE,
+      color = "black",
+      linetype = "dashed"
+    ) +
+    scale_color_solarized() +
+    scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+    scale_y_continuous(
+      breaks = scales::pretty_breaks(n = 5),
+      limits = c(min(data[[y]]), max(data[[y]]))
+    ) +
+    theme(legend.position = "bottom")
+
+  if (!is_null(filename)) {
+    ggsave(
+      plot = plot,
+      filename = filename,
+      width = 12,
+      height = 12,
+      dpi = 300,
+      bg = "white"
+    )
   }
+
+  return(plot)
+}
 
 #' Plot indexed event trends by quarter with baseline = 100
 #'
@@ -130,7 +136,9 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
       .data[[group]]
     ) |>
     mutate(
-      events_index = .data[["events_sum"]] / .data[["events_sum"]][quarter == min(quarter)] * 100
+      events_index = .data[["events_sum"]] /
+        .data[["events_sum"]][quarter == min(quarter)] *
+        100
     ) |>
     ungroup() |>
     ggplot(
@@ -153,11 +161,11 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
       legend.position = "bottom"
     ) +
     labs(
-        x = "Time",
-        y = "Protests (Baseline = 100)"
+      x = "Time",
+      y = "Protests (Baseline = 100)"
     )
-  
-  if(facet_group){
+
+  if (facet_group) {
     plot <- plot +
       facet_wrap(
         vars(.data[[group]]),
@@ -203,16 +211,27 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @importFrom forcats fct_reorder
 #'
 #' @export
-plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reorder = FALSE){
-  data_quantile <- .data |> 
+plot_quantile <- function(
+  .data,
+  x,
+  y,
+  quantile_group,
+  facet_group = NULL,
+  reorder = FALSE
+) {
+  data_quantile <- .data |>
     group_by(
       across(all_of(quantile_group))
-    ) |> 
+    ) |>
     mutate(
       quantile_indicator = case_when(
-        .data[[y]] < quantile(.data[[y]], c(0.25)) ~ "Weak",
-        between(.data[[y]], quantile(.data[[y]], c(0.25)), quantile(.data[[y]], c(0.5))) ~ "Emerging",
-        .data[[y]] > quantile(.data[[y]], c(0.5)) ~ "Strong"
+        .data[[y]] < quantile(.data[[y]], c(0.25), na.rm = TRUE) ~ "Weak",
+        between(
+          .data[[y]],
+          quantile(.data[[y]], c(0.25), na.rm = TRUE),
+          quantile(.data[[y]], c(0.5), na.rm = TRUE)
+        ) ~ "Emerging",
+        .data[[y]] > quantile(.data[[y]], c(0.5), na.rm = TRUE) ~ "Strong"
       )
     ) |>
     ungroup()
@@ -221,11 +240,16 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
   if (reorder) {
     data_quantile <- data_quantile |>
       mutate(
-        !!x := fct_reorder(.data[[x]], .data[[y]], .fun = base::mean, .desc = TRUE)
+        !!x := fct_reorder(
+          .data[[x]],
+          .data[[y]],
+          .fun = base::mean,
+          .desc = TRUE
+        )
       )
   }
 
-  plot_quantile <- data_quantile |> 
+  plot_quantile <- data_quantile |>
     ggplot(
       aes(x = .data[[x]], y = .data[[y]])
     ) +
@@ -264,7 +288,7 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
       labels = \(x) str_wrap(x, width = 15)
     )
 
-  if(!is.null(facet_group)){
+  if (!is.null(facet_group)) {
     plot_quantile <- plot_quantile +
       facet_wrap(
         vars(.data[[facet_group]]),
@@ -276,9 +300,11 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
         linetype = "dashed",
         linewidth = 0.8,
         color = "grey40",
-        data = \(d) d |>
-          group_by(across(all_of(facet_group))) |>
-          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        data = \(d) {
+          d |>
+            group_by(across(all_of(facet_group))) |>
+            summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        }
       ) +
       geom_text(
         aes(x = Inf, y = .data[[y]], label = "Global average"),
@@ -287,20 +313,24 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
         size = 6,
         color = "grey40",
         inherit.aes = FALSE,
-        data = \(d) d |>
-          group_by(across(all_of(facet_group))) |>
-          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        data = \(d) {
+          d |>
+            group_by(across(all_of(facet_group))) |>
+            summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        }
       )
-  }else{
+  } else {
     plot_quantile <- plot_quantile +
       geom_hline(
         aes(yintercept = .data[[y]]),
         linetype = "dashed",
         linewidth = 0.8,
         color = "grey40",
-        data = \(d) d |>
-          group_by(across(all_of(quantile_group))) |>
-          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        data = \(d) {
+          d |>
+            group_by(across(all_of(quantile_group))) |>
+            summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        }
       ) +
       geom_text(
         aes(x = Inf, y = .data[[y]], label = "Global average"),
@@ -309,12 +339,14 @@ plot_quantile <- function(.data, x, y, quantile_group, facet_group = NULL, reord
         size = 6,
         color = "grey40",
         inherit.aes = FALSE,
-        data = \(d) d |>
-          group_by(across(all_of(quantile_group))) |>
-          summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        data = \(d) {
+          d |>
+            group_by(across(all_of(quantile_group))) |>
+            summarise(!!y := mean(.data[[y]], na.rm = TRUE), .groups = "drop")
+        }
       )
   }
-  
+
   plot_quantile
 }
 
@@ -365,15 +397,13 @@ plot_point_line <- function(.data, x, y, group) {
     geom_line(
       linewidth = 2
     ) +
-    geom_hline(
-      aes(yintercept = 100),
-      linetype = "dashed"
-    ) +
     scale_color_solarized(
       name = group
     ) +
     theme(
       legend.position = "bottom"
     ) +
-    labs(x = x, y = y)
+    guides(
+      color = guide_legend(nrow = 2)
+    )
 }
