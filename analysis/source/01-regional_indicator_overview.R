@@ -203,6 +203,35 @@ ggsave_db(
   )
 )
 
+# quantile
+indicator_wide_scores |>
+  filter(
+    var_name %in%
+      c(
+        "Criteria for appointment decisions in the state administration",
+        "Rigorous and impartial public administration"
+      )
+  ) |>
+  plot_quantile(
+    "income_group",
+    "score",
+    quantile_group = "var_name",
+    facet_group = "var_name"
+  )
+
+ggsave(
+  here(
+    "analysis",
+    "figs",
+    "indicators_ctf",
+    "0_hrm_capacity_quantile.png"
+  ),
+  width = 12,
+  height = 12,
+  dpi = 300,
+  bg = "white"
+)
+
 # digital -----------------------------------------------------------------
 digital_data <- prep_benchmark_data(
   data = indicator_wide_scores,
