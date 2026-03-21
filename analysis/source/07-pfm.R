@@ -90,3 +90,54 @@ ggsave(
   dpi = 300,
   bg = "white"
 )
+
+# correlation with FMIS
+budget_execution_fmis <- budget_execution |> 
+  mutate(
+    year = as.integer(year)
+  ) |> 
+  filter(
+    between(year, 2019, 2024)
+  ) |> 
+  group_by(
+    country_code, income_group, region
+  ) |> 
+  summarise(
+    budget_execution_rate = mean(budget_execution_rate, na.rm = TRUE)
+  ) |> 
+  left_join(
+    cliaretl::closeness_to_frontier_static |> 
+      select(country_code, wb_gtmi_pfm_mis),
+    by = c("country_code")
+  )
+
+lm(
+  budget_execution_rate ~ wb_gtmi_pfm_mis +
+    as.factor(income_group) + as.factor(region),
+  data = budget_execution_fmis
+) |> 
+  dwplot(
+        dot_args = list(
+            aes(colour = model),
+            size = 5
+        ),
+        whisker_args = list(size = 1.5)
+  )
+  
+budget_execution_fmis |> 
+  ggplot(
+    aes(wb_gtmi_pfm_mis, budget_execution_rate)
+  ) +
+  geom_point(
+    aes(
+      color = income_group
+    ),
+    shape = 1,
+    size = 4,
+    stroke = 1,
+    alpha = 0.8
+  ) +
+  geom_smooth(
+    method = "lm"
+  ) +
+  scale_color_solarized()
