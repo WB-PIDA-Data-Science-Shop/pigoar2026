@@ -237,7 +237,7 @@ plot_quantile <- function(
     ungroup() |> 
     mutate(
       quantile_indicator = forcats::fct_relevel(
-        quantile_indicator,
+        .data[["quantile_indicator"]],
         c("Strong", "Emerging", "Weak")
       )
     )
