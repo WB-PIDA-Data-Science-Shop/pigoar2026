@@ -37,6 +37,23 @@ budget_execution <- pigoar2026::budget_execution |>
     )
   )
 
+open_budget <- pigoar2026::open_budget |> 
+  left_join(
+    countryclass,
+    by = "country_code"
+  ) |> 
+  mutate(
+    income_group = forcats::fct_relevel(
+      income_group,
+      c(
+        "High income",
+        "Upper middle income",
+        "Lower middle income",
+        "Low income"
+      )
+    )
+  )
+
 # visualize --------------------------------------------------------------
 budget_execution |> 
   mutate(
@@ -85,6 +102,52 @@ budget_execution |>
 
 ggsave(
   here("analysis", "figs", "custom", "budget_execution.png"),
+  width = 12,
+  height = 10,
+  dpi = 300,
+  bg = "white"
+)
+
+# open budget over time
+open_budget |> 
+  mutate(
+    year = as.integer(year)
+  ) |> 
+  group_by(income_group, year) |> 
+  summarise(
+    mean_budget_transparency_score = mean(budget_transparency_score, na.rm = TRUE),
+    n = n()
+  ) |> 
+  filter(!is.na(income_group)) |> 
+  ggplot(
+    aes(year, mean_budget_transparency_score, color = income_group)
+  ) +
+  geom_point(
+    size = 5
+  ) +
+  geom_line(
+    linewidth = 2
+  ) +
+  geom_hline(
+    aes(yintercept = 100),
+    linetype = "dashed"
+  ) +
+  scale_color_solarized(
+    name = "Income Group"
+  ) +
+  theme(
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Year",
+    y = "Budget transparency score"
+  ) +
+  guides(
+    color = guide_legend(nrow = 2)
+  )
+
+ggsave(
+  here("analysis", "figs", "custom", "open_budget.png"),
   width = 12,
   height = 10,
   dpi = 300,
