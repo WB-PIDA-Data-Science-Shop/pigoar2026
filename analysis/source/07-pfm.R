@@ -128,10 +128,6 @@ open_budget |>
   geom_line(
     linewidth = 2
   ) +
-  geom_hline(
-    aes(yintercept = 100),
-    linetype = "dashed"
-  ) +
   scale_color_solarized(
     name = "Income Group"
   ) +
