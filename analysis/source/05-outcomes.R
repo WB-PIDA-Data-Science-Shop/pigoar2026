@@ -43,6 +43,8 @@ labor_income_average <- pigoar2026::labor_income |>
     labor_income = mean(labor_income, na.rm = TRUE)
   )
 
+bready <- pigoar2026::bready
+
 cliar_correlation <- cliaretl::closeness_to_frontier_static |> 
   left_join(
     credit_rating_average,
@@ -54,6 +56,10 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
   ) |> 
   left_join(
     labor_income_average,
+    by = c("country_code")
+  ) |> 
+  left_join(
+    bready,
     by = c("country_code")
   ) |> 
   mutate(
@@ -98,7 +104,10 @@ outcomes <- c(
   "Unemployment rate" = "unemployment_rate",
   "Labor income" = "labor_income",
   "Literacy rate (Adult)" = "literacy_rate",
-  "Infant mortality rate (logged)" = "mortality_rate"
+  "Infant mortality rate (logged)" = "mortality_rate",
+  "Pillar 1: Regulatory Framework" = "pillar_1_regulatory_framework",
+  "Pillar 2: Public Services" = "pillar_2_public_services",
+  "Pillar 3: Operational Efficiency" = "pillar_3_operational_efficiency"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"
