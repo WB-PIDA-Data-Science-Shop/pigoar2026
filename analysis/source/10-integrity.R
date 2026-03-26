@@ -1,6 +1,6 @@
 # set-up -----------------------------------------------------------------
-library(dplyr)
 library(ggplot2)
+library(dplyr)
 
 theme_set(
   theme_light() +
@@ -22,11 +22,14 @@ theme_set(
     )
 )
 
-# prepare data -----------------------------------------------------------
-open_budget <- pigoar2026::open_budget |>
-  # improved coverage starting in 2012
-  filter(
-    year >= 2008
+# read-in data -----------------------------------------------------------
+compiled_indicators <- fs::path_package(
+    "extdata", "compiled_indicators.rds", package = "cliaretl"
+  ) |> 
+  readr::read_rds() |> 
+  select(
+    country_code, year, 
+    vdem_core_v2x_pubcorr
   ) |> 
   left_join(
     pigoar2026::countryclass,
@@ -40,22 +43,25 @@ open_budget <- pigoar2026::open_budget |>
   )
 
 # visualize --------------------------------------------------------------
-open_budget |> 
+compiled_indicators |> 
   rename(
     `Income group` = income_group
   ) |> 
+  filter(
+    year >= 2010
+  ) |> 
   plot_point_line(
     "year",
-    "budget_transparency_score",
+    "vdem_core_v2x_pubcorr",
     group = "Income group"
   ) +
   labs(
     x = "Year",
-    y = "Budget transparency"
+    y = "Public sector corruption"
   )
 
 ggsave(
-  here("analysis", "figs", "custom", "open_budget.png"),
+  here("analysis", "figs", "custom", "public_sector_corruption.png"),
   width = 14,
   height = 10,
   dpi = 300,
