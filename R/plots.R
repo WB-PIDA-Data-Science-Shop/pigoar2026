@@ -1,5 +1,3 @@
-#' Plot correlation between a numeric outcome and a predictor with regional coloring
-#'
 #' Creates a scatter plot with points colored by \code{region} and overlays a dashed
 #' quadratic polynomial regression line. Optionally saves the plot to disk.
 #'
@@ -189,6 +187,8 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
 #' @param reorder Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 #'   (descending).
+#' @param xlab Character string. Label for the x-axis.
+#' @param ylab Character string. Label for the y-axis.
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.
@@ -217,7 +217,9 @@ plot_quantile <- function(
   y,
   quantile_group,
   facet_group = NULL,
-  reorder = FALSE
+  reorder = FALSE,
+  xlab = "",
+  ylab = ""
 ) {
   data_quantile <- .data |>
     group_by(
@@ -289,7 +291,7 @@ plot_quantile <- function(
     theme(
       legend.position = "bottom"
     ) +
-    labs(x = "", y = "") +
+    labs(x = xlab, y = ylab) +
     scale_x_discrete(
       labels = \(x) str_wrap(x, width = 15)
     )

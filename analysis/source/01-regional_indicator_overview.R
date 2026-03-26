@@ -1,7 +1,3 @@
-# UNPACKING INSTITUTIONAL CAPACITY FAMILIES: INDICATORS SLIDING SCALES PLOT
-# Objective: Create sliding scale plots for indicators within selected institutional capacity families,
-# showing country codes, income-group means, and overall means.
-
 # set-up ------------------------------------------------------------------
 library(haven)
 library(dplyr)
@@ -161,49 +157,6 @@ indicator_wide_scores <- center_gov |>
   )
 
 # hrm ---------------------------------------------------------------------
-
-hrm_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Public Human Resource Management Institutions",
-  group_var = income_group
-)
-
-# Create hrm plot
-plot_benchmark(data = hrm_data)
-
-ggsave_long(here(
-  "analysis",
-  "figs",
-  "indicators_ctf",
-  "0_hrm_capacity_final_order.png"
-))
-
-# pruned
-indicator_wide_scores |>
-  filter(
-    var_name %in%
-      c(
-        "Criteria for appointment decisions in the state administration",
-        "Rigorous and impartial public administration"
-      )
-  ) |>
-  plot_distribution_range(
-    group_var = c("income_group", "var_name"),
-    outcome_var = "score",
-    facet_var = "var_name",
-    legend_name = "Income Group"
-  )
-
-ggsave_db(
-  here(
-    "analysis",
-    "figs",
-    "indicators_ctf",
-    "0_hrm_capacity_pruned.png"
-  )
-)
-
-# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -214,7 +167,8 @@ indicator_wide_scores |>
   plot_quantile(
     "income_group",
     "score",
-    quantile_group = "var_name"
+    quantile_group = "var_name",
+    ylab = "Benchmarked score"
   )
 
 ggsave(
@@ -231,52 +185,6 @@ ggsave(
 )
 
 # digital -----------------------------------------------------------------
-digital_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Digital and Data Institutions",
-  group_var = income_group
-)
-
-# Create digital plot
-plot_benchmark(data = digital_data)
-
-ggsave_long(here(
-  "analysis",
-  "figs",
-  "indicators_ctf",
-  "0_digital_capacity_final_order.png"
-))
-
-# pruned
-indicator_wide_scores |>
-  filter(
-    var_name %in%
-      c(
-        "Core government systems index (cgsi)",
-        "Public service delivery index (psdi)",
-        "Censuses and surveys"
-      )
-  ) |>
-  plot_distribution_range(
-    group_var = c("income_group", "var_name"),
-    outcome_var = "score",
-    facet_var = "var_name",
-    legend_name = "Income Group"
-  )
-
-ggsave(
-  here(
-    "analysis",
-    "figs",
-    "indicators_ctf",
-    "0_digital_capacity_pruned.png"
-  ),
-  width = 14,
-  height = 14,
-  bg = "white"
-)
-
-# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -287,7 +195,8 @@ indicator_wide_scores |>
   plot_quantile(
     "income_group",
     "score",
-    quantile_group = "indicator"
+    quantile_group = "indicator",
+    ylab = "Benchmarked score"
   )
 
 ggsave(
@@ -304,52 +213,6 @@ ggsave(
 )
 
 # integrity ---------------------------------------------------------------
-integrity_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Degree of Integrity",
-  group_var = income_group
-)
-
-# Create integrity plot
-plot_benchmark(data = integrity_data)
-
-ggsave_long(here(
-  "analysis",
-  "figs",
-  "indicators_ctf",
-  "0_integrity_institutions_final_order.png"
-))
-
-# distribution
-indicator_wide_scores |>
-  filter(
-    var_name %in%
-      c(
-        "Executive corruption",
-        "Legislative corruption",
-        "Public sector corruption"
-      )
-  ) |>
-  plot_distribution_range(
-    group_var = c("income_group", "var_name"),
-    outcome_var = "score",
-    facet_var = "var_name",
-    legend_name = "Income Group"
-  )
-
-ggsave(
-  here(
-    "analysis",
-    "figs",
-    "indicators_ctf",
-    "0_integrity_capacity_pruned.png"
-  ),
-  width = 14,
-  height = 1,
-  bg = "white"
-)
-
-# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -360,7 +223,8 @@ indicator_wide_scores |>
   plot_quantile(
     "income_group",
     "score",
-    quantile_group = "indicator"
+    quantile_group = "indicator",
+    ylab = "Benchmarked score"
   ) 
 
 ggsave(
@@ -377,54 +241,6 @@ ggsave(
 )
 
 # transparency ------------------------------------------------------------
-
-transparency_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Transparency and Accountability Institutions",
-  group_var = income_group
-)
-
-# Create transparency plot
-plot_benchmark(data = transparency_data)
-
-ggsave_long(here(
-  "analysis",
-  "figs",
-  "indicators_ctf",
-  "0_transparency_institutions_final_order.png"
-))
-
-# pruned
-indicator_wide_scores |>
-  filter(
-    var_name %in%
-      c(
-        "Publicized laws and government data",
-        "Digital citizen engagement index score",
-        "Right to information",
-        "Open budget index"
-      )
-  ) |>
-  plot_distribution_range(
-    group_var = c("income_group", "var_name"),
-    outcome_var = "score",
-    facet_var = "var_name",
-    legend_name = "Income Group"
-  )
-
-ggsave(
-  here(
-    "analysis",
-    "figs",
-    "indicators_ctf",
-    "0_transparency_capacity_pruned.png"
-  ),
-  width = 14,
-  height = 16,
-  bg = "white"
-)
-
-# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -438,7 +254,8 @@ indicator_wide_scores |>
     "income_group",
     "score",
     quantile_group = "indicator",
-    facet_group = "var_name"
+    facet_group = "var_name",
+    ylab = "Benchmarked score"
   )
 
 ggsave(
@@ -455,53 +272,6 @@ ggsave(
 )
 
 # pfm ---------------------------------------------------------------------
-
-pfm_data <- prep_benchmark_data(
-  data = indicator_wide_scores,
-  family_name_value = "Public Finance Institutions",
-  group_var = income_group
-)
-
-# Create pfm plot
-plot_benchmark(data = pfm_data)
-
-ggsave_long(here(
-  "analysis",
-  "figs",
-  "indicators_ctf",
-  "0_pfm_institutions_final_order.png"
-))
-
-# pruned
-indicator_wide_scores |>
-  filter(
-    var_name %in%
-      c(
-        "In-year budget reports",
-        "External audit",
-        "Pfm management information systems"
-      )
-  ) |>
-  plot_distribution_range(
-    group_var = c("income_group", "var_name"),
-    outcome_var = "score",
-    facet_var = "var_name",
-    legend_name = "Income Group"
-  )
-
-ggsave(
-  here(
-    "analysis",
-    "figs",
-    "indicators_ctf",
-    "0_pfm_capacity_pruned.png"
-  ),
-  width = 14,
-  height = 14,
-  bg = "white"
-)
-
-# quantile
 indicator_wide_scores |>
   filter(
     var_name %in%
@@ -512,7 +282,8 @@ indicator_wide_scores |>
   plot_quantile(
     "income_group",
     "score",
-    quantile_group = "indicator"
+    quantile_group = "indicator",
+    ylab = "Benchmarked score"
   )
 
 ggsave(

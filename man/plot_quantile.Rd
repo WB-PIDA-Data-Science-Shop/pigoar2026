@@ -4,7 +4,16 @@
 \alias{plot_quantile}
 \title{Plot quantile-classified jittered points with group means}
 \usage{
-plot_quantile(.data, x, y, quantile_group, facet_group = NULL, reorder = FALSE)
+plot_quantile(
+  .data,
+  x,
+  y,
+  quantile_group,
+  facet_group = NULL,
+  reorder = FALSE,
+  xlab = "",
+  ylab = ""
+)
 }
 \arguments{
 \item{.data}{A data frame.}
@@ -19,6 +28,10 @@ plot_quantile(.data, x, y, quantile_group, facet_group = NULL, reorder = FALSE)
 
 \item{reorder}{Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 (descending).}
+
+\item{xlab}{Character string. Label for the x-axis.}
+
+\item{ylab}{Character string. Label for the y-axis.}
 }
 \value{
 A ggplot object with jittered points colored by quantile level, large
