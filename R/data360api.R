@@ -1,7 +1,5 @@
 #' This function retrieves data from the Data360 API.
 #'
-#' @return A tibble containing data, including country codes, country names,
-#'         years, and values.
 #' @examples
 #' \dontrun{
 #'   cpi_data <- get_data360_api("WB_WDI", "WB_WDI_FP_CPI_TOTL")
@@ -11,6 +9,9 @@
 #' @param dataset_id Unique identifier for the database.
 #' @param indicator_id Indicator ID. If a vector of indicators is provided, the query retrieves all indicators.
 #' @param pivot Whether or not to pivot the extracted data. Default is true.
+#'
+#' @return A tibble containing data, including country codes, country names,
+#'         years, and values.
 #'
 #' @import httr
 #' @import dplyr
@@ -36,7 +37,7 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
   )
 
   res <- httr::GET(modified_url)
-  httr::stop_for_status(res)  # error if request fails
+  httr::stop_for_status(res) # error if request fails
 
   data_json <- httr::content(res, as = "text", encoding = "UTF-8")
   data_list <- jsonlite::fromJSON(data_json)
@@ -46,14 +47,14 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
   nrow_data_360 <- 0
   data_360 <- tibble()
 
-  while(nrow_data_360 < count){
+  while (nrow_data_360 < count) {
     data_url <- httr::modify_url(
       url = modified_url,
       query = list(skip = skip_row)
     )
 
     data_res <- httr::GET(data_url)
-    httr::stop_for_status(res)  # error if request fails
+    httr::stop_for_status(res) # error if request fails
 
     data_json <- httr::content(data_res, as = "text", encoding = "UTF-8")
     data_list <- jsonlite::fromJSON(data_json)
@@ -67,7 +68,7 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
     skip_row <- skip_row + 1000
   }
 
-  if(pivot){
+  if (pivot) {
     data_360 <- data_360 |>
       pivot_data360()
   }
@@ -114,7 +115,7 @@ get_data360_api <- function(dataset_id, indicator_id, pivot = TRUE) {
 #' @importFrom janitor clean_names
 #'
 #' @export
-pivot_data360 <- function(data){
+pivot_data360 <- function(data) {
   data_pivot <- data |>
     pivot_wider(
       id_cols = c(.data[["REF_AREA"]], .data[["TIME_PERIOD"]]),

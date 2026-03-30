@@ -228,3 +228,84 @@
 #' @seealso \code{countrycode::countrycode()} for country code mappings,
 #'   ILOSTAT indicator metadata for SDG 10.4.1.
 "labor_income"
+
+#' @title Global Survey of Public Servants
+#' @description This dataset is a set of surveys of public servants produced by the Bureaucracy Lab at the World Bank and partnering academic institutions.
+#' @format A data frame with 229467 rows and 10 variables:
+#' \describe{
+#'   \item{\code{country_code}}{World Bank country code}
+#'   \item{\code{economy}}{character Country name}
+#'   \item{\code{category}}{character Category name}
+#'   \item{\code{year}}{double Year}
+#'   \item{\code{region}}{character World Bank region}
+#'   \item{\code{income_group}}{character World Bank income group}
+#'   \item{\code{respondent_group}}{character Respondent group}
+#'   \item{\code{topic_group}}{character Topic grouping}
+#'   \item{\code{indicator}}{character Indicator}
+#'   \item{\code{indicator_group}}{character Indicator grouping}
+#'   \item{\code{question_text}}{character Survey question}
+#'   \item{\code{mean}}{double Average for the group. See scale}
+#'   \item{\code{lower_ci}}{double Lower bound for the average}
+#'   \item{\code{upper_ci}}{double Upper bound for the average}
+#'   \item{\code{scale}}{character Scale for the average}
+#'   \item{\code{response_rate}}{double Response rate for the group}
+#'}
+#' @source <https://www.globalsurveyofpublicservants.org/data-downloads>
+"gsps"
+
+#' World Bank Country and Lending Groups
+#'
+#' This dataset is produced by the World Bank Group to classify countries as to their income levels and other groups.
+#'
+#' @format ## `countryclass`
+#' A data frame with 267 rows and 4 columns:
+#' \describe{
+#'   \item{country_code}{World Bank country code}
+#'   \item{economy}{Country name}
+#'   \item{region}{World Bank region}
+#'   \item{income_group}{World Bank income classification}
+#'   ...
+#' }
+#' @source <https://ddh-openapi.worldbank.org/resources/DR0095333/download/>
+"countryclass"
+
+#' @title Budget Execution Rate
+#' @description Primary government expenditures as a proportion of original approved budget (%)
+#' @source <https://data360.worldbank.org/en/indicator/WB_WDI_GF_XPD_BUDG_ZS>
+#' @format A data frame with 3154 rows and 3 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character World Bank country code}
+#'   \item{\code{year}}{character Year}
+#'   \item{\code{budget_execution_rate}}{double Primary government expenditure (%)}
+#'}
+"budget_execution"
+
+#' @title Open Budget Survey: Legislature and Super Audit Institution Oversight Score
+#' @description The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.
+#' @format A data frame with 918 rows and 8 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character World Bank country code}
+#'   \item{\code{year}}{double Year}
+#'   \item{\code{budget_transparency_score}}{double Budget transparency score Budget transparency score (previously known as the Open Budget Index): assesses the public availability of the eight key budget documents, which taken together provide a complete view of how public resources have been raised, planned, and spent during the budget year. To be considered "publicly available", documents must be published online, in a timely manner, and must include information that is comprehensive and useful. A score of 61 or above indicates a country is likely publishing enough material to support informed public debate on the budget.}
+#'   \item{\code{supreme_audit_oversight_score}}{double Supreme Audit Institution Oversight Score: The role that supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
+#'   \item{\code{oversight_score}}{double Legislature and Supreme Audit Institution Oversight Score: The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
+#'   \item{\code{legislative_oversight_score}}{double Legislature oversight score: The role that legislatures play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
+#'   \item{\code{public_participation_score}}{double Public participation score: The degree to which the executive, the legislature, and the supreme audit institution each provides opportunities for the public to engage during different cycles of the budget process.}
+#'}
+#' @details DETAILS
+"open_budget"
+
+#' @title B-READY Pillar Scores
+#' @description B-READY (Business Ready) pillar scores measuring the business environment across three dimensions: Regulatory Framework, Public Services, and Operational Efficiency.
+#' @format A data frame with 101 rows and 5 variables:
+#' \describe{
+#'   \item{\code{economy}}{character. Country name.}
+#'   \item{\code{country_code}}{character. World Bank country code.}
+#'   \item{\code{pillar_1_regulatory_framework}}{double. Score for Pillar 1: the rules and regulations that firms must follow as they open, operate, and close a business.}
+#'   \item{\code{pillar_2_public_services}}{double. Score for Pillar 2: facilities that governments provide to support regulatory compliance and the critical institutions and infrastructure that enable business activities.}
+#'   \item{\code{pillar_3_operational_efficiency}}{double. Score for Pillar 3: the ease of compliance with the regulatory framework and the effective use of public services directly relevant to firms.}
+#' }
+#' @details B-READY measures the business environment through three pillars related to the life cycle of the firm. Scores are calculated across multiple business environment areas relevant to firm operations.
+#' @source World Bank B-READY. <https://www.worldbank.org/en/businessready/data>
+"bready"
+

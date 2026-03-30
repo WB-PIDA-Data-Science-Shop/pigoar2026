@@ -43,6 +43,18 @@ acled_demonstrations_regional <- pigoar2026::acled_regional |>
     left_join(
         pigoar2026::population,
         by = c("country_code", "year")
+    ) |> 
+    # fix income group
+    mutate(
+        income_group = factor(
+            income_group,
+            levels = c(
+                "High income",
+                "Upper middle income",
+                "Lower middle income",
+                "Low income"
+            )
+        )
     )
 
 acled_regional_summary <- pigoar2026::acled_regional |>
@@ -65,6 +77,18 @@ acled_regional_summary <- pigoar2026::acled_regional |>
             filter(year == 2020) |>
             select(country_code, total_population),
         by = c("country_code")
+    ) |>
+    # fix income group
+    mutate(
+        income_group = factor(
+            income_group,
+            levels = c(
+                "High income",
+                "Upper middle income",
+                "Lower middle income",
+                "Low income"
+            )
+        )
     )
 
 acled_estimation <- acled_regional_summary |>
@@ -78,15 +102,27 @@ acled_estimation <- acled_regional_summary |>
                 wjp_rol_2,
                 wjp_rol_3_1,
                 log_gdp
-            ) |>
-            mutate(
-                across(
-                    vdem_core_v2stcritrecadm:wjp_rol_3_1,
-                    \(x) as.vector(scale(x))
-                )
             ),
         by = c("country_code", "year")
+    ) |>
+    mutate(
+        across(
+            c(events_sum, vdem_core_v2stcritrecadm:wjp_rol_3_1, log_gdp),
+            \(x) as.vector(scale(x))
+        )
+    ) |>
+    mutate(
+        income_group = factor(
+            income_group,
+            levels = c(
+                "High income",
+                "Upper middle income",
+                "Lower middle income",
+                "Low income"
+            )
+        )
     )
+
 
 # global trends ----------------------------------------------------------
 # pooled
@@ -451,7 +487,7 @@ lm_protests_income_group <- income_groups |>
     set_names(income_groups)
 
 list(
-    "Low Income" = lm_protests_income_group[["Low income"]],
+    "Low income" = lm_protests_income_group[["Low income"]],
     "Lower middle income" = lm_protests_income_group[["Lower middle income"]],
     "Upper middle income" = lm_protests_income_group[["Upper middle income"]],
     "High income" = lm_protests_income_group[["High income"]]
@@ -460,6 +496,12 @@ list(
     filter(
         !grepl("Intercept|as.factor|total_population|log_gdp", term)
     ) |>
+    mutate(
+        model = factor(
+            model,
+            levels = c("Low income", "Lower middle income", "Upper middle income", "High income")
+        )
+    ) |> 
     dwplot(
         dot_args = list(
             aes(colour = model),
@@ -482,9 +524,6 @@ list(
         colour = "grey60",
         linetype = 2
     ) +
-    facet_wrap(
-        vars(model)
-    ) +
     labs(x = "Coefficient Estimate with 95% CIs", y = "") +
     theme(
         legend.position = "bottom"
@@ -493,7 +532,8 @@ list(
         name = "Income group",
         breaks = c(0, 1)
     ) +
-    scale_color_solarized(
+    scale_color_manual(
+        values = rev(ggthemes::solarized_pal()(4)),
         name = "Income group"
     ) +
     guides(color = guide_legend(nrow = 2))
