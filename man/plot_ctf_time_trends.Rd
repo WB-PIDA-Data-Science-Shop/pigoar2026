@@ -33,10 +33,12 @@ Creates a line plot of average CTF dynamic scores over time, grouped and colored
 Accepts either a single family name or a vector of families.
 }
 \examples{
+\dontrun{
 # Single plot
 plot_ctf_time_trends(plot_dyn, family = "Degree of Integrity")
 
 # Multiple plots as named list
 plots <- plot_ctf_time_trends(plot_dyn, family = c("Degree of Integrity", "HRM"))
 purrr::iwalk(plots, ~ggsave(paste0(.y, ".png"), .x))
+}
 }

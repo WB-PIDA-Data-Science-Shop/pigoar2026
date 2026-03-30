@@ -46,7 +46,7 @@ compute_ctf_diff <- function(data, family, from_year, to_year, mapping = cluster
     dplyr::group_by(country_code, income_group, family_name, year) |>
     dplyr::summarise(ctf_score = mean(value, na.rm = TRUE), .groups = "drop")
 
-  # Step 3: pivot wide — one column per year
+  # Step 3: pivot wide, one column per year
   wide <- tidyr::pivot_wider(
     summarised,
     id_cols      = c(country_code, income_group, family_name),
@@ -106,7 +106,7 @@ generate_ctf_diff_plot <- function(
     income_order = c("High income", "Upper middle income", "Lower middle income", "Low income")
 ) {
   if (nrow(data) == 0) {
-    warning("No data available for family: ", unique(data$family_name), " — skipping plot.")
+    warning("No data available for family: ", unique(data$family_name), " \u2014 skipping plot.")
     return(invisible(NULL))
   }
 
@@ -147,7 +147,7 @@ generate_ctf_diff_plot <- function(
     ) +
     labs(
       title    = auto_title,
-      subtitle = "Shifts in Institutional Benchmarking Scores by Income Group, 2020–2024",
+      subtitle = "Shifts in Institutional Benchmarking Scores by Income Group, 2020 vs 2024",
       x        = "Countries (grouped by income level)",
       y        = "Change in Benchmarking Score (0-1)"
     ) +

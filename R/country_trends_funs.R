@@ -436,13 +436,21 @@ plot_cluster_appendix <- function(data, cluster_ctf, year_label) {
 #'
 #' @return A ggplot object if `family` is length 1; otherwise a named list of ggplot objects
 #'   with file-safe names.
+#'
 #' @examples
+#' \dontrun{
 #' # Single plot
 #' plot_ctf_time_trends(plot_dyn, family = "Degree of Integrity")
 #'
 #' # Multiple plots as named list
 #' plots <- plot_ctf_time_trends(plot_dyn, family = c("Degree of Integrity", "HRM"))
 #' purrr::iwalk(plots, ~ggsave(paste0(.y, ".png"), .x))
+#' }
+#' @importFrom dplyr filter mutate
+#' @importFrom ggplot2 ggplot aes geom_line geom_point scale_x_continuous scale_y_continuous labs theme guides
+#' @importFrom ggthemes scale_color_solarized
+#' @importFrom purrr map
+#' @export
 plot_ctf_time_trends <- function(
   data,
   family,
