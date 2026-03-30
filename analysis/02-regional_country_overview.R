@@ -83,18 +83,6 @@ set.seed(101010)
 ctf_static_wide <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0) |>
   filter(region != "North America") 
-  # mutate(
-  #   region = case_when(
-  #     region == "East Asia & Pacific" ~ "EAP",
-  #     region == "Europe & Central Asia" ~ "ECA",
-  #     region == "Latin America & Caribbean" ~ "LAC",
-  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-  #     region == "South Asia" ~ "SAR",
-  #     region == "Sub-Saharan Africa" ~ "SSA",
-  #     TRUE ~ region
-  #   )
-  # )
-
 
 ctf_static <- cliaretl::closeness_to_frontier_static |>
   filter(country_group == 0) |>

@@ -189,7 +189,10 @@ plot_cor_heatmap <- function(cor_results, title_suffix) {
   )
 
   cor_results |>
-    mutate(x_lab = factor(x_lab, levels = x_order)) |>
+    mutate(x_lab = factor(
+      stringr::str_wrap(x_lab, width = 15),
+      levels = stringr::str_wrap(x_order, width = 15)
+    )) |>
     ggplot2::ggplot(ggplot2::aes(x = x_lab, y = y_lab, fill = r)) +
     ggplot2::geom_tile(color = "white", linewidth = 0.8) +
     ggplot2::geom_text(

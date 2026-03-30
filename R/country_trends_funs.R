@@ -422,3 +422,136 @@ plot_cluster_appendix <- function(data, cluster_ctf, year_label) {
   }
 }
 
+#' Plot CTF dynamic scores over time by income group
+#'
+#' Creates a line plot of average CTF dynamic scores over time, grouped and colored by income group.
+#' Accepts either a single family name or a vector of families.
+#'
+#' @param data A data frame with columns: `income_group`, `family_name`, `year`, `ctf_score`.
+#' @param family Character vector or single string. The indicator family/families to plot
+#'   (must match value(s) in `family_name`). If a vector, returns a named list of plots.
+#' @param title Character. Plot title. Defaults to the family name. Ignored if `family` is a vector.
+#' @param subtitle Character. Plot subtitle. Defaults to "Average CTF dynamic score by income group".
+#' @param y_limits Numeric vector of length 2. Y-axis limits. Defaults to c(0, 1).
+#'
+#' @return A ggplot object if `family` is length 1; otherwise a named list of ggplot objects
+#'   with file-safe names.
+#' @examples
+#' # Single plot
+#' plot_ctf_time_trends(plot_dyn, family = "Degree of Integrity")
+#'
+#' # Multiple plots as named list
+#' plots <- plot_ctf_time_trends(plot_dyn, family = c("Degree of Integrity", "HRM"))
+#' purrr::iwalk(plots, ~ggsave(paste0(.y, ".png"), .x))
+plot_ctf_time_trends <- function(
+  data,
+  family,
+  title = NULL,
+  subtitle = "Average CTF dynamic score by income group",
+  y_limits = c(0, 1)
+) {
+  # Helper function to create a single plot
+  .make_plot <- function(fam, ttl = NULL) {
+    if (is.null(ttl)) ttl <- fam
+
+    income_levels <- c(
+      "High income",
+      "Upper middle income",
+      "Lower middle income",
+      "Low income"
+    )
+
+    plot_data <- data |>
+      filter(family_name == fam) |>
+      mutate(
+        income_group = factor(income_group, levels = income_levels)
+      )
+
+    ggplot(plot_data, aes(year, ctf_score, color = income_group)) +
+      geom_line(linewidth = 1.5) +
+      geom_point(size = 3) +
+      ggthemes::scale_color_solarized(name = "Income Group") +
+      scale_x_continuous(breaks = scales::breaks_pretty()) +
+      scale_y_continuous(limits = y_limits) +
+      labs(
+        title    = ttl,
+        subtitle = subtitle,
+        x        = "Year",
+        y        = "CTF Score"
+      ) +
+      theme(legend.position = "bottom") +
+      guides(color = guide_legend(nrow = 1))
+  }
+
+  # If family is a vector, return named list of plots
+  if (length(family) > 1) {
+    plots <- purrr::map(family, .make_plot)
+    safe_names <- tolower(family)
+    safe_names <- gsub("[^a-z0-9]+", "_", safe_names)
+    safe_names <- gsub("_+",         "_", safe_names)
+    safe_names <- gsub("^_|_$",      "",  safe_names)
+    names(plots) <- safe_names
+    return(plots)
+  }
+
+  # Single family: return single plot
+  .make_plot(family, ttl = title %||% family)
+}
+
+
+#' Plot CTF dynamic scores over time by income group, faceted by indicator
+#'
+#' Like \code{plot_ctf_time_trends} but shows one panel per indicator (`var_name`)
+#' within a given family.
+#'
+#' @param data A data frame with columns: `income_group`, `family_name`,
+#'   `var_name`, `year`, `ctf_score`.
+#' @param family Character. Single family name to plot (must match `family_name`).
+#' @param title Character. Plot title. Defaults to the family name.
+#' @param subtitle Character. Plot subtitle.
+#' @param y_limits Numeric vector of length 2. Y-axis limits. Defaults to c(0, 1).
+#' @param ncol Integer. Number of columns in the facet grid. Defaults to 3.
+#'
+#' @return A ggplot object with panels faceted by `var_name`.
+#' @export
+plot_ctf_time_trends_facet <- function(
+  data,
+  family,
+  title    = family,
+  subtitle = "Average CTF dynamic score by income group and indicator",
+  y_limits = c(0, 1),
+  ncol     = 3
+) {
+  income_levels <- c(
+    "High income",
+    "Upper middle income",
+    "Lower middle income",
+    "Low income"
+  )
+
+  plot_data <- data |>
+    dplyr::filter(family_name == family) |>
+    dplyr::mutate(
+      income_group = factor(income_group, levels = income_levels),
+      var_name     = stringr::str_wrap(var_name, width = 30)
+    )
+
+  ggplot(plot_data, aes(year, ctf_score, color = income_group)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2) +
+    facet_wrap(~var_name, ncol = ncol, scales = "free_y") +
+    ggthemes::scale_color_solarized(name = "Income Group") +
+    scale_x_continuous(breaks = scales::breaks_pretty()) +
+    scale_y_continuous(limits = y_limits) +
+    labs(
+      title    = title,
+      subtitle = subtitle,
+      x        = "Year",
+      y        = "CTF Score"
+    ) +
+    theme(
+      legend.position = "bottom",
+      strip.text      = element_text(size = 9)
+    ) +
+    guides(color = guide_legend(nrow = 1))
+}
