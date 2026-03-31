@@ -259,3 +259,88 @@
 #'   head(unwpp_data)
 #' }
 "unwpp_data"
+
+#' Breadth of Ready Dataset
+#'
+#' Scores for regulatory framework, public services, and operational efficiency by country.
+#'
+#' @format A data frame with 101 rows and 5 columns:
+#' \describe{
+#'   \item{economy}{Country name (character)}
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{pillar_1_regulatory_framework}{Score for regulatory framework (numeric)}
+#'   \item{pillar_2_public_services}{Score for public services (numeric)}
+#'   \item{pillar_3_operational_efficiency}{Score for operational efficiency (numeric)}
+#' }
+#' @source Internal compilation
+"bready"
+
+#' Budget Execution Rates
+#'
+#' Annual budget execution rates by country.
+#'
+#' @format A tibble with 2368 rows and 3 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{year}{Year (character)}
+#'   \item{budget_execution_rate}{Budget execution rate (numeric)}
+#' }
+#' @source Internal compilation
+"budget_execution"
+
+#' Country Classification Table
+#'
+#' Country-level classification by region and income group.
+#'
+#' @format A data frame with 266 rows and 4 columns:
+#' \describe{
+#'   \item{economy}{Country name (character)}
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{region}{World Bank region (character)}
+#'   \item{income_group}{World Bank income group (character)}
+#' }
+#' @source World Bank and internal sources
+"countryclass"
+
+#' Global Survey of Public Sector (GSPS)
+#'
+#' Survey responses on public sector indicators by country, year, and topic.
+#'
+#' @format A tibble with 229,467 rows and 16 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{economy}{Country name (character)}
+#'   \item{category}{Survey category (character)}
+#'   \item{year}{Year (numeric)}
+#'   \item{region}{World Bank region (character)}
+#'   \item{income_group}{World Bank income group (character)}
+#'   \item{respondent_group}{Respondent group (character)}
+#'   \item{topic_group}{Topic group (character)}
+#'   \item{indicator}{Indicator code (character)}
+#'   \item{indicator_group}{Indicator group (character)}
+#'   \item{question_text}{Survey question (character)}
+#'   \item{mean}{Mean response (numeric)}
+#'   \item{lower_ci}{Lower confidence interval (numeric)}
+#'   \item{upper_ci}{Upper confidence interval (numeric)}
+#'   \item{scale}{Response scale (character)}
+#'   \item{response_rate}{Response rate (numeric)}
+#' }
+#' @source GSPS survey data
+"gsps"
+
+#' Open Budget Survey Scores
+#'
+#' Scores from the Open Budget Survey by country and year.
+#'
+#' @format A tibble with 918 rows and 7 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{year}{Year (numeric)}
+#'   \item{budget_transparency_score}{Budget transparency score (numeric)}
+#'   \item{supreme_audit_oversight_score}{Supreme audit institution oversight score (numeric)}
+#'   \item{oversight_score}{Overall oversight score (numeric)}
+#'   \item{legislative_oversight_score}{Legislative oversight score (numeric)}
+#'   \item{public_participation_score}{Public participation score (numeric)}
+#' }
+#' @source International Budget Partnership
+"open_budget"

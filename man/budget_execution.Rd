@@ -3,22 +3,22 @@
 \docType{data}
 \name{budget_execution}
 \alias{budget_execution}
-\title{Budget Execution Rate}
+\title{Budget Execution Rates}
 \format{
-A data frame with 3154 rows and 3 variables:
+A tibble with 2368 rows and 3 columns:
 \describe{
-\item{\code{country_code}}{character World Bank country code}
-\item{\code{year}}{character Year}
-\item{\code{budget_execution_rate}}{double Primary government expenditure (\%)}
+\item{country_code}{ISO country code (character)}
+\item{year}{Year (character)}
+\item{budget_execution_rate}{Budget execution rate (numeric)}
 }
 }
 \source{
-\url{https://data360.worldbank.org/en/indicator/WB_WDI_GF_XPD_BUDG_ZS}
+Internal compilation
 }
 \usage{
 budget_execution
 }
 \description{
-Primary government expenditures as a proportion of original approved budget (\%)
+Annual budget execution rates by country.
 }
 \keyword{datasets}

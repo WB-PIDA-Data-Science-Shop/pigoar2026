@@ -3,26 +3,26 @@
 \docType{data}
 \name{open_budget}
 \alias{open_budget}
-\title{Open Budget Survey: Legislature and Super Audit Institution Oversight Score}
+\title{Open Budget Survey Scores}
 \format{
-A data frame with 918 rows and 8 variables:
+A tibble with 918 rows and 7 columns:
 \describe{
-\item{\code{country_code}}{character World Bank country code}
-\item{\code{year}}{double Year}
-\item{\code{budget_transparency_score}}{double Budget transparency score Budget transparency score (previously known as the Open Budget Index): assesses the public availability of the eight key budget documents, which taken together provide a complete view of how public resources have been raised, planned, and spent during the budget year. To be considered "publicly available", documents must be published online, in a timely manner, and must include information that is comprehensive and useful. A score of 61 or above indicates a country is likely publishing enough material to support informed public debate on the budget.}
-\item{\code{supreme_audit_oversight_score}}{double Supreme Audit Institution Oversight Score: The role that supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-\item{\code{oversight_score}}{double Legislature and Supreme Audit Institution Oversight Score: The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-\item{\code{legislative_oversight_score}}{double Legislature oversight score: The role that legislatures play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-\item{\code{public_participation_score}}{double Public participation score: The degree to which the executive, the legislature, and the supreme audit institution each provides opportunities for the public to engage during different cycles of the budget process.}
+\item{country_code}{ISO country code (character)}
+\item{year}{Year (numeric)}
+\item{budget_transparency_score}{Budget transparency score (numeric)}
+\item{supreme_audit_oversight_score}{Supreme audit institution oversight score (numeric)}
+\item{oversight_score}{Overall oversight score (numeric)}
+\item{legislative_oversight_score}{Legislative oversight score (numeric)}
+\item{public_participation_score}{Public participation score (numeric)}
 }
+}
+\source{
+International Budget Partnership
 }
 \usage{
 open_budget
 }
 \description{
-The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.
-}
-\details{
-DETAILS
+Scores from the Open Budget Survey by country and year.
 }
 \keyword{datasets}

@@ -3,27 +3,24 @@
 \docType{data}
 \name{bready}
 \alias{bready}
-\title{B-READY Pillar Scores}
+\title{Breadth of Ready Dataset}
 \format{
-A data frame with 101 rows and 5 variables:
+A data frame with 101 rows and 5 columns:
 \describe{
-\item{\code{economy}}{character. Country name.}
-\item{\code{country_code}}{character. World Bank country code.}
-\item{\code{pillar_1_regulatory_framework}}{double. Score for Pillar 1: the rules and regulations that firms must follow as they open, operate, and close a business.}
-\item{\code{pillar_2_public_services}}{double. Score for Pillar 2: facilities that governments provide to support regulatory compliance and the critical institutions and infrastructure that enable business activities.}
-\item{\code{pillar_3_operational_efficiency}}{double. Score for Pillar 3: the ease of compliance with the regulatory framework and the effective use of public services directly relevant to firms.}
+\item{economy}{Country name (character)}
+\item{country_code}{ISO country code (character)}
+\item{pillar_1_regulatory_framework}{Score for regulatory framework (numeric)}
+\item{pillar_2_public_services}{Score for public services (numeric)}
+\item{pillar_3_operational_efficiency}{Score for operational efficiency (numeric)}
 }
 }
 \source{
-World Bank B-READY. \url{https://www.worldbank.org/en/businessready/data}
+Internal compilation
 }
 \usage{
 bready
 }
 \description{
-B-READY (Business Ready) pillar scores measuring the business environment across three dimensions: Regulatory Framework, Public Services, and Operational Efficiency.
-}
-\details{
-B-READY measures the business environment through three pillars related to the life cycle of the firm. Scores are calculated across multiple business environment areas relevant to firm operations.
+Scores for regulatory framework, public services, and operational efficiency by country.
 }
 \keyword{datasets}
