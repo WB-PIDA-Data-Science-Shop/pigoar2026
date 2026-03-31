@@ -244,7 +244,7 @@ purrr::walk(families, function(fam) {
 
 # Use compute_ctf_diff for each family and bind results
 all_diffs <- purrr::map_dfr(families, function(fam) {
-  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024)
+  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024, mapping = cluster_mapping)
 })
 
 # % of countries that improved vs declined by family and income group
