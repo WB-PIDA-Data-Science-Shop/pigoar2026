@@ -2,7 +2,8 @@
 % Please edit documentation in R/plots.R
 \name{ggplot_correlation}
 \alias{ggplot_correlation}
-\title{Plot correlation between a numeric outcome and a predictor with regional coloring}
+\title{Creates a scatter plot with points colored by \code{region} and overlays a dashed
+quadratic polynomial regression line. Optionally saves the plot to disk.}
 \usage{
 ggplot_correlation(data, x, y, group, filename = NULL)
 }
