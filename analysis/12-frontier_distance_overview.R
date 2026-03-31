@@ -219,7 +219,13 @@ if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 families <- unname(cluster_mapping)
 
 purrr::walk(families, function(fam) {
-  diff_data <- compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024)
+  diff_data <- compute_ctf_diff(
+    dyn_ctf_plot,
+    family    = fam,
+    from_year = 2020,
+    to_year   = 2024,
+    mapping   = cluster_mapping
+  )
   p         <- generate_ctf_diff_plot(diff_data, income_order = income_levels)
 
   if (is.null(p)) return(invisible(NULL))
