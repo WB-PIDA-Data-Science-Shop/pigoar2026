@@ -283,7 +283,7 @@ theme_set(
   theme_minimal() +
     theme(
       text = element_text(size = 20, family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 12, hjust = .5, angle = ),
+      axis.text.x = element_text(size = 12, hjust = .5, angle = 0),
       axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
