@@ -187,8 +187,6 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
 #' @param reorder Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 #'   (descending).
-#' @param xlab Character string. Label for the x-axis.
-#' @param ylab Character string. Label for the y-axis.
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.
@@ -347,9 +345,6 @@ plot_quantile <- function(
 #'
 #' @return The input data frame with an additional factor column
 #'   \code{quantile_indicator}.
-#'
-#' @examples
-#' closeness_to_frontier_static
 #'
 #' @importFrom dplyr group_by mutate ungroup across all_of between case_when
 #' @importFrom forcats fct_relevel

@@ -35,7 +35,3 @@ Adds a \code{quantile_indicator} column classifying each row as
 \code{"Strong"} (above 50th), computed within groups defined by
 \code{quantile_group}.
 }
-\examples{
-closeness_to_frontier_static
-
-}
