@@ -4,7 +4,12 @@
 \alias{classify_quantile}
 \title{Classify a variable into quantiles}
 \usage{
-classify_quantile(.data, var, quantile_group)
+classify_quantile(
+  .data,
+  var,
+  quantile_group,
+  threshold = c("default", "tercile")
+)
 }
 \arguments{
 \item{.data}{A data frame or tibble.}
@@ -13,6 +18,9 @@ classify_quantile(.data, var, quantile_group)
 
 \item{quantile_group}{Character vector. Column name(s) that define groups
 within which quantiles are computed.}
+
+\item{threshold}{Type of threshold to use. Defaults to first two quartiles and above the median.
+Either "default" or "tercile".}
 }
 \value{
 The input data frame with an additional factor column

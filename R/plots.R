@@ -342,6 +342,8 @@ plot_quantile <- function(
 #' @param var Character string. Column name of the numeric variable to classify.
 #' @param quantile_group Character vector. Column name(s) that define groups
 #'   within which quantiles are computed.
+#' @param threshold Type of threshold to use. Defaults to first two quartiles and above the median. 
+#' Either "default" or "tercile".
 #'
 #' @return The input data frame with an additional factor column
 #'   \code{quantile_indicator}.
@@ -358,23 +360,51 @@ plot_quantile <- function(
 #' \code{quantile_group}.
 #'
 #' @export
-classify_quantile <- function(.data, var, quantile_group){
-  data_quantile <- .data |>
-    group_by(
-      across(all_of(quantile_group))
-    ) |>
-    mutate(
-      quantile_indicator = case_when(
-        .data[[var]] < quantile(.data[[var]], c(0.25), na.rm = TRUE) ~ "Weak",
-        between(
-          .data[[var]],
-          quantile(.data[[var]], c(0.25), na.rm = TRUE),
-          quantile(.data[[var]], c(0.5), na.rm = TRUE)
-        ) ~ "Emerging",
-        .data[[var]] > quantile(.data[[var]], c(0.5), na.rm = TRUE) ~ "Strong"
-      )
-    ) |>
-    ungroup() |>
+classify_quantile <- function(.data, var, quantile_group, threshold = c("default", "tercile")){
+  type_threshold <- match.arg(threshold)
+
+  if(!(threshold %in% c("default", "tercile"))){
+    stop("Threshold must be either default or tercile.")
+  }
+
+  if(type_threshold == "default"){
+    data_quantile <- .data |>
+      group_by(
+        across(all_of(quantile_group))
+      ) |>
+      mutate(
+        quantile_indicator = case_when(
+          .data[[var]] < quantile(.data[[var]], c(0.25), na.rm = TRUE) ~ "Weak",
+          between(
+            .data[[var]],
+            quantile(.data[[var]], c(0.25), na.rm = TRUE),
+            quantile(.data[[var]], c(0.5), na.rm = TRUE)
+          ) ~ "Emerging",
+          .data[[var]] > quantile(.data[[var]], c(0.5), na.rm = TRUE) ~ "Strong"
+        )
+      ) |>
+      ungroup()
+  }else if(type_threshold == "tercile"){
+    data_quantile <- .data |>
+      group_by(
+        across(all_of(quantile_group))
+      ) |>
+      mutate(
+        quantile_indicator = case_when(
+          .data[[var]] < quantile(.data[[var]], c(1/3), na.rm = TRUE) ~ "Weak",
+          between(
+            .data[[var]],
+            quantile(.data[[var]], c(1/3), na.rm = TRUE),
+            quantile(.data[[var]], c(2/3), na.rm = TRUE)
+          ) ~ "Emerging",
+          .data[[var]] > quantile(.data[[var]], c(2/3), na.rm = TRUE) ~ "Strong"
+        )
+      ) |>
+      ungroup()
+  }
+  
+  
+  data_quantile <- data_quantile |>
     mutate(
       quantile_indicator = forcats::fct_relevel(
         .data[["quantile_indicator"]],
