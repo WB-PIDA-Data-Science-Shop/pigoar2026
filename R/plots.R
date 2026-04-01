@@ -217,32 +217,10 @@ plot_quantile <- function(
   y,
   quantile_group,
   facet_group = NULL,
-  reorder = FALSE,
-  xlab = "",
-  ylab = ""
+  reorder = FALSE
 ) {
   data_quantile <- .data |>
-    group_by(
-      across(all_of(quantile_group))
-    ) |>
-    mutate(
-      quantile_indicator = case_when(
-        .data[[y]] < quantile(.data[[y]], c(0.25), na.rm = TRUE) ~ "Weak",
-        between(
-          .data[[y]],
-          quantile(.data[[y]], c(0.25), na.rm = TRUE),
-          quantile(.data[[y]], c(0.5), na.rm = TRUE)
-        ) ~ "Emerging",
-        .data[[y]] > quantile(.data[[y]], c(0.5), na.rm = TRUE) ~ "Strong"
-      )
-    ) |>
-    ungroup() |> 
-    mutate(
-      quantile_indicator = forcats::fct_relevel(
-        .data[["quantile_indicator"]],
-        c("Strong", "Emerging", "Weak")
-      )
-    )
+    classify_quantile(y, quantile_group)
 
   # Optionally reorder x by mean of y (descending)
   if (reorder) {
@@ -291,7 +269,7 @@ plot_quantile <- function(
     theme(
       legend.position = "bottom"
     ) +
-    labs(x = xlab, y = ylab) +
+    labs(x = "", y = "") +
     scale_x_discrete(
       labels = \(x) str_wrap(x, width = 15)
     )
@@ -356,6 +334,55 @@ plot_quantile <- function(
   }
 
   plot_quantile
+}
+
+#' Classify a variable into quantiles
+#' 
+#' @param .data A data frame or tibble.
+#' @param var Character string. Column name of the numeric variable to classify.
+#' @param quantile_group Character vector. Column name(s) that define groups
+#'   within which quantiles are computed.
+#'
+#' @return The input data frame with an additional factor column
+#'   \code{quantile_indicator}.
+#'
+#' @examples
+#' closeness_to_frontier_static
+#'
+#' @importFrom dplyr group_by mutate ungroup across all_of between case_when
+#' @importFrom forcats fct_relevel
+#' 
+#' @details  Adds a \code{quantile_indicator} column classifying each row as
+#' \code{"Weak"} (below 25th percentile), \code{"Emerging"} (25th–50th), or
+#' \code{"Strong"} (above 50th), computed within groups defined by
+#' \code{quantile_group}.
+#'
+#' @export
+classify_quantile <- function(.data, var, quantile_group){
+  data_quantile <- .data |>
+    group_by(
+      across(all_of(quantile_group))
+    ) |>
+    mutate(
+      quantile_indicator = case_when(
+        .data[[var]] < quantile(.data[[var]], c(0.25), na.rm = TRUE) ~ "Weak",
+        between(
+          .data[[var]],
+          quantile(.data[[var]], c(0.25), na.rm = TRUE),
+          quantile(.data[[var]], c(0.5), na.rm = TRUE)
+        ) ~ "Emerging",
+        .data[[var]] > quantile(.data[[var]], c(0.5), na.rm = TRUE) ~ "Strong"
+      )
+    ) |>
+    ungroup() |>
+    mutate(
+      quantile_indicator = forcats::fct_relevel(
+        .data[["quantile_indicator"]],
+        c("Strong", "Emerging", "Weak")
+      )
+    )
+
+  data_quantile
 }
 
 #' Plot group mean trends over time as connected points
