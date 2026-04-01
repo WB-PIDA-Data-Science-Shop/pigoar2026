@@ -229,83 +229,118 @@
 #'   ILOSTAT indicator metadata for SDG 10.4.1.
 "labor_income"
 
-#' @title Global Survey of Public Servants
-#' @description This dataset is a set of surveys of public servants produced by the Bureaucracy Lab at the World Bank and partnering academic institutions.
-#' @format A data frame with 229467 rows and 10 variables:
-#' \describe{
-#'   \item{\code{country_code}}{World Bank country code}
-#'   \item{\code{economy}}{character Country name}
-#'   \item{\code{category}}{character Category name}
-#'   \item{\code{year}}{double Year}
-#'   \item{\code{region}}{character World Bank region}
-#'   \item{\code{income_group}}{character World Bank income group}
-#'   \item{\code{respondent_group}}{character Respondent group}
-#'   \item{\code{topic_group}}{character Topic grouping}
-#'   \item{\code{indicator}}{character Indicator}
-#'   \item{\code{indicator_group}}{character Indicator grouping}
-#'   \item{\code{question_text}}{character Survey question}
-#'   \item{\code{mean}}{double Average for the group. See scale}
-#'   \item{\code{lower_ci}}{double Lower bound for the average}
-#'   \item{\code{upper_ci}}{double Upper bound for the average}
-#'   \item{\code{scale}}{character Scale for the average}
-#'   \item{\code{response_rate}}{double Response rate for the group}
-#'}
-#' @source <https://www.globalsurveyofpublicservants.org/data-downloads>
-"gsps"
-
-#' World Bank Country and Lending Groups
+#' UN World Population Prospects 2024 - Income Group Population Growth Rates
 #'
-#' This dataset is produced by the World Bank Group to classify countries as to their income levels and other groups.
+#' A dataset containing annual population growth rate projections by income group
+#' for the period 2025-2035, extracted from the UN World Population Prospects 2024.
 #'
-#' @format ## `countryclass`
-#' A data frame with 267 rows and 4 columns:
+#' @format A data frame with 7 columns:
 #' \describe{
-#'   \item{country_code}{World Bank country code}
-#'   \item{economy}{Country name}
-#'   \item{region}{World Bank region}
-#'   \item{income_group}{World Bank income classification}
-#'   ...
+#'   \item{country_code}{Character. ISO 3166-1 alpha-3 country code.}
+#'   \item{group_class}{Character. Income group or region classification
+#'         (e.g. "High income", "Low income").}
+#'   \item{type}{Character. Aggregation type, either Region or Income Group.}
+#'   \item{year}{Numeric. Reference year of the projection (2025-2035).}
+#'   \item{population_growth_rate}{Numeric. Annual population growth rate
+#'         expressed as a percentage.}
+#'   \item{total_population}{Numeric. Total population as of 1 January,
+#'         in thousands.}
+#'   \item{median_age}{Numeric. Median age of the population as of 1 July,
+#'         in years.}
 #' }
-#' @source <https://ddh-openapi.worldbank.org/resources/DR0095333/download/>
-"countryclass"
-
-#' @title Budget Execution Rate
-#' @description Primary government expenditures as a proportion of original approved budget (%)
-#' @source <https://data360.worldbank.org/en/indicator/WB_WDI_GF_XPD_BUDG_ZS>
-#' @format A data frame with 3154 rows and 3 variables:
-#' \describe{
-#'   \item{\code{country_code}}{character World Bank country code}
-#'   \item{\code{year}}{character Year}
-#'   \item{\code{budget_execution_rate}}{double Primary government expenditure (%)}
-#'}
-"budget_execution"
-
-#' @title Open Budget Survey: Legislature and Super Audit Institution Oversight Score
-#' @description The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.
-#' @format A data frame with 918 rows and 8 variables:
-#' \describe{
-#'   \item{\code{country_code}}{character World Bank country code}
-#'   \item{\code{year}}{double Year}
-#'   \item{\code{budget_transparency_score}}{double Budget transparency score Budget transparency score (previously known as the Open Budget Index): assesses the public availability of the eight key budget documents, which taken together provide a complete view of how public resources have been raised, planned, and spent during the budget year. To be considered "publicly available", documents must be published online, in a timely manner, and must include information that is comprehensive and useful. A score of 61 or above indicates a country is likely publishing enough material to support informed public debate on the budget.}
-#'   \item{\code{supreme_audit_oversight_score}}{double Supreme Audit Institution Oversight Score: The role that supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-#'   \item{\code{oversight_score}}{double Legislature and Supreme Audit Institution Oversight Score: The role that legislatures and supreme audit institutions play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-#'   \item{\code{legislative_oversight_score}}{double Legislature oversight score: The role that legislatures play in the budget process and the extent to which they are able to provide robust oversight of the budget.}
-#'   \item{\code{public_participation_score}}{double Public participation score: The degree to which the executive, the legislature, and the supreme audit institution each provides opportunities for the public to engage during different cycles of the budget process.}
-#'}
-#' @details DETAILS
-"open_budget"
-
-#' @title B-READY Pillar Scores
-#' @description B-READY (Business Ready) pillar scores measuring the business environment across three dimensions: Regulatory Framework, Public Services, and Operational Efficiency.
-#' @format A data frame with 101 rows and 5 variables:
-#' \describe{
-#'   \item{\code{economy}}{character. Country name.}
-#'   \item{\code{country_code}}{character. World Bank country code.}
-#'   \item{\code{pillar_1_regulatory_framework}}{double. Score for Pillar 1: the rules and regulations that firms must follow as they open, operate, and close a business.}
-#'   \item{\code{pillar_2_public_services}}{double. Score for Pillar 2: facilities that governments provide to support regulatory compliance and the critical institutions and infrastructure that enable business activities.}
-#'   \item{\code{pillar_3_operational_efficiency}}{double. Score for Pillar 3: the ease of compliance with the regulatory framework and the effective use of public services directly relevant to firms.}
+#'
+#' @source UN Population Division, World Population Prospects 2024.
+#'   Standard Projections, Most Used indicators.
+#'   \url{https://population.un.org/wpp/downloads?folder=Standard%20Projections&group=Most%20used}
+#'
+#' @examples
+#' \dontrun{
+#'   data(unwpp_data)
+#'   head(unwpp_data)
 #' }
-#' @details B-READY measures the business environment through three pillars related to the life cycle of the firm. Scores are calculated across multiple business environment areas relevant to firm operations.
-#' @source World Bank B-READY. <https://www.worldbank.org/en/businessready/data>
+"unwpp_data"
+
+#' Breadth of Ready Dataset
+#'
+#' Scores for regulatory framework, public services, and operational efficiency by country.
+#'
+#' @format A data frame with 101 rows and 5 columns:
+#' \describe{
+#'   \item{economy}{Country name (character)}
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{pillar_1_regulatory_framework}{Score for regulatory framework (numeric)}
+#'   \item{pillar_2_public_services}{Score for public services (numeric)}
+#'   \item{pillar_3_operational_efficiency}{Score for operational efficiency (numeric)}
+#' }
+#' @source Internal compilation
 "bready"
 
+#' Budget Execution Rates
+#'
+#' Annual budget execution rates by country.
+#'
+#' @format A tibble with 2368 rows and 3 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{year}{Year (character)}
+#'   \item{budget_execution_rate}{Budget execution rate (numeric)}
+#' }
+#' @source Internal compilation
+"budget_execution"
+
+#' Country Classification Table
+#'
+#' Country-level classification by region and income group.
+#'
+#' @format A data frame with 266 rows and 4 columns:
+#' \describe{
+#'   \item{economy}{Country name (character)}
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{region}{World Bank region (character)}
+#'   \item{income_group}{World Bank income group (character)}
+#' }
+#' @source World Bank and internal sources
+"countryclass"
+
+#' Global Survey of Public Sector (GSPS)
+#'
+#' Survey responses on public sector indicators by country, year, and topic.
+#'
+#' @format A tibble with 229,467 rows and 16 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{economy}{Country name (character)}
+#'   \item{category}{Survey category (character)}
+#'   \item{year}{Year (numeric)}
+#'   \item{region}{World Bank region (character)}
+#'   \item{income_group}{World Bank income group (character)}
+#'   \item{respondent_group}{Respondent group (character)}
+#'   \item{topic_group}{Topic group (character)}
+#'   \item{indicator}{Indicator code (character)}
+#'   \item{indicator_group}{Indicator group (character)}
+#'   \item{question_text}{Survey question (character)}
+#'   \item{mean}{Mean response (numeric)}
+#'   \item{lower_ci}{Lower confidence interval (numeric)}
+#'   \item{upper_ci}{Upper confidence interval (numeric)}
+#'   \item{scale}{Response scale (character)}
+#'   \item{response_rate}{Response rate (numeric)}
+#' }
+#' @source GSPS survey data
+"gsps"
+
+#' Open Budget Survey Scores
+#'
+#' Scores from the Open Budget Survey by country and year.
+#'
+#' @format A tibble with 918 rows and 7 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{year}{Year (numeric)}
+#'   \item{budget_transparency_score}{Budget transparency score (numeric)}
+#'   \item{supreme_audit_oversight_score}{Supreme audit institution oversight score (numeric)}
+#'   \item{oversight_score}{Overall oversight score (numeric)}
+#'   \item{legislative_oversight_score}{Legislative oversight score (numeric)}
+#'   \item{public_participation_score}{Public participation score (numeric)}
+#' }
+#' @source International Budget Partnership
+"open_budget"

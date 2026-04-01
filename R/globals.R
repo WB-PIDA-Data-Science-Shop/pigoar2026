@@ -6,8 +6,10 @@ NULL
 
 # Suppress CMD check notes for global variables used in dplyr/tidyr/ggplot2
 utils::globalVariables(c(
-  "budget_line", "cluster", "country_code", "country_dimension_av", 
-  "country_name", "ctf_distance", "execution_ratio", "family_name",
+  "budget_line", "cluster", "cluster_mapping", "country_code",
+  "country_dimension_av", "country_group",
+  "country_name", "ctf_distance", "ctf_score", "difference",
+  "execution_ratio", "family_name",
   "income_group", "lending_category", "max_av", "max_value", "min_av", 
   "min_value", "region", "region_av", "region_long", "region_w",
   "sector", "type", "value", "var_name", "variable", "year",

@@ -3,35 +3,35 @@
 \docType{data}
 \name{gsps}
 \alias{gsps}
-\title{Global Survey of Public Servants}
+\title{Global Survey of Public Sector (GSPS)}
 \format{
-A data frame with 229467 rows and 10 variables:
+A tibble with 229,467 rows and 16 columns:
 \describe{
-\item{\code{country_code}}{World Bank country code}
-\item{\code{economy}}{character Country name}
-\item{\code{category}}{character Category name}
-\item{\code{year}}{double Year}
-\item{\code{region}}{character World Bank region}
-\item{\code{income_group}}{character World Bank income group}
-\item{\code{respondent_group}}{character Respondent group}
-\item{\code{topic_group}}{character Topic grouping}
-\item{\code{indicator}}{character Indicator}
-\item{\code{indicator_group}}{character Indicator grouping}
-\item{\code{question_text}}{character Survey question}
-\item{\code{mean}}{double Average for the group. See scale}
-\item{\code{lower_ci}}{double Lower bound for the average}
-\item{\code{upper_ci}}{double Upper bound for the average}
-\item{\code{scale}}{character Scale for the average}
-\item{\code{response_rate}}{double Response rate for the group}
+\item{country_code}{ISO country code (character)}
+\item{economy}{Country name (character)}
+\item{category}{Survey category (character)}
+\item{year}{Year (numeric)}
+\item{region}{World Bank region (character)}
+\item{income_group}{World Bank income group (character)}
+\item{respondent_group}{Respondent group (character)}
+\item{topic_group}{Topic group (character)}
+\item{indicator}{Indicator code (character)}
+\item{indicator_group}{Indicator group (character)}
+\item{question_text}{Survey question (character)}
+\item{mean}{Mean response (numeric)}
+\item{lower_ci}{Lower confidence interval (numeric)}
+\item{upper_ci}{Upper confidence interval (numeric)}
+\item{scale}{Response scale (character)}
+\item{response_rate}{Response rate (numeric)}
 }
 }
 \source{
-\url{https://www.globalsurveyofpublicservants.org/data-downloads}
+GSPS survey data
 }
 \usage{
 gsps
 }
 \description{
-This dataset is a set of surveys of public servants produced by the Bureaucracy Lab at the World Bank and partnering academic institutions.
+Survey responses on public sector indicators by country, year, and topic.
 }
 \keyword{datasets}
