@@ -67,12 +67,18 @@ cliar_ctf <- ctf_dynamic |>
   left_join(
     wdi_outcomes,
     by = c("country_code", "year")
+  ) |> 
+  left_join(
+    pigoar2026::budget_execution |> mutate(year = as.integer(year)),
+    by = c("country_code", "year")
   )
 
 # visualize --------------------------------------------------------------
 cluster_names <- c(
-  "Public Human Resources Management" = "vars_hrm_avg",
-  "Public Sector Corruption" = "vdem_core_v2x_pubcorr"
+  "hrm" = "vars_hrm_avg",
+  "pub_sector_corruption" = "vdem_core_v2x_pubcorr",
+  "open_budget" = "ibp_obs_obi",
+  "budget_execution" = "budget_execution_rate"
 )
 
 prosperity_plots <- purrr::imap(cluster_names, \(var, label) {
