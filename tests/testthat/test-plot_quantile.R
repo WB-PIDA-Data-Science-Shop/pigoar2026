@@ -25,3 +25,28 @@ test_that("plot_quantile errors when a column does not exist", {
     plot_quantile(df_valid, x = "income_group", y = "nonexistent_col", quantile_group = "indicator")
   )
 })
+
+test_that("classify_quantile adds quantile_indicator column with correct levels", {
+  result <- classify_quantile(df_valid, var = "score", quantile_group = "indicator")
+
+  expect_true("quantile_indicator" %in% names(result))
+  expect_s3_class(result$quantile_indicator, "factor")
+  expect_equal(levels(result$quantile_indicator), c("Strong", "Emerging", "Weak"))
+})
+
+test_that("classify_quantile assigns all three tiers when data is spread", {
+  result <- classify_quantile(df_valid, var = "score", quantile_group = "indicator")
+  tiers <- unique(as.character(result$quantile_indicator))
+
+  expect_true(all(c("Weak", "Emerging", "Strong") %in% tiers))
+})
+
+test_that("classify_quantile handles NA values in var without error", {
+  df <- df_valid
+  df$score[1] <- NA
+
+  expect_no_error(classify_quantile(df, var = "score", quantile_group = "indicator"))
+
+  result <- classify_quantile(df, var = "score", quantile_group = "indicator")
+  expect_true(is.na(result$quantile_indicator[1]))
+})
