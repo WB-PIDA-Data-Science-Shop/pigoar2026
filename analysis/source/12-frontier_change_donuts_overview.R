@@ -219,7 +219,13 @@ if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 families <- unname(cluster_mapping)
 
 purrr::walk(families, function(fam) {
-  diff_data <- compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024)
+  diff_data <- compute_ctf_diff(
+    dyn_ctf_plot,
+    family    = fam,
+    from_year = 2020,
+    to_year   = 2024,
+    mapping   = cluster_mapping
+  )
   p         <- generate_ctf_diff_plot(diff_data, income_order = income_levels)
 
   if (is.null(p)) return(invisible(NULL))
@@ -238,7 +244,7 @@ purrr::walk(families, function(fam) {
 
 # Use compute_ctf_diff for each family and bind results
 all_diffs <- purrr::map_dfr(families, function(fam) {
-  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024)
+  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024, mapping = cluster_mapping)
 })
 
 # % of countries that improved vs declined by family and income group
@@ -319,7 +325,7 @@ theme_set(
   theme_minimal() +
     theme(
       text = element_text(size = 20, family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 12, hjust = .5, angle = ),
+      axis.text.x = element_text(size = 12, hjust = .5, angle = 0),
       axis.text.y = element_text(size = 18),
       plot.title = element_text(size = 22, face = "bold"),
       plot.subtitle = element_text(size = 16),
