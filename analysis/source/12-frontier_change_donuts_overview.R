@@ -243,10 +243,15 @@ all_diffs <- purrr::map_dfr(families, function(fam) {
 
 # % of countries that improved vs declined by family and income group
 # Excludes countries not classified in an income group (already handled upstream)
-summary_table <- all_diffs |>
+improvement_table <- all_diffs |>
   dplyr::mutate(
     income_group     = factor(income_group, levels = income_levels),
-    change_direction = dplyr::if_else(difference > 0, "Improved", "Declined")
+    change_direction = dplyr::case_when(
+      difference > 0  ~ "Improved",
+      difference < 0  ~ "Declined",
+      difference == 0 ~ "Stagnated",
+      TRUE            ~ NA_character_
+    )
   ) |>
   dplyr::group_by(family_name, income_group, change_direction) |>
   dplyr::summarise(count = n(), .groups = "drop") |>
@@ -255,7 +260,38 @@ summary_table <- all_diffs |>
   dplyr::ungroup() |>
   dplyr::arrange(family_name, income_group, change_direction)
 
-summary_table
+# also for digital 2020 to 2022
+
+# Use compute_ctf_diff for each family and bind results
+digital_diffs <- purrr::map_dfr(families, function(fam) {
+  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022)
+})
+
+# % of countries that improved vs declined by family and income group
+# Excludes countries not classified in an income group (already handled upstream)
+digital_table <- digital_diffs |>
+  dplyr::mutate(
+    income_group     = factor(income_group, levels = income_levels),
+    change_direction = dplyr::case_when(
+      difference > 0  ~ "Improved",
+      difference < 0  ~ "Declined",
+      difference == 0 ~ "Stagnated",
+      TRUE            ~ NA_character_
+    )
+  ) |>
+  dplyr::group_by(family_name, income_group, change_direction) |>
+  dplyr::summarise(count = n(), .groups = "drop") |>
+  dplyr::group_by(family_name, income_group) |>
+  dplyr::mutate(percent = count / sum(count) * 100) |>
+  dplyr::ungroup() |>
+  dplyr::arrange(family_name, income_group, change_direction) |> 
+  filter(family_name == "Information Systems")
+
+# bind rows to improbements table
+improvement_summary <- bind_rows(
+  improvement_table,
+  digital_table
+)
 
 
 # plot data 2020 to 2022 --------------------------------------------------------------
@@ -360,6 +396,122 @@ ggsave_frontier(
 
 
 
+# summary infographic ----------------------------------------------------
+
+glimpse(improvement_table)
+
+# Calculate overall success rate (% Improved) for each family to order them
+family_success_rates <- improvement_summary |>
+  filter(!is.na(change_direction)) |>
+  group_by(family_name, change_direction) |>
+  summarise(total_percent = sum(percent), .groups = "drop") |>
+  pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
+  mutate(success_rate = Improved / (Improved + Declined + Stagnated) * 100) |>
+  arrange(success_rate) |>
+  pull(family_name)
+
+# Improvement by family and income group - stacked bar chart
+improvement_summary |>
+  filter(!is.na(change_direction)) |>
+  mutate(
+    family_name = str_wrap(family_name, width = 20),
+    family_name = factor(family_name, levels = str_wrap(family_success_rates, width = 20)),
+    income_group = factor(income_group, levels = income_levels),
+    change_direction = factor(change_direction, levels = c("Declined", "Stagnated", "Improved"))
+  ) |>
+  ggplot(aes(x = family_name, y = percent, fill = change_direction)) +
+  geom_col(position = "stack", alpha = 0.85, width = 0.7) +
+  geom_text(
+    aes(label = paste0(round(percent, 0), "%")),
+    position = position_stack(vjust = 0.5),
+    size = 3,
+    color = "white",
+    fontface = "bold"
+  ) +
+  facet_wrap(~ income_group, nrow = 1) +
+  scale_fill_manual(
+    values = c("Improved" = "#2ecc71", "Stagnated" = "#f1c40f", "Declined" = "#e74c3c"),
+    name = "Change Direction"
+  ) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) +
+  labs(
+    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)",
+    subtitle = "Proportion of countries within each income group that improved, stagnated, or declined\nacross institutional dimensions",
+    x = NULL,
+    y = "Percentage (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "top",
+    axis.text.y = element_text(size = 10),
+    strip.text = element_text(size = 11, face = "bold")
+  ) +
+  coord_flip()
+
+ggsave_frontier(
+  filename = file.path(output_dir, "bars_improvement_by_family_income.png")
+)
+
+family_success_rates <- improvement_summary |>
+  filter(!is.na(change_direction)) |>
+  group_by(family_name, change_direction) |>
+  summarise(total_percent = sum(percent), .groups = "drop") |>
+  pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
+  mutate(success_rate = Improved / (Improved + Declined + Stagnated) * 100) |>
+  arrange(desc(success_rate)) |>
+  pull(family_name)
+
+# Improvement by family and income group - donut chart grid
+improvement_summary |>
+  filter(!is.na(change_direction)) |>
+  mutate(
+    family_name = str_wrap(family_name, width = 15),
+    family_name = factor(family_name, levels = str_wrap(family_success_rates, width = 15)),
+    income_group = factor(income_group, levels = income_levels),
+    change_direction = factor(change_direction, levels = c("Declined", "Stagnated", "Improved"))
+  ) |>
+  filter(change_direction == "Improved") |> # Optional: exclude stagnated for clearer focus on improvement vs decline
+  ggplot(aes(x = 2, y = percent, fill = change_direction)) +
+  geom_col(width = 1, alpha = 0.85) +
+  geom_text(
+    aes(label = paste0(round(percent, 0), "%")),
+    position = position_stack(vjust = 0.5),
+    size = 4,
+    color = "white",
+    fontface = "bold"
+  ) +
+  facet_grid(family_name ~ income_group, switch = "y") +
+  scale_fill_manual(
+    values = c("Improved" = "#2ecc71", "Stagnated" = "#f1c40f", "Declined" = "#e74c3c"),
+    name = "Change Direction"
+  ) +
+  xlim(0.5, 2.5) +
+  coord_polar(theta = "y") +
+  labs(
+    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)",
+    subtitle = "Proportion of countries within each income group that improved, stagnated, or declined\nacross institutional dimensions",
+    y = "Percentage (%)"
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "top",
+    strip.text.x = element_text(size = 10, face = "bold"),
+    strip.text.y.left = element_text(size = 9, angle = 0, hjust = 1),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+
+ggsave_donas<- partial(
+  ggplot2::ggsave,
+  bg     = "white",
+  width  = 12,
+  height = 12
+)
+
+ggsave_donas(
+  filename = file.path(output_dir, "donas_improvement_by_family_income.png")
+)
 
 
 
