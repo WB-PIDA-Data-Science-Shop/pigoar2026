@@ -29,23 +29,61 @@ ggsave_frontier<- partial(
 
 library(cliaretl)
 
+# PART 1. Budget Exc-----------------------------------------------------
+#load data
+countryclass <- cliaretl::wb_income_and_region
+
+# clean data
+budget_execution <- pigoar2026::budget_execution |> 
+  mutate(year = as.integer(year)) |> 
+  # data coverage issues before 2007 (fewer countries)
+  # in 2024, low-income countries coverage drops from 10 to 2
+  filter(between(year, 2013, 2023)) |> 
+  mutate(
+    # Distance from perfect execution (100%): lower = better
+    # e.g. 95% execution -> distance of 5; 110% execution -> distance of 10
+    budget_execution_rate = abs(100 - budget_execution_rate)
+  )
 
 
-# PART 1. financial stability ctf calculation ------------------------------------
+# use cliaretl fun to overwrite the db_variables and add the outturn indicator
+
+# PART 2. financial stability ctf calculation ------------------------------------
 # Important:
 # To compute the distance to frontier change, the use cliarertl::rescale_indicator()
 # and cliaretl::compute_ctf() functions require the original raw indicator values
 #  (before rescaling) to ensure consistency in the calculation.
 
-# dataload
+# dat-aload
 country_list <- cliaretl::wb_country_list
 income_and_region_class <- cliaretl::wb_income_and_region
 db_variables <- cliaretl::db_variables_final
+
+# Add the budget_execution_rate variable to db_variables metadata
+db_variables <- cliaretl::addnew_db_variables(
+  db_variables,
+  new_variables = tibble::tibble(
+    variable = "budget_execution_rate",
+    var_name = "Budget execution rate (%)",
+    family_name = "Public Financial Management Institutions",
+    description = "Budget execution rate (outturn) as a percentage of the approved budget, averaged across all sectors. Source: PEFA assessments.",
+    benchmarked_ctf = "Yes",
+    benchmark_dynamic_indicator = "Yes"
+  )
+)
 cliar_indicators <- read_rds(here("data-raw", "input", "compiled_indicators.rds")) |> 
     # filter to only years 2013 or later
   filter(
     year >= 2013
   )
+
+# left join variable = budget_execution_rate indicator to compiled indicators
+cliar_indicators_b <- cliar_indicators |> 
+  left_join(
+    budget_execution |> select(country_code, year, budget_execution_rate),
+    by = c("country_code", "year")
+  ) 
+
 
 # data preparation and rescaling
 vars_ctf <- db_variables |>
@@ -57,11 +95,11 @@ vars_ctf <- db_variables |>
 var_lists <- get_variable_lists(db_variables)
 
 ## Add the new variable to the list of dynamic CTF variables for rescaling and CTF computation
-var_lists$vars_dynamic_ctf <- c(var_lists$vars_dynamic_ctf, "bs_bti_q8_2")
+var_lists$vars_dynamic_ctf <- c(var_lists$vars_dynamic_ctf, "bs_bti_q8_2", "budget_execution_rate")
 
 
 # Rescale indicators and compute CTF for the dynamic set
-cliar_indicators_rescaled <- cliar_indicators |>
+cliar_indicators_rescaled <- cliar_indicators_b |>
   mutate(
     # OECD PMR (0–6): reverse; drop pre-2018
     across(starts_with("oecd_pmr"),
@@ -78,8 +116,11 @@ cliar_indicators_rescaled <- cliar_indicators |>
     #ALSO RESCALE THE BTI INDICATOR:
     bs_bti_q8_2 = (rescale_indicator(bs_bti_q8_2, scale_to = 1)),
     # GFDB bank concentration (0–100): reverse
-    wb_gfdb_oi_01 = reverse_indicator(wb_gfdb_oi_01, min = 0, max = 100)
+    wb_gfdb_oi_01 = reverse_indicator(wb_gfdb_oi_01, min = 0, max = 100),
+    # And rescale to absolute terms distance and rescale (0-1) budget_execution_rate
+    budget_execution_rate = rescale_indicator(budget_execution_rate, scale_to = 1)
   )
+  
 
 ## Scores
 # helper fns that don't warn on all-NA
@@ -121,22 +162,19 @@ ctf_dynamic_fiscal_s <-
     zero_floor = 0.01)
 
 
-# PART 2. Frontier graphs----------------------------------------------------
 
-# data-load --------------------------------------------------------------
-
-
-metadata <- cliaretl::db_variables_final
-ctf_dyn <- cliaretl::closeness_to_frontier_dynamic 
-
-## add the new benchmarcked indicator to the ctf_dyn
-ctf_dyn <- ctf_dyn |>
-  left_join(
-    ctf_dynamic_fiscal_s |> select(country_code, year, bs_bti_q8_2),
-    by = c("country_code", "year")
-  )
 
 # data_transformation ----------------------------------------------------
+
+metadata <- cliaretl::db_variables_final
+ctf_dyn <- cliaretl::closeness_to_frontier_dynamic
+
+## add the new benchmarked indicators to the ctf_dyn
+ctf_dyn <- ctf_dyn |>
+  left_join(
+    ctf_dynamic_fiscal_s |> select(country_code, year, bs_bti_q8_2, budget_execution_rate),
+    by = c("country_code", "year")
+  )
 
 # Pivot the data to long format and join with metadata 
 ctf_dyn_joined <- ctf_dyn |>
@@ -150,21 +188,22 @@ ctf_dyn_joined <- ctf_dyn |>
 # Filter benchmarcked
 dyn_ctf_plot <- ctf_dyn_joined |> 
   filter(
-    benchmark_dynamic_indicator == "Yes" | variable == "bs_bti_q8_2"
+    benchmark_dynamic_indicator == "Yes" | variable %in% c("bs_bti_q8_2", "budget_execution_rate")
   ) |> 
   filter(!is.na(income_group)) |>
-  # Overwrite family_name for bs_bti_q8_2 to assign it to the correct family
+  # Overwrite family_name for bs_bti_q8_2 and budget_execution_rate
   dplyr::mutate(
     family_name = dplyr::if_else(
-      variable == "bs_bti_q8_2",
+      variable %in% c("bs_bti_q8_2", "budget_execution_rate"),
       "Public Financial Management Institutions",
       family_name
     )
   )
 
+
 # Verify bs_bti_q8_2 is present and correctly assigned
 dyn_ctf_plot |>
-  dplyr::filter(variable == "bs_bti_q8_2") |>
+  dplyr::filter(variable == c("bs_bti_q8_2", "budget_execution_rate")) |>
   dplyr::distinct(variable, family_name, benchmark_dynamic_indicator)
 
 
@@ -209,6 +248,9 @@ matched_families <- dyn_ctf_plot |>
   dplyr::left_join(cluster_mapping_tbl, by = c("family_name_norm" = "raw_norm")) |>
   dplyr::mutate(in_mapping = !is.na(label))
 matched_families
+
+
+# PART 3. visualizations -------------------------------------------------
 
 
 # plot data 2020 to 2024 --------------------------------------------------------------
@@ -266,6 +308,11 @@ improvement_table <- all_diffs |>
   dplyr::ungroup() |>
   dplyr::arrange(family_name, income_group, change_direction)
 
+#drop Public Financial Management rows 2024
+improvement_table_clean <- improvement_table |> 
+  filter(!(family_name == "Public Financial Management"))
+
+
 # also for digital 2020 to 2022
 
 # Use compute_ctf_diff for each family and bind results
@@ -291,12 +338,15 @@ digital_table <- digital_diffs |>
   dplyr::mutate(percent = count / sum(count) * 100) |>
   dplyr::ungroup() |>
   dplyr::arrange(family_name, income_group, change_direction) |> 
-  filter(family_name == "Information Systems")
+  filter(family_name %in% c("Information Systems","Public Financial Management")
+  )
+
 
 # bind rows to improbements table
 improvement_summary <- bind_rows(
-  improvement_table,
-  digital_table
+  improvement_table_clean,
+  digital_table,
+
 )
 
 
@@ -320,91 +370,9 @@ purrr::walk(families, function(fam) {
 
 
 
-# pfm indicators trends --------------------------------------------
-theme_set(
-  theme_minimal() +
-    theme(
-      text = element_text(size = 20, family = "Segoe UI Semibold"),
-      axis.text.x = element_text(size = 12, hjust = .5, angle = 0),
-      axis.text.y = element_text(size = 18),
-      plot.title = element_text(size = 22, face = "bold"),
-      plot.subtitle = element_text(size = 16),
-      plot.background = element_blank(),
-      plot.caption = element_text(hjust = 0, size = 12),
-      panel.grid.minor = element_blank(),
-      panel.border = element_blank(),
-      legend.position = "none"
-    )
-)
-raw_indicators <- cliaretl::d360_efi_data
-
-# pivot lover the raw indicator data and join with metadata to get family_name and var_name
- panel_data <- raw_indicators |> 
-  pivot_longer(cols = 7:last_col(), # Pivot all indicator columns
-               names_to = "variable",
-               values_to = "value") |>
-  left_join(metadata, by = "variable") |> # Join with variable metadata
-  select(country_code, year, family_name, variable, var_name, value,var_name, description) # Explicitly select and preserve income_group
-
-# use dyn_subset to label income_group and country_group for the panel data
-indicators_income <- panel_data |> 
-  left_join(
-    ctf_dyn_joined |> select(country_code, year, income_group, country_group) |> distinct(),
-    by = c("country_code", "year")
-  ) |> 
-  filter(!is.na(income_group)) # Exclude rows without income group classification
- 
-# filter only the Fiscal stability and Monetary stability var_name
-pfm_indicators <- indicators_income |> 
-  filter(var_name %in% c("Fiscal stability")) |> 
-  filter(country_group == 0) |> 
-  mutate(
-    income_group = factor(income_group, levels = income_levels)
-  ) 
-
-# Aggregate to income group mean per year before plotting
-pfm_trends_data <- pfm_indicators |>
-  dplyr::group_by(var_name, income_group, year) |>
-  dplyr::summarise(mean_value = mean(value, na.rm = TRUE), .groups = "drop") |>
-  dplyr::mutate(
-    income_group = factor(income_group, levels = income_levels),
-    year_fct     = factor(year)   # discrete axis — no gaps between survey years
-  ) |>  
-  #filter only years 2014, 2016, 2018, 2020, 2022 and 2024
-  filter(year %in% c(2014, 2016, 2018, 2020, 2022, 2024))
-
-# plot the mean trends of the two indicators by income group
-ggplot(pfm_trends_data, aes(x = year_fct, y = mean_value, color = income_group, group = income_group)) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 4, alpha = 0.7) +
-  geom_text(
-    aes(label = round(mean_value, 2)),
-    size        = 3,
-    nudge_y     = 0.3,
-    show.legend = FALSE
-  ) +
-  facet_wrap(~ var_name) +
-  scale_y_continuous(limits = c(0, 10), breaks = seq(0, 10, by = 2)) +
-  ggthemes::scale_color_solarized(name = "Income Group") +
-  labs(
-    title    = "Trends of Fiscal and Monetary Stability by Income Group",
-    subtitle = "Mean score across countries within each income group",
-    x        = "Year",
-    y        = "Mean Indicator Value"
-  ) +
-  theme(legend.position = "bottom")
-
-
-ggsave_frontier(
-  filename = file.path(output_dir, "pfm_indicators_trends.png"),
-  plot     = last_plot()
-)
-
-
-
 # summary infographic ----------------------------------------------------
 
-glimpse(improvement_table)
+glimpse(improvement_summary)
 
 # Calculate overall success rate (% Improved) for each family to order them
 family_success_rates <- improvement_summary |>
@@ -441,7 +409,7 @@ improvement_summary |>
   ) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) +
   labs(
-    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)",
+    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)*",
     subtitle = "Proportion of countries within each income group that improved, stagnated, or declined\nacross institutional dimensions",
     x = NULL,
     y = "Percentage (%)"
@@ -455,7 +423,7 @@ improvement_summary |>
   coord_flip()
 
 ggsave_frontier(
-  filename = file.path(output_dir, "bars_improvement_by_family_income.png")
+  filename = file.path(output_dir, "bars_improvement_by_family_income_budget.png")
 )
 
 family_success_rates <- improvement_summary |>
@@ -476,7 +444,6 @@ improvement_summary |>
     income_group = factor(income_group, levels = income_levels),
     change_direction = factor(change_direction, levels = c("Declined", "Stagnated", "Improved"))
   ) |>
-  filter(change_direction == "Improved") |> # Optional: exclude stagnated for clearer focus on improvement vs decline
   ggplot(aes(x = 2, y = percent, fill = change_direction)) +
   geom_col(width = 1, alpha = 0.85) +
   geom_text(
@@ -516,7 +483,7 @@ ggsave_donas<- partial(
 )
 
 ggsave_donas(
-  filename = file.path(output_dir, "donas_improvement_by_family_income.png")
+  filename = file.path(output_dir, "donas_improvement_by_family_income_budget.png")
 )
 
 
