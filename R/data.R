@@ -344,3 +344,25 @@
 #' }
 #' @source International Budget Partnership
 "open_budget"
+
+#' Budget Outturn (BOOST DATA)
+#'
+#' Aggregate budget execution outturn by country and year, calculated using the
+#' PEFA formula: Executed Budget / Approved Budget * 100. Derived from the World
+#' Bank BOOST database.
+#'
+#' @format A tibble with 207 rows and 5 columns:
+#' \describe{
+#'   \item{country_code}{ISO country code (character)}
+#'   \item{year}{Year (numeric)}
+#'   \item{total_executed}{Total executed budget expenditure (numeric)}
+#'   \item{total_approved}{Total approved budget expenditure (numeric)}
+#'   \item{budget_outturn}{Budget outturn rate, as a percentage (numeric).
+#'     Calculated as \code{total_executed / total_approved * 100}.
+#'     \code{NA} when \code{total_approved} is zero.}
+#' }
+#' @source World Bank BOOST database, accessed via MEGA Databricks platform.
+"budget_outturn"
+
+
+

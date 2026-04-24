@@ -1249,7 +1249,7 @@
     },
     "cliaretl": {
       "Package": "cliaretl",
-      "Version": "0.2.3",
+      "Version": "0.2.0",
       "Source": "GitHub",
       "Type": "Package",
       "Title": "An ETL Framework Supporting the World Bank’s CLIAR Dashboard",
@@ -1274,9 +1274,7 @@
         "pointblank",
         "tidyr",
         "rmarkdown",
-        "glue",
-        "janitor",
-        "jsonlite"
+        "glue"
       ],
       "Suggests": [
         "testthat (>= 3.0.0)"
@@ -1286,10 +1284,10 @@
       "Maintainer": "Ileana Marroquin <imarroquinmartin@worldbank.org>",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "WB-PIDA-Data-Science-Shop",
       "RemoteRepo": "cliaretl",
-      "RemoteRef": "main",
-      "RemoteSha": "a1dcd9453a2590ad29bcb4b058e01428b38d9c5f"
+      "RemoteUsername": "WB-PIDA-Data-Science-Shop",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "9e2d4a28fea96cff8965e27b2f29cda653ea37fd"
     },
     "clipr": {
       "Package": "clipr",
