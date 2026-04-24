@@ -26,7 +26,7 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
   ) |> 
   group_by(country_code) |> 
   summarise(
-    gni_per_capita = mean(log(wdi_nygnppcapkd), na.rm = TRUE),
+    gdp_per_capita = mean(log(wdi_nygdppcapppkd), na.rm = TRUE),
     poverty_gap_215 = mean(wdi_sipovlmicgp, na.rm = TRUE),
     gdp_growth = mean(wdi_nygdpmktpkdzg, na.rm = TRUE),
     unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE),
@@ -98,7 +98,7 @@ institutional_clusters <- institutional_clusters |>
 
 outcomes <- c(
   "Credit Rating" = "credit_rating_mean",
-  "Logged GNI per capita (Constant International Dollars)" = "gni_per_capita",
+  "Logged GDP per capita (Constant International Dollars)" = "gdp_per_capita",
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
   "Annual GDP Growth" = "gdp_growth",
   "Unemployment rate" = "unemployment_rate",
@@ -170,4 +170,26 @@ purrr::walk2(
     plot = .x,
     width = 10, height = 10, dpi = 300, bg = "white"
   )
+)
+
+# regression analysis ----------------------------------------------------
+regression_results <- purrr::pmap_dfr(
+  cartesian_product,
+  function(x_val, y_val, x_lab, y_lab) {
+    # exclude gdp_per_capita as control when it is the outcome
+    controls <- if (y_val == "gdp_per_capita") "" else " + gdp_per_capita"
+    formula <- as.formula(paste0(y_val, " ~ ", x_val, controls))
+
+    model <- lm(formula, data = cliar_correlation)
+
+    broom::tidy(model, conf.int = TRUE) |>
+      filter(term == x_val) |>
+      mutate(
+        outcome = y_lab,
+        predictor = x_lab,
+        outcome_val = y_val,
+        predictor_val = x_val,
+        n = nobs(model)
+      )
+  }
 )
