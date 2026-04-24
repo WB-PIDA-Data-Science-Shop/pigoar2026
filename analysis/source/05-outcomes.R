@@ -192,7 +192,6 @@ regression_results <- purrr::pmap_dfr(
 
 regression_results |>
   mutate(
-    significant = p.value < 0.05,
     outcome = forcats::fct_reorder(outcome, estimate)
   ) |>
   filter(
@@ -206,21 +205,21 @@ regression_results |>
     ) &
       predictor != "Public Financial Management"
   ) |> 
-  ggplot(aes(x = estimate, y = outcome, color = significant)) +
+  ggplot(aes(x = estimate, y = outcome)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
-  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  geom_linerange(aes(xmin = conf.low, xmax = conf.high)) +
   geom_point(size = 2.5) +
   facet_wrap(~ predictor, scales = "free_x") +
   labs(
     x = "Coefficient estimate",
-    y = NULL,
-    color = "p < 0.05"
-  ) +
-  scale_color_manual(
-    values = c("TRUE" = "forestgreen", "FALSE" = "red"),
-    name = "Statistical Significance"
+    y = NULL
   ) +
   theme(
-    strip.text = element_text(size = 10),
+    strip.text = element_text(size = 14),
     legend.position = "none"
   )
+
+ggsave(
+  here("analysis/figs/outcomes/regression_results.png"),
+  width = 12, height = 8, dpi = 300, bg = "white"
+)
