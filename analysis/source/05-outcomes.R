@@ -100,12 +100,8 @@ outcomes <- c(
   "Credit Rating" = "credit_rating_mean",
   "Logged GDP per capita (Constant International Dollars)" = "gdp_per_capita",
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
-  "Annual GDP Growth" = "gdp_growth",
-  "Unemployment rate" = "unemployment_rate",
   "Labor income" = "labor_income",
-  "Literacy rate (Adult)" = "literacy_rate",
   "Infant mortality rate (logged)" = "mortality_rate",
-  "Pillar 1: Regulatory Framework" = "pillar_1_regulatory_framework",
   "Pillar 2: Public Services" = "pillar_2_public_services",
   "Pillar 3: Operational Efficiency" = "pillar_3_operational_efficiency"
 ) |> 
@@ -193,3 +189,38 @@ regression_results <- purrr::pmap_dfr(
       )
   }
 )
+
+regression_results |>
+  mutate(
+    significant = p.value < 0.05,
+    outcome = forcats::fct_reorder(outcome, estimate)
+  ) |>
+  filter(
+    outcome %in% c(
+      "Credit Rating",
+      "Labor income",
+      "Poverty Gap ($2.15 a day)",
+      "Infant mortality rate (logged)",
+      "Pillar 2: Public Services",
+      "Pillar 3: Operational Efficiency"
+    ) &
+      predictor != "Public Financial Management"
+  ) |> 
+  ggplot(aes(x = estimate, y = outcome, color = significant)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  geom_point(size = 2.5) +
+  facet_wrap(~ predictor, scales = "free_x") +
+  labs(
+    x = "Coefficient estimate",
+    y = NULL,
+    color = "p < 0.05"
+  ) +
+  scale_color_manual(
+    values = c("TRUE" = "forestgreen", "FALSE" = "red"),
+    name = "Statistical Significance"
+  ) +
+  theme(
+    strip.text = element_text(size = 10),
+    legend.position = "none"
+  )
