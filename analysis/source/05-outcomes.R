@@ -74,6 +74,20 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
         )
   )
 
+# join with bready topics
+bready_topic_correlation <- cliaretl::closeness_to_frontier_static |> 
+  left_join(
+    pigoar2026::bready_topic |> 
+      select(
+        country_code,
+        topic,
+        pillar_1_overall,
+        pillar_2_overall,
+        pillar_3_overall
+      ),
+    by = "country_code"
+  )
+
 # analyze ----------------------------------------------------------------
 institutional_clusters <- c(
   "vars_hrm_avg",
@@ -161,6 +175,69 @@ purrr::walk2(
         "cor_%s_vs_%s.png",
         gsub("\\s+", "_", cartesian_product$y_val[.y]),
         gsub("\\s+", "_", cartesian_product$x_val[.y])
+      )
+    ),
+    plot = .x,
+    width = 10, height = 10, dpi = 300, bg = "white"
+  )
+)
+
+# correlations with b-ready topics and pillars
+bready_pillars <- tibble(
+  y_val = c("pillar_2_overall", "pillar_3_overall"),
+  y_lab = c("Pillar 2: Public Services", "Pillar 3: Operational Efficiency")
+)
+
+bready_topic_cartesian <- tidyr::crossing(
+  institutional_clusters,
+  bready_pillars
+)
+
+# generate plots
+bready_correlation_plots <- purrr::pmap(
+  bready_topic_cartesian,
+  function(x_val, y_val, x_lab, y_lab) {
+    plot <- ggplot_correlation(
+      data = bready_topic_correlation |> 
+        filter(
+          !is.na(income_group) & !is.na(topic)
+        ),
+      x = x_val,
+      y = y_val,
+      group = "income_group"
+    ) +
+      facet_wrap(
+        vars(topic)
+      ) +
+      scale_y_continuous(
+        labels = function(x) stringr::str_wrap(x, width = 15)
+      ) +
+      labs(
+        x = paste0(x_lab, " (2020-2024)"),
+        y = y_lab
+      ) +
+      guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
+      )
+
+    plot
+  }
+)
+
+# save plots
+purrr::walk2(
+  bready_correlation_plots,
+  seq_len(nrow(bready_topic_cartesian)),
+  ~ ggplot2::ggsave(
+    filename = file.path(
+      "analysis/figs/outcomes",
+      sprintf(
+        "cor_%s_vs_%s.png",
+        gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
+        gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
       )
     ),
     plot = .x,
