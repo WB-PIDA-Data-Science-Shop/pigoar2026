@@ -116,8 +116,8 @@ outcomes <- c(
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
   "Labor income" = "labor_income",
   "Infant mortality rate (logged)" = "mortality_rate",
-  "Pillar 2: Public Services" = "pillar_2_public_services",
-  "Pillar 3: Operational Efficiency" = "pillar_3_operational_efficiency"
+  "Public Services for Businesses" = "pillar_2_public_services",
+  "Operational Efficiency" = "pillar_3_operational_efficiency"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"
@@ -185,7 +185,7 @@ purrr::walk2(
 # correlations with b-ready topics and pillars
 bready_pillars <- tibble(
   y_val = c("pillar_2_overall", "pillar_3_overall"),
-  y_lab = c("Pillar 2: Public Services", "Pillar 3: Operational Efficiency")
+  y_lab = c("Public Services for Businesses", "Operational Efficiency")
 )
 
 bready_topic_cartesian <- tidyr::crossing(
@@ -277,8 +277,8 @@ regression_results |>
       "Labor income",
       "Poverty Gap ($2.15 a day)",
       "Infant mortality rate (logged)",
-      "Pillar 2: Public Services",
-      "Pillar 3: Operational Efficiency"
+      "Public Services for Businesses",
+      "Operational Efficiency"
     ) &
       predictor != "Public Financial Management"
   ) |> 
