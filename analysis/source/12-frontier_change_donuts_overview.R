@@ -11,7 +11,7 @@ library(stringr)
 library(tidyr)
 library(janitor)
 library(ggthemes)
-library(ggplot2)
+library(ggplot2)  
 library(readr)
 
 devtools::load_all()
@@ -29,7 +29,7 @@ ggsave_frontier<- partial(
 
 library(cliaretl)
 
-# PART 1. Budget Exc-----------------------------------------------------
+# PART 1. Data Preparation-----------------------------------------------------
 #load data
 countryclass <- cliaretl::wb_income_and_region
 
@@ -38,7 +38,7 @@ budget_execution <- pigoar2026::budget_execution |>
   mutate(year = as.integer(year)) |> 
   # data coverage issues before 2007 (fewer countries)
   # in 2024, low-income countries coverage drops from 10 to 2
-  filter(between(year, 2013, 2023)) |> 
+  filter(between(year, 2013, 2024)) |> 
   mutate(
     # Distance from perfect execution (100%): lower = better
     # e.g. 95% execution -> distance of 5; 110% execution -> distance of 10
@@ -46,9 +46,6 @@ budget_execution <- pigoar2026::budget_execution |>
   )
 
 
-# use cliaretl fun to overwrite the db_variables and add the outturn indicator
-
-# PART 2. financial stability ctf calculation ------------------------------------
 # Important:
 # To compute the distance to frontier change, the use cliarertl::rescale_indicator()
 # and cliaretl::compute_ctf() functions require the original raw indicator values
@@ -56,21 +53,22 @@ budget_execution <- pigoar2026::budget_execution |>
 
 # dat-aload
 country_list <- cliaretl::wb_country_list
-income_and_region_class <- cliaretl::wb_income_and_region
+income_and_region_class <- cliaretl::wb_income_and_region # skip
 db_variables <- cliaretl::db_variables_final
 
 # Add the budget_execution_rate variable to db_variables metadata
-db_variables <- cliaretl::addnew_db_variables(
+db_variables <- dplyr::bind_rows(
   db_variables,
-  new_variables = tibble::tibble(
-    variable = "budget_execution_rate",
-    var_name = "Budget execution rate (%)",
-    family_name = "Public Financial Management Institutions",
-    description = "Budget execution rate (outturn) as a percentage of the approved budget, averaged across all sectors. Source: PEFA assessments.",
-    benchmarked_ctf = "Yes",
+  tibble::tibble(
+    variable                   = "budget_execution_rate",
+    var_name                   = "Budget execution rate (%)",
+    family_name                = "Public Financial Management Institutions",
+    description                = "Budget execution rate (outturn) as a percentage of the approved budget, averaged across all sectors. Source: PEFA assessments.",
+    benchmarked_ctf            = "Yes",
     benchmark_dynamic_indicator = "Yes"
-  )
+  ) 
 )
+
 cliar_indicators <- read_rds(here("data-raw", "input", "compiled_indicators.rds")) |> 
     # filter to only years 2013 or later
   filter(
@@ -95,7 +93,8 @@ vars_ctf <- db_variables |>
 var_lists <- get_variable_lists(db_variables)
 
 ## Add the new variable to the list of dynamic CTF variables for rescaling and CTF computation
-var_lists$vars_dynamic_ctf <- c(var_lists$vars_dynamic_ctf, "bs_bti_q8_2", "budget_execution_rate")
+var_lists$vars_dynamic_ctf <- c(var_lists$vars_dynamic_ctf, "budget_execution_rate")
+
 
 
 # Rescale indicators and compute CTF for the dynamic set
@@ -113,10 +112,12 @@ cliar_indicators_rescaled <- cliar_indicators_b |>
     # WDI pupil–teacher ratios: rescale to 0–1, then flip so higher = stronger
     wdi_seprmenrltczs = flip_indicator(rescale_indicator(wdi_seprmenrltczs, scale_to = 1)),
     wdi_sesecenrltczs = flip_indicator(rescale_indicator(wdi_sesecenrltczs, scale_to = 1)),
-    #ALSO RESCALE THE BTI INDICATOR:
-    bs_bti_q8_2 = (rescale_indicator(bs_bti_q8_2, scale_to = 1)),
+    # #ALSO RESCALE THE BTI INDICATOR:
+    # bs_bti_q8_2 = (rescale_indicator(bs_bti_q8_2, scale_to = 1)),
     # GFDB bank concentration (0–100): reverse
     wb_gfdb_oi_01 = reverse_indicator(wb_gfdb_oi_01, min = 0, max = 100),
+    # Reverse Budget Excecution Rate (0-100): lower distance = better*** Very important for CTF computation:
+    budget_execution_rate = reverse_indicator(budget_execution_rate, min = 0, max = 100),
     # And rescale to absolute terms distance and rescale (0-1) budget_execution_rate
     budget_execution_rate = rescale_indicator(budget_execution_rate, scale_to = 1)
   )
@@ -164,20 +165,20 @@ ctf_dynamic_fiscal_s <-
 
 
 
-# data_transformation ----------------------------------------------------
+# data_merge ----------------------------------------------------
 
-metadata <- cliaretl::db_variables_final
+metadata <- db_variables  # use the updated db_variables that includes budget_execution_rate
 ctf_dyn <- cliaretl::closeness_to_frontier_dynamic
 
 ## add the new benchmarked indicators to the ctf_dyn
-ctf_dyn <- ctf_dyn |>
+ctf_dyn_pfm <- ctf_dyn |>
   left_join(
-    ctf_dynamic_fiscal_s |> select(country_code, year, bs_bti_q8_2, budget_execution_rate),
+    ctf_dynamic_fiscal_s |> select(country_code, year, budget_execution_rate),
     by = c("country_code", "year")
   )
 
 # Pivot the data to long format and join with metadata 
-ctf_dyn_joined <- ctf_dyn |>
+ctf_dyn_joined <- ctf_dyn_pfm |>
   pivot_longer(cols = 7:last_col(), # Pivot all indicator columns
                names_to = "variable",
                values_to = "value") |>
@@ -188,22 +189,22 @@ ctf_dyn_joined <- ctf_dyn |>
 # Filter benchmarcked
 dyn_ctf_plot <- ctf_dyn_joined |> 
   filter(
-    benchmark_dynamic_indicator == "Yes" | variable %in% c("bs_bti_q8_2", "budget_execution_rate")
+    benchmark_dynamic_indicator == "Yes" | variable %in% c("budget_execution_rate")
   ) |> 
   filter(!is.na(income_group)) |>
-  # Overwrite family_name for bs_bti_q8_2 and budget_execution_rate
+  # Overwrite family_name for budget_execution_rate
   dplyr::mutate(
     family_name = dplyr::if_else(
-      variable %in% c("bs_bti_q8_2", "budget_execution_rate"),
+      variable %in% c( "budget_execution_rate"),
       "Public Financial Management Institutions",
       family_name
     )
   )
 
 
-# Verify bs_bti_q8_2 is present and correctly assigned
+# Verify budget_execution_rate are present and correctly assigned
 dyn_ctf_plot |>
-  dplyr::filter(variable == c("bs_bti_q8_2", "budget_execution_rate")) |>
+  dplyr::filter(variable %in% c("budget_execution_rate")) |>
   dplyr::distinct(variable, family_name, benchmark_dynamic_indicator)
 
 
@@ -247,10 +248,13 @@ matched_families <- dyn_ctf_plot |>
   dplyr::distinct(family_name, family_name_norm) |>
   dplyr::left_join(cluster_mapping_tbl, by = c("family_name_norm" = "raw_norm")) |>
   dplyr::mutate(in_mapping = !is.na(label))
+
 matched_families
 
 
-# PART 3. visualizations -------------------------------------------------
+
+
+# PART 2. Distance and Plots -------------------------------------------------
 
 
 # plot data 2020 to 2024 --------------------------------------------------------------
@@ -258,7 +262,7 @@ matched_families
 output_dir <- here("analysis", "figs", "frontier_distance")
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
-families <- unname(cluster_mapping)
+families <- unname(cluster_mapping)  # values: "Public Human Resources Management" e.g.
 
 purrr::walk(families, function(fam) {
   diff_data <- compute_ctf_diff(
@@ -268,7 +272,7 @@ purrr::walk(families, function(fam) {
     to_year   = 2024,
     mapping   = cluster_mapping
   )
-  p         <- generate_ctf_diff_plot(diff_data, income_order = income_levels)
+  p         <- generate_ctf_diff_plot(diff_data, income_order = income_levels) 
 
   if (is.null(p)) return(invisible(NULL))
 
@@ -289,6 +293,9 @@ all_diffs <- purrr::map_dfr(families, function(fam) {
   compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2024, mapping = cluster_mapping)
 })
 
+
+
+
 # % of countries that improved vs declined by family and income group
 # Excludes countries not classified in an income group (already handled upstream)
 improvement_table <- all_diffs |>
@@ -297,7 +304,7 @@ improvement_table <- all_diffs |>
     change_direction = dplyr::case_when(
       difference > 0  ~ "Improved",
       difference < 0  ~ "Declined",
-      difference == 0 ~ "Stagnated",
+      # difference == 0 ~ "Stagnated",
       TRUE            ~ NA_character_
     )
   ) |>
@@ -308,17 +315,26 @@ improvement_table <- all_diffs |>
   dplyr::ungroup() |>
   dplyr::arrange(family_name, income_group, change_direction)
 
+
 #drop Public Financial Management rows 2024
 improvement_table_clean <- improvement_table |> 
   filter(!(family_name == "Public Financial Management"))
-
 
 # also for digital 2020 to 2022
 
 # Use compute_ctf_diff for each family and bind results
 digital_diffs <- purrr::map_dfr(families, function(fam) {
-  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022)
+  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022,  mapping = cluster_mapping)
 })
+
+
+# pm-outliers ------------------------------------------------------------
+
+ outiers <- digital_diffs |>
+  filter(
+    family_name == "Public Financial Management"
+  ) |>
+  arrange(desc(difference)) 
 
 # % of countries that improved vs declined by family and income group
 # Excludes countries not classified in an income group (already handled upstream)
@@ -328,7 +344,7 @@ digital_table <- digital_diffs |>
     change_direction = dplyr::case_when(
       difference > 0  ~ "Improved",
       difference < 0  ~ "Declined",
-      difference == 0 ~ "Stagnated",
+      # difference == 0 ~ "Stagnated",
       TRUE            ~ NA_character_
     )
   ) |>
@@ -338,24 +354,94 @@ digital_table <- digital_diffs |>
   dplyr::mutate(percent = count / sum(count) * 100) |>
   dplyr::ungroup() |>
   dplyr::arrange(family_name, income_group, change_direction) |> 
-  filter(family_name %in% c("Information Systems","Public Financial Management")
+  filter(family_name %in% c("Information Systems", "Public Financial Management")
   )
 
 
-# bind rows to improbements table
+# bind rows to improvements table
 improvement_summary <- bind_rows(
   improvement_table_clean,
   digital_table,
+)
 
+# Income Analysis --------------------------------------------------------
+# Join region from countryclass into all_diffs, then re-aggregate by region
+
+all_region_diffs <- all_diffs |>
+  left_join(
+    income_and_region_class |> select(country_code, region),
+    by = "country_code"
+  )
+
+# % of countries that improved vs declined by family and region (2020-2024)
+improvement_region_table <- all_region_diffs |>
+  filter(!is.na(region)) |>
+  dplyr::mutate(
+    change_direction = dplyr::case_when(
+      difference > 0  ~ "Improved",
+      difference < 0  ~ "Declined",
+      # difference == 0 ~ "Stagnated",
+      TRUE            ~ NA_character_
+    )
+  ) |>
+  dplyr::group_by(family_name, region, change_direction) |>
+  dplyr::summarise(count = n(), .groups = "drop") |>
+  dplyr::group_by(family_name, region) |>
+  dplyr::mutate(percent = count / sum(count) * 100) |>
+  dplyr::ungroup() |>
+  dplyr::arrange(family_name, region, change_direction) 
+
+#drop Public Financial Management rows 2024
+improvement_region_table_clean <- improvement_region_table |> 
+  filter(!(family_name == "Public Financial Management"))
+
+# Region version of digital/PFM table (2020-2022 window)
+digital_region_diffs <- purrr::map_dfr(families, function(fam) {
+  compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022)
+}) |>
+  left_join(
+    income_and_region_class |> select(country_code, region),
+    by = "country_code"
+  )
+
+digital_region_table <- digital_region_diffs |>
+  filter(!is.na(region)) |>
+  dplyr::mutate(
+    change_direction = dplyr::case_when(
+      difference > 0  ~ "Improved",
+      difference < 0  ~ "Declined",
+      # difference == 0 ~ "Stagnated",
+      TRUE            ~ NA_character_
+    )
+  ) |>
+  dplyr::group_by(family_name, region, change_direction) |>
+  dplyr::summarise(count = n(), .groups = "drop") |>
+  dplyr::group_by(family_name, region) |>
+  dplyr::mutate(percent = count / sum(count) * 100) |>
+  dplyr::ungroup() |>
+  dplyr::arrange(family_name, region, change_direction) |>
+  filter(family_name %in% c("Information Systems", "Public Financial Management"))
+
+# Combine into region summary
+improvement_region_summary <- bind_rows(
+  improvement_region_table_clean,
+  digital_region_table
 )
 
 
 # plot data 2020 to 2022 --------------------------------------------------------------
 purrr::walk(families, function(fam) {
-  diff_data <- compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022)
-  p         <- generate_ctf_diff_plot(diff_data, income_order = income_levels)
-
+  diff_data <- compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022,
+                                mapping = cluster_mapping)
+  
+  # 1. Get the plot first
+  p <- generate_ctf_diff_plot(diff_data, income_order = income_levels)
+  
+  # 2. Guard BEFORE touching p
   if (is.null(p)) return(invisible(NULL))
+  
+  # 3. Add the free y-axis 
+  p <- p + scale_y_continuous(breaks = seq(-0.5, 0.5, by = 0.05))
 
   fam_slug <- tolower(fam)
   fam_slug <- gsub("[^a-z0-9]+", "_", fam_slug)
@@ -368,70 +454,17 @@ purrr::walk(families, function(fam) {
   )
 })
 
-
-
-# summary infographic ----------------------------------------------------
-
-glimpse(improvement_summary)
-
-# Calculate overall success rate (% Improved) for each family to order them
 family_success_rates <- improvement_summary |>
   filter(!is.na(change_direction)) |>
   group_by(family_name, change_direction) |>
   summarise(total_percent = sum(percent), .groups = "drop") |>
-  pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
-  mutate(success_rate = Improved / (Improved + Declined + Stagnated) * 100) |>
-  arrange(success_rate) |>
-  pull(family_name)
-
-# Improvement by family and income group - stacked bar chart
-improvement_summary |>
-  filter(!is.na(change_direction)) |>
-  mutate(
-    family_name = str_wrap(family_name, width = 20),
-    family_name = factor(family_name, levels = str_wrap(family_success_rates, width = 20)),
-    income_group = factor(income_group, levels = income_levels),
-    change_direction = factor(change_direction, levels = c("Declined", "Stagnated", "Improved"))
+  tidyr::complete(
+  family_name,
+  change_direction = c("Improved", "Declined"),
+  fill = list(total_percent = 0)
   ) |>
-  ggplot(aes(x = family_name, y = percent, fill = change_direction)) +
-  geom_col(position = "stack", alpha = 0.85, width = 0.7) +
-  geom_text(
-    aes(label = paste0(round(percent, 0), "%")),
-    position = position_stack(vjust = 0.5),
-    size = 3,
-    color = "white",
-    fontface = "bold"
-  ) +
-  facet_wrap(~ income_group, nrow = 1) +
-  scale_fill_manual(
-    values = c("Improved" = "#2ecc71", "Stagnated" = "#f1c40f", "Declined" = "#e74c3c"),
-    name = "Change Direction"
-  ) +
-  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) +
-  labs(
-    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)*",
-    subtitle = "Proportion of countries within each income group that improved, stagnated, or declined\nacross institutional dimensions",
-    x = NULL,
-    y = "Percentage (%)"
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = "top",
-    axis.text.y = element_text(size = 10),
-    strip.text = element_text(size = 11, face = "bold")
-  ) +
-  coord_flip()
-
-ggsave_frontier(
-  filename = file.path(output_dir, "bars_improvement_by_family_income_budget.png")
-)
-
-family_success_rates <- improvement_summary |>
-  filter(!is.na(change_direction)) |>
-  group_by(family_name, change_direction) |>
-  summarise(total_percent = sum(percent), .groups = "drop") |>
   pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
-  mutate(success_rate = Improved / (Improved + Declined + Stagnated) * 100) |>
+  mutate(success_rate = Improved / (Improved + Declined) * 100) |>
   arrange(desc(success_rate)) |>
   pull(family_name)
 
@@ -442,7 +475,7 @@ improvement_summary |>
     family_name = str_wrap(family_name, width = 15),
     family_name = factor(family_name, levels = str_wrap(family_success_rates, width = 15)),
     income_group = factor(income_group, levels = income_levels),
-    change_direction = factor(change_direction, levels = c("Declined", "Stagnated", "Improved"))
+    change_direction = factor(change_direction, levels = c("Declined", "Improved"))
   ) |>
   ggplot(aes(x = 2, y = percent, fill = change_direction)) +
   geom_col(width = 1, alpha = 0.85) +
@@ -455,14 +488,14 @@ improvement_summary |>
   ) +
   facet_grid(family_name ~ income_group, switch = "y") +
   scale_fill_manual(
-    values = c("Improved" = "#2ecc71", "Stagnated" = "#f1c40f", "Declined" = "#e74c3c"),
+    values = c("Improved" = "#2ecc71", "Declined" = "#e74c3c"),
     name = "Change Direction"
   ) +
   xlim(0.5, 2.5) +
   coord_polar(theta = "y") +
   labs(
-    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024)",
-    subtitle = "Proportion of countries within each income group that improved, stagnated, or declined\nacross institutional dimensions",
+    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024*)",
+    subtitle = "Proportion of countries within each income group that improved, stagnated, or declined across institutional dimensions",
     y = "Percentage (%)"
   ) +
   theme_void() +
@@ -472,6 +505,7 @@ improvement_summary |>
     strip.text.y.left = element_text(size = 9, angle = 0, hjust = 1),
     plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 11, hjust = 0.5),
+    plot.caption = element_text(size = 7, hjust = 0, margin = margin(t = 10)),
     plot.margin = margin(10, 10, 10, 10)
   )
 
@@ -486,14 +520,93 @@ ggsave_donas(
   filename = file.path(output_dir, "donas_improvement_by_family_income_budget.png")
 )
 
+# Region Analysis -----------------------------------------------------------
+
+# Calculate region success rates for ordering
+family_success_rates_region <- improvement_region_summary |>
+  filter(!is.na(change_direction)) |>
+  group_by(family_name, change_direction) |>
+  summarise(total_percent = sum(percent), .groups = "drop") |>
+  tidyr::complete(
+  family_name,
+  change_direction = c("Improved", "Declined"),
+  fill = list(total_percent = 0)
+  ) |>
+  pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
+  mutate(success_rate = Improved / (Improved + Declined) * 100) |>
+  arrange(desc(success_rate)) |>
+  pull(family_name)
 
 
+# Region success rates for donut ordering
+family_success_rates_region_donut <- improvement_region_summary |>
+  filter(region != "Northern America") |>
+  filter(!is.na(change_direction)) |>
+  group_by(family_name, change_direction) |>
+  summarise(total_percent = sum(percent), .groups = "drop") |>
+  pivot_wider(names_from = change_direction, values_from = total_percent, values_fill = 0) |>
+  mutate(success_rate = Improved / (Improved + Declined) * 100) |>
+  arrange(desc(success_rate)) |>
+  pull(family_name)
+
+# Region donut chart grid (family × region)
+improvement_region_summary |>
+  filter(!is.na(change_direction)) |>
+  filter(region != "North America") |>
+  mutate(
+    region_code = case_when(
+      region == "East Asia & Pacific"                                ~ "EAP",
+      region == "Europe & Central Asia"                             ~ "ECA",
+      region == "Latin America & Caribbean"                         ~ "LAC",
+      region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
+      region == "South Asia"                                        ~ "SAR",
+      region == "Sub-Saharan Africa"                                ~ "SSA",
+      TRUE ~ region
+    ),
+    family_name = str_wrap(family_name, width = 15),
+    family_name = factor(family_name, levels = str_wrap(family_success_rates_region_donut, width = 15)),
+    region_code = factor(region_code),
+    change_direction = factor(change_direction, levels = c("Declined", "Improved"))
+  ) |>
+  ggplot(aes(x = 2, y = percent, fill = change_direction)) +
+  geom_col(width = 1, alpha = 0.85) +
+  geom_text(
+    aes(label = paste0(round(percent, 0), "%")),
+    position = position_stack(vjust = 0.5),
+    size = 3.5,
+    color = "white",
+    fontface = "bold"
+  ) +
+  facet_grid(family_name ~ region_code, switch = "y") +
+  scale_fill_manual(
+    values = c("Improved" = "#2ecc71", "Declined" = "#e74c3c"),
+    name = "Change Direction"
+  ) +
+  xlim(0.5, 2.5) +
+  coord_polar(theta = "y") +
+  labs(
+    title = "Macro-Institutional Trajectories: Dynamics of Institutional Capacity (2020-2024*)",
+    subtitle = "Proportion of countries within each region that improved, stagnated, or declined across institutional dimensions"
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "top",
+    strip.text.x = element_text(size = 8, face = "bold"),
+    strip.text.y.left = element_text(size = 9, angle = 0, hjust = 1),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5),
+    plot.caption = element_text(size = 7, hjust = 0, margin = margin(t = 10)),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+
+ggsave_frontier(
+  filename = file.path(output_dir, "region_donas_improvement_by_family.png")
+)
 
 
+# ANNEX. pfm-coverage-diagnosis -------------------------------------------------
 
-
-
-
-
-
-
+ dyn_ctf_plot |> 
+   write_rds(
+     here("data-raw", "output", "cluster_coverage_data.rds")
+   )
