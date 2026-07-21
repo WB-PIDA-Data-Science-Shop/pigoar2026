@@ -260,7 +260,7 @@
 #' }
 "unwpp_data"
 
-#' Breadth of Ready Dataset
+#' Business Ready Dataset
 #'
 #' Scores for regulatory framework, public services, and operational efficiency by country.
 #'
