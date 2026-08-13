@@ -3,6 +3,7 @@
 <!-- badges: end -->
 
 ## Overview
+The `pigoar2026` package is designed to streamline the analysis and 
 visualization of the Public Institutions Global Observatory (PIGO): Annual Review 2026.
 It provides the following key features:
 
