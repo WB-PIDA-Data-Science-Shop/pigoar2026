@@ -4,7 +4,15 @@
 \alias{plot_quantile}
 \title{Plot quantile-classified jittered points with group means}
 \usage{
-plot_quantile(.data, x, y, quantile_group, facet_group = NULL, reorder = FALSE)
+plot_quantile(
+  .data,
+  x,
+  y,
+  quantile_group,
+  facet_group = NULL,
+  reorder = FALSE,
+  ylab = NULL
+)
 }
 \arguments{
 \item{.data}{A data frame.}

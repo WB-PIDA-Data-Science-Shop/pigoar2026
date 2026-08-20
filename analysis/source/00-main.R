@@ -24,15 +24,14 @@ dirs <- c(
 # helper fun to source every .R/.r file in a directory
 # this will run the scripts in the right order lovated at both
 # data-raw/source and analysis/source directories
-
-source_all <- function(dir) {
+safe_source_all <- function(dir, exclude = "00-main.R") { ## Prevent sourcing this file (00-main.R) which would cause infinite recursion
   scripts <- list.files(
     path       = dir,
     pattern    = "\\.[Rr]$",
     full.names = TRUE
   )
+  scripts <- scripts[basename(scripts) != exclude]
   invisible(lapply(scripts, source))
 }
 
-# Source all the scripts listed
-invisible(lapply(dirs, source_all))
+invisible(lapply(dirs, safe_source_all))

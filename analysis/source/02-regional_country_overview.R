@@ -230,10 +230,6 @@ ctf_avgs <- ctf_static |>
   )
 
 
-
-regional_pop |> count(type)
-
-regional_pop |>  count(income_group)
   
 # Bubble plot by income -----------------------------------------------------
 
