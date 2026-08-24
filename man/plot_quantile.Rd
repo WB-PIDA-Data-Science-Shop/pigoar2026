@@ -27,6 +27,8 @@ plot_quantile(
 
 \item{reorder}{Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 (descending).}
+
+\item{ylab}{Character string. Custom label for the y-axis. If NULL, uses an empty string.}
 }
 \value{
 A ggplot object with jittered points colored by quantile level, large

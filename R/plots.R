@@ -187,6 +187,7 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
 #' @param reorder Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 #'   (descending).
+#' @param ylab Character string. Custom label for the y-axis. If NULL, uses an empty string.
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.

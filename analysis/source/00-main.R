@@ -1,7 +1,7 @@
 # Main R Script for running the analysis and generating the results for the project
 
 # Set a seed for reproducibility
-set.seed(1010)
+set.seed(1902)
 
 
 # library-load -----------------------------------------------------------
