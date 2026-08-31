@@ -123,7 +123,6 @@ acled_estimation <- acled_regional_summary |>
         )
     )
 
-
 # global trends ----------------------------------------------------------
 # pooled
 acled_events |>
@@ -282,6 +281,31 @@ ggsave(
     width = 10,
     height = 10,
     dpi = 300,
+    bg = "white"
+)
+
+# lower income countries
+acled_demonstrations_regional |>
+    filter(
+        income_group == "Low income"
+    ) |> 
+    plot_events_index(
+        "country_code",
+        "Country"
+    ) +
+    facet_wrap(
+        vars(country_code),
+        ncol = 4,
+        scales = "free_y"
+    ) +
+    scale_colour_grey() +
+    theme(legend.position = "none")
+
+ggsave(
+    here("analysis", "figs", "acled", "global_demonstration_trends_lower_income.png"),
+    dpi = 300,
+    height = 12,
+    width = 10,
     bg = "white"
 )
 

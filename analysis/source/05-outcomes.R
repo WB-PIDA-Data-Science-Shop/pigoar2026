@@ -26,7 +26,7 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
   ) |> 
   group_by(country_code) |> 
   summarise(
-    gni_per_capita = mean(log(wdi_nygnppcapkd), na.rm = TRUE),
+    gdp_per_capita = mean(log(wdi_nygdppcapppkd), na.rm = TRUE),
     poverty_gap_215 = mean(wdi_sipovlmicgp, na.rm = TRUE),
     gdp_growth = mean(wdi_nygdpmktpkdzg, na.rm = TRUE),
     unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE),
@@ -74,6 +74,20 @@ cliar_correlation <- cliaretl::closeness_to_frontier_static |>
         )
   )
 
+# join with bready topics
+bready_topic_correlation <- cliaretl::closeness_to_frontier_static |> 
+  left_join(
+    pigoar2026::bready_topic |> 
+      select(
+        country_code,
+        topic,
+        pillar_1_overall,
+        pillar_2_overall,
+        pillar_3_overall
+      ),
+    by = "country_code"
+  )
+
 # analyze ----------------------------------------------------------------
 institutional_clusters <- c(
   "vars_hrm_avg",
@@ -98,16 +112,12 @@ institutional_clusters <- institutional_clusters |>
 
 outcomes <- c(
   "Credit Rating" = "credit_rating_mean",
-  "Logged GNI per capita (Constant International Dollars)" = "gni_per_capita",
+  "Logged GDP per capita (Constant International Dollars)" = "gdp_per_capita",
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
-  "Annual GDP Growth" = "gdp_growth",
-  "Unemployment rate" = "unemployment_rate",
   "Labor income" = "labor_income",
-  "Literacy rate (Adult)" = "literacy_rate",
   "Infant mortality rate (logged)" = "mortality_rate",
-  "Pillar 1: Regulatory Framework" = "pillar_1_regulatory_framework",
-  "Pillar 2: Public Services" = "pillar_2_public_services",
-  "Pillar 3: Operational Efficiency" = "pillar_3_operational_efficiency"
+  "Public Services for Businesses" = "pillar_2_public_services",
+  "Operational Efficiency" = "pillar_3_operational_efficiency"
 ) |> 
   tibble::enframe(
     name = "y_lab", value = "y_val"
@@ -170,4 +180,123 @@ purrr::walk2(
     plot = .x,
     width = 10, height = 10, dpi = 300, bg = "white"
   )
+)
+
+# correlations with b-ready topics and pillars
+bready_pillars <- tibble(
+  y_val = c("pillar_2_overall", "pillar_3_overall"),
+  y_lab = c("Public Services for Businesses", "Operational Efficiency")
+)
+
+bready_topic_cartesian <- tidyr::crossing(
+  institutional_clusters,
+  bready_pillars
+)
+
+# generate plots
+bready_correlation_plots <- purrr::pmap(
+  bready_topic_cartesian,
+  function(x_val, y_val, x_lab, y_lab) {
+    plot <- ggplot_correlation(
+      data = bready_topic_correlation |> 
+        filter(
+          !is.na(income_group) & !is.na(topic)
+        ),
+      x = x_val,
+      y = y_val,
+      group = "income_group"
+    ) +
+      facet_wrap(
+        vars(topic)
+      ) +
+      scale_y_continuous(
+        labels = function(x) stringr::str_wrap(x, width = 15)
+      ) +
+      labs(
+        x = paste0(x_lab, " (2020-2024)"),
+        y = y_lab
+      ) +
+      guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
+      )
+
+    plot
+  }
+)
+
+# save plots
+purrr::walk2(
+  bready_correlation_plots,
+  seq_len(nrow(bready_topic_cartesian)),
+  ~ ggplot2::ggsave(
+    filename = file.path(
+      "analysis/figs/outcomes",
+      sprintf(
+        "cor_%s_vs_%s.png",
+        gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
+        gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
+      )
+    ),
+    plot = .x,
+    width = 10, height = 10, dpi = 300, bg = "white"
+  )
+)
+
+# regression analysis ----------------------------------------------------
+regression_results <- purrr::pmap_dfr(
+  cartesian_product,
+  function(x_val, y_val, x_lab, y_lab) {
+    # exclude gdp_per_capita as control when it is the outcome
+    controls <- if (y_val == "gdp_per_capita") "" else " + gdp_per_capita"
+    formula <- as.formula(paste0(y_val, " ~ ", x_val, controls))
+
+    model <- lm(formula, data = cliar_correlation)
+
+    broom::tidy(model, conf.int = TRUE) |>
+      filter(term == x_val) |>
+      mutate(
+        outcome = y_lab,
+        predictor = x_lab,
+        outcome_val = y_val,
+        predictor_val = x_val,
+        n = nobs(model)
+      )
+  }
+)
+
+regression_results |>
+  mutate(
+    outcome = forcats::fct_reorder(outcome, estimate)
+  ) |>
+  filter(
+    outcome %in% c(
+      "Credit Rating",
+      "Labor income",
+      "Poverty Gap ($2.15 a day)",
+      "Infant mortality rate (logged)",
+      "Public Services for Businesses",
+      "Operational Efficiency"
+    ) &
+      predictor != "Public Financial Management"
+  ) |> 
+  ggplot(aes(x = estimate, y = outcome)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_linerange(aes(xmin = conf.low, xmax = conf.high)) +
+  geom_point(size = 2.5) +
+  facet_wrap(~ predictor, scales = "free_x") +
+  labs(
+    x = "Coefficient estimate",
+    y = NULL
+  ) +
+  theme(
+    strip.text = element_text(size = 14),
+    legend.position = "none"
+  )
+
+ggsave(
+  here("analysis/figs/outcomes/regression_results.png"),
+  width = 12, height = 8, dpi = 300, bg = "white"
 )
