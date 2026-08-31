@@ -272,8 +272,25 @@
 #'   \item{pillar_2_public_services}{Score for public services (numeric)}
 #'   \item{pillar_3_operational_efficiency}{Score for operational efficiency (numeric)}
 #' }
-#' @source Internal compilation
+#' @source World Bank B-READY. \url{https://www.worldbank.org/content/dam/sites/b-ready/documents/excel/B-READY_ALL_DATA_2025.zip}
 "bready"
+
+#' B-READY Topic-Level Pillar Scores
+#'
+#' B-READY pillar scores at the topic level, covering Labor, Taxation,
+#' Dispute Resolution, and Market Competition.
+#'
+#' @format A data frame with 404 rows and 5 variables:
+#' \describe{
+#'   \item{\code{country_code}}{character. World Bank country code.}
+#'   \item{\code{pillar_1_overall}}{double. Overall score for Pillar 1 (Regulatory Framework).}
+#'   \item{\code{pillar_2_overall}}{double. Overall score for Pillar 2 (Public Services).}
+#'   \item{\code{pillar_3_overall}}{double. Overall score for Pillar 3 (Operational Efficiency).}
+#'   \item{\code{topic}}{character. Business environment topic: one of \code{"labor"},
+#'     \code{"taxation"}, \code{"dispute_resolution"}, or \code{"market_competition"}.}
+#' }
+#' @source World Bank B-READY. \url{https://www.worldbank.org/content/dam/sites/b-ready/documents/excel/B-READY_ALL_DATA_2025.zip}
+"bready_topic"
 
 #' Budget Execution Rates
 #'
