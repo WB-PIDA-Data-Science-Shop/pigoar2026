@@ -22,7 +22,7 @@ string combining \code{from_year}, \code{to_year}, and \code{family_name}.}
 \item{income_order}{Character vector giving the desired order of income
 group levels for both facets and the colour legend. Defaults to
 \code{c("High income", "Upper middle income", "Lower middle income",
-  "Low income")}.}
+"Low income")}.}
 }
 \value{
 A \code{ggplot} object, or \code{NULL} invisibly when \code{data}

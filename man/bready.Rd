@@ -3,7 +3,7 @@
 \docType{data}
 \name{bready}
 \alias{bready}
-\title{Breadth of Ready Dataset}
+\title{Business Ready Dataset}
 \format{
 A data frame with 101 rows and 5 columns:
 \describe{
