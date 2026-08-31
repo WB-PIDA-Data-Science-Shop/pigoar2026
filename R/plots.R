@@ -187,6 +187,7 @@ plot_events_index <- function(data, group, group_name, facet_group = FALSE) {
 #' @param facet_group Character string. Column name used to label facets. Not faceted if NULL.
 #' @param reorder Logical. If TRUE, reorders x-axis labels by mean of \code{y}
 #'   (descending).
+#' @param ylab Character string. Custom label for the y-axis. If NULL, uses an empty string.
 #'
 #' @return A ggplot object with jittered points colored by quantile level, large
 #'   orange points for group means, and a dashed global average line.
@@ -215,7 +216,8 @@ plot_quantile <- function(
   y,
   quantile_group,
   facet_group = NULL,
-  reorder = FALSE
+  reorder = FALSE,
+  ylab = NULL
 ) {
   data_quantile <- .data |>
     classify_quantile(y, quantile_group)
@@ -267,7 +269,7 @@ plot_quantile <- function(
     theme(
       legend.position = "bottom"
     ) +
-    labs(x = "", y = "") +
+  labs(x = "", y = if (is.null(ylab)) "" else ylab) +
     scale_x_discrete(
       labels = \(x) str_wrap(x, width = 15)
     )
@@ -358,7 +360,8 @@ plot_quantile <- function(
 classify_quantile <- function(.data, var, quantile_group, threshold = c("default", "tercile")){
   type_threshold <- match.arg(threshold)
 
-  if(!(threshold %in% c("default", "tercile"))){
+  # use the resolved single value from match.arg() for validation
+  if (!(type_threshold %in% c("default", "tercile"))) {
     stop("Threshold must be either default or tercile.")
   }
 

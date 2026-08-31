@@ -68,9 +68,10 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
     year %in% 2020:2024
   ) |> 
   group_by(country_code) |> 
-  summarise(
-    gni_per_capita = mean(log(wdi_nygnppcapkd), na.rm = TRUE),
+  summarise( 
+    # gni_per_capita = mean(log(wdi_nygnppcapkd), na.rm = TRUE),
     poverty_gap_215 = mean(wdi_sipovlmicgp, na.rm = TRUE),
+    gdp_pc= mean(wdi_nygdppcapppkd, na.rm = TRUE) # Repacing GNI
     # gdp_growth = mean(wdi_nygdpmktpkdzg, na.rm = TRUE),
     # unemployment_rate = mean(wdi_sluemtotlnezs, na.rm = TRUE)
   )
@@ -136,7 +137,7 @@ institutional_clusters <- institutional_clusters |>
 
 outcomes <- c(
   "Credit Rating" = "credit_rating_mean",
-  "Logged GNI per capita (Constant International Dollars)" = "gni_per_capita",
+  "GDP per capita (current US$)" = "gdp_pc",
   "Poverty Gap ($2.15 a day)" = "poverty_gap_215",
   # "Annual GDP Growth" = "gdp_growth",
   # "Unemployment rate" = "unemployment_rate",
@@ -223,7 +224,7 @@ plot_cor_heatmap <- function(cor_results, title_suffix) {
 # --- All countries (overall) ---
 cor_results_all <- compute_cor_results(cliar_correlation, cartesian_product)
 plot_cor_heatmap(cor_results_all, "All countries")
-ggsave_heatmap(here("analysis", "figs", "outcomes", "heatmap_clusters_outcomes_global.png"))
+ggsave_heatmap(here("analysis", "figs", "outcomes", "heatmap_clusters_outcomes_global_GDP.png"))
 
 # --- One plot per income group ---
 income_groups <- cliar_correlation |>
@@ -242,7 +243,7 @@ purrr::walk(income_groups, function(ig) {
     stringr::str_replace_all("\\s+", "_")
 
   ggsave_heatmap(
-    here("analysis", "figs", "outcomes", paste0("heatmap_clusters_outcomes_", slug, ".png")),
+    here("analysis", "figs", "outcomes", paste0("heatmap_clusters_outcomes_GDP", slug, ".png")),
     plot = p
   )
 })
