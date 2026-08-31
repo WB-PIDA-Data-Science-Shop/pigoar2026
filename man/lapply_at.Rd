@@ -39,5 +39,5 @@ iris_dt[, lapply_at(.SD, c("mean", "sd"), na.rm = TRUE),
 
 }
 \seealso{
-\code{\link[dplyr:summarise_all]{dplyr::summarise_at()}}
+\code{\link[dplyr:summarise_at]{dplyr::summarise_at()}}
 }

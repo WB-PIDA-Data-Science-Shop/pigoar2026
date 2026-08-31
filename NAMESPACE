@@ -39,72 +39,88 @@ import(httr)
 import(rlang)
 import(stringr)
 import(tidyr)
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,arrange)
-importFrom(dplyr,between)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,everything)
-importFrom(dplyr,filter)
-importFrom(dplyr,first)
-importFrom(dplyr,group_by)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n_distinct)
-importFrom(dplyr,pull)
-importFrom(dplyr,recode)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,ungroup)
-importFrom(forcats,fct_relevel)
-importFrom(forcats,fct_reorder)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,coord_flip)
-importFrom(ggplot2,element_blank)
-importFrom(ggplot2,element_text)
-importFrom(ggplot2,facet_wrap)
-importFrom(ggplot2,geom_hline)
-importFrom(ggplot2,geom_line)
-importFrom(ggplot2,geom_point)
-importFrom(ggplot2,geom_rect)
-importFrom(ggplot2,geom_segment)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,ggsave)
-importFrom(ggplot2,guides)
-importFrom(ggplot2,label_wrap_gen)
-importFrom(ggplot2,labs)
-importFrom(ggplot2,scale_color_brewer)
-importFrom(ggplot2,scale_fill_manual)
-importFrom(ggplot2,scale_shape_manual)
-importFrom(ggplot2,scale_x_continuous)
-importFrom(ggplot2,scale_y_continuous)
-importFrom(ggplot2,theme)
-importFrom(ggplot2,theme_minimal)
-importFrom(ggplot2,ylim)
+importFrom(dplyr,
+  across,
+  all_of,
+  arrange,
+  between,
+  bind_rows,
+  case_when,
+  everything,
+  filter,
+  first,
+  group_by,
+  mutate,
+  n_distinct,
+  pull,
+  recode,
+  select,
+  summarise,
+  ungroup
+)
+importFrom(forcats,
+  fct_relevel,
+  fct_reorder
+)
+importFrom(ggplot2,
+  aes,
+  coord_flip,
+  element_blank,
+  element_text,
+  facet_wrap,
+  geom_hline,
+  geom_line,
+  geom_point,
+  geom_rect,
+  geom_segment,
+  ggplot,
+  ggsave,
+  guides,
+  label_wrap_gen,
+  labs,
+  scale_color_brewer,
+  scale_fill_manual,
+  scale_shape_manual,
+  scale_x_continuous,
+  scale_y_continuous,
+  theme,
+  theme_minimal,
+  ylim
+)
 importFrom(ggrepel,geom_text_repel)
 importFrom(ggthemes,scale_color_solarized)
 importFrom(glue,glue)
 importFrom(here,here)
-importFrom(httr2,req_perform)
-importFrom(httr2,req_url_query)
-importFrom(httr2,request)
-importFrom(httr2,resp_body_json)
+importFrom(httr2,
+  req_perform,
+  req_url_query,
+  request,
+  resp_body_json
+)
 importFrom(janitor,clean_names)
 importFrom(jsonlite,fromJSON)
 importFrom(lubridate,quarter)
-importFrom(purrr,map)
-importFrom(purrr,map_chr)
-importFrom(purrr,pluck)
-importFrom(rlang,.data)
-importFrom(rlang,as_string)
-importFrom(rlang,ensym)
-importFrom(rlang,has_name)
-importFrom(rlang,is_formula)
+importFrom(purrr,
+  map,
+  map_chr,
+  pluck
+)
+importFrom(rlang,
+  .data,
+  as_string,
+  ensym,
+  has_name,
+  is_formula
+)
 importFrom(scales,pretty_breaks)
-importFrom(stats,median)
-importFrom(stats,reorder)
+importFrom(stats,
+  median,
+  reorder
+)
 importFrom(stringr,str_trim)
 importFrom(tibble,as_tibble)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider
+)
 importFrom(tidyselect,matches)

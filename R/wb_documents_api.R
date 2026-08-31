@@ -86,5 +86,7 @@ extract_wb_documents <- function(json) {
 
   documents |>
     dplyr::bind_rows() |>
-    dplyr::filter(!is.na(id))
+    dplyr::filter(
+      !is.na(.data[["id"]])
+    )
 }
