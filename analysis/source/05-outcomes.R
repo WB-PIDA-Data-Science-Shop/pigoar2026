@@ -182,6 +182,7 @@ purrr::walk2(
   )
 )
 
+# bready -----------------------------------------------------------------
 # correlations with b-ready topics and pillars
 bready_pillars <- tibble(
   y_val = c("pillar_2_overall", "pillar_3_overall"),
@@ -189,9 +190,15 @@ bready_pillars <- tibble(
 )
 
 bready_topic_cartesian <- tidyr::crossing(
-  institutional_clusters,
-  bready_pillars
-)
+    institutional_clusters,
+    bready_pillars
+  ) |>
+    filter(
+      x_val %in% c(
+        "vars_hrm_avg",
+        "vars_digital_avg"
+    )
+  )
 
 # generate plots
 bready_correlation_plots <- purrr::pmap(
@@ -235,7 +242,7 @@ purrr::walk2(
     filename = file.path(
       "analysis/figs/outcomes",
       sprintf(
-        "cor_%s_vs_%s.png",
+        "fig_3_cor_%s_vs_%s.png",
         gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
         gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
       )
