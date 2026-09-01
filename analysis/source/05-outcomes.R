@@ -188,6 +188,54 @@ purrr::walk2(
   )
 )
 
+# health outcomes
+health_cartesian_product <- cartesian_product |>
+  filter(
+    y_val  == "mortality_rate",
+    x_val == "vars_transp_avg"
+  )
+
+purrr::pmap(
+  health_cartesian_product,
+  function(x_val, y_val, x_lab, y_lab) {
+    plot <- ggplot_correlation(
+      data = cliar_correlation |> filter(!is.na(income_group)),
+      x = x_val,
+      y = y_val,
+      group = "income_group"
+    ) +
+      scale_y_continuous(
+        labels = function(x) stringr::str_wrap(x, width = 15)
+      ) +
+      labs(
+        x = paste0(x_lab, " (2020-2024)"),
+        y = y_lab
+      ) +
+      guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
+      )
+    
+    if(y_val == "poverty_gap_215" | y_val == "mortality_rate"){
+      plot <- plot +
+        scale_y_log10()
+    }
+
+    plot
+  }
+)
+
+ggsave(
+  filename = file.path(
+    "analysis/figs/outcomes",
+    "fig_7_health_cor_transparency_vs_mortality.png"
+  ),
+  width = 10, height = 10, dpi = 300, bg = "white"
+)
+
+
 # bready -----------------------------------------------------------------
 # correlations with b-ready topics and pillars
 bready_pillars <- tibble(
