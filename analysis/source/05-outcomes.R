@@ -132,8 +132,14 @@ cartesian_product <- tidyr::crossing(
   left_join(outcomes)
 
 # generate plots
+fig_4_cartesian_product <- cartesian_product |>
+  filter(
+    y_val == "credit_rating_mean",
+    x_val != "vars_pfm_avg"
+  )
+
 correlation_plots <- purrr::pmap(
-  cartesian_product,
+  fig_4_cartesian_product,
   function(x_val, y_val, x_lab, y_lab) {
     plot <- ggplot_correlation(
       data = cliar_correlation |> filter(!is.na(income_group)),
@@ -167,14 +173,14 @@ correlation_plots <- purrr::pmap(
 # save plots
 purrr::walk2(
   correlation_plots,
-  seq_len(nrow(cartesian_product)),
+  seq_len(nrow(fig_4_cartesian_product)),
   ~ ggplot2::ggsave(
     filename = file.path(
       "analysis/figs/outcomes",
       sprintf(
-        "cor_%s_vs_%s.png",
-        gsub("\\s+", "_", cartesian_product$y_val[.y]),
-        gsub("\\s+", "_", cartesian_product$x_val[.y])
+        "fig_4_cor_%s_vs_%s.png",
+        gsub("\\s+", "_", fig_4_cartesian_product$y_val[.y]),
+        gsub("\\s+", "_", fig_4_cartesian_product$x_val[.y])
       )
     ),
     plot = .x,
