@@ -114,17 +114,6 @@ center_gov <-
 
 # Rename regions and create cliar areas
 indicator_wide_scores <- center_gov |>
-  # mutate(
-  #   region = case_when(
-  #     region == "East Asia & Pacific" ~ "EAP",
-  #     region == "Europe & Central Asia" ~ "ECA",
-  #     region == "Latin America & Caribbean" ~ "LAC",
-  #     region == "Middle East, North Africa, Afghanistan & Pakistan" ~ "MENAAP",
-  #     region == "South Asia" ~ "SAR",
-  #     region == "Sub-Saharan Africa" ~ "SSA",
-  #     TRUE ~ region
-  #   )
-  # ) |>
   mutate(
     cliar_area = case_when(
       family_name %in%
@@ -175,8 +164,8 @@ ggsave(
   here(
     "analysis",
     "figs",
-    "indicators_ctf",
-    "0_hrm_capacity_quantile.png"
+    "final",
+    "fig_14a_hrm_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -203,8 +192,8 @@ ggsave(
   here(
     "analysis",
     "figs",
-    "indicators_ctf",
-    "0_digital_capacity_quantile.png"
+    "final",
+    "fig_17_digital_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -231,8 +220,8 @@ ggsave(
   here(
     "analysis",
     "figs",
-    "indicators_ctf",
-    "0_integrity_capacity_quantile.png"
+    "final",
+    "fig_21_integrity_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -262,8 +251,8 @@ ggsave(
   here(
     "analysis",
     "figs",
-    "indicators_ctf",
-    "0_transparency_capacity_quantile.png"
+    "final",
+    "fig_20_transparency_capacity_quantile.png"
   ),
   width = 12,
   height = 14,
@@ -290,8 +279,8 @@ ggsave(
   here(
     "analysis",
     "figs",
-    "indicators_ctf",
-    "0_pfm_capacity_quantile.png"
+    "final",
+    "fig_15_pfm_capacity_quantile.png"
   ),
   width = 14,
   height = 10,

@@ -229,12 +229,11 @@ purrr::pmap(
 
 ggsave(
   filename = file.path(
-    "analysis/figs/outcomes",
+    "analysis/figs/final",
     "fig_7_health_cor_transparency_vs_mortality.png"
   ),
   width = 10, height = 10, dpi = 300, bg = "white"
 )
-
 
 # bready -----------------------------------------------------------------
 # correlations with b-ready topics and pillars
@@ -247,11 +246,8 @@ bready_topic_cartesian <- tidyr::crossing(
     institutional_clusters,
     bready_pillars
   ) |>
-    filter(
-      x_val %in% c(
-        "vars_hrm_avg",
-        "vars_digital_avg"
-    )
+  filter(
+    x_val != "vars_pfm_avg"
   )
 
 # generate plots
@@ -294,9 +290,9 @@ purrr::walk2(
   seq_len(nrow(bready_topic_cartesian)),
   ~ ggplot2::ggsave(
     filename = file.path(
-      "analysis/figs/outcomes",
+      "analysis/figs/final",
       sprintf(
-        "fig_3_cor_%s_vs_%s.png",
+        "fig_annex6_cor_%s_vs_%s.png",
         gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
         gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
       )
@@ -358,6 +354,6 @@ regression_results |>
   )
 
 ggsave(
-  here("analysis/figs/outcomes/regression_results.png"),
+  here("analysis/figs/final/regression_results.png"),
   width = 12, height = 8, dpi = 300, bg = "white"
 )

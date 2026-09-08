@@ -149,9 +149,10 @@ prosperity_plots |>
     names(cluster_names),
      ~ ggplot2::ggsave(
       filename = file.path(
-        "analysis/figs/prosperity",
+        "analysis/figs/final",
         sprintf(
-          "gdp_pc_vs_%s_trend.png",
+          "fig_1%s_gdp_pc_vs_%s_trend.png",
+          letters[which(names(cluster_names) == .y)],
           .y
         )
       ),
@@ -226,9 +227,10 @@ prosperity_plots_low_income |>
     names(cluster_names),
      ~ ggplot2::ggsave(
       filename = file.path(
-        "analysis/figs/prosperity",
+        "analysis/figs/final",
         sprintf(
-          "gdp_pc_vs_%s_trend_low_income.png",
+          "fig_annex7%s_gdp_pc_vs_%s_trend_low_income.png",
+          letters[which(names(cluster_names) == .y)],
           .y
         )
       ),
