@@ -2,6 +2,8 @@
 library(dplyr)
 library(ggplot2)
 
+devtools::load_all()
+
 theme_set(
   theme_light() +
     theme(
@@ -63,7 +65,7 @@ gsps_institutional |>
   )
 
 ggsave(
-  here("analysis", "figs", "custom", "gsps_written_exam.png"),
+  here("analysis", "figs", "final", "fig_14b_gsps_written_exam.png"),
   width = 14,
   height = 10,
   dpi = 300,

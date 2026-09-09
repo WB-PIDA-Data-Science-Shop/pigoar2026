@@ -78,7 +78,6 @@ cliar_ctf <- ctf_dynamic |>
     by = c("country_code", "year")
   )
 
-# visualize --------------------------------------------------------------
 cluster_names <- c(
   "hrm" = "vars_hrm_avg",
   "pub_sector_corruption" = "vdem_core_v2x_pubcorr",
@@ -86,6 +85,7 @@ cluster_names <- c(
   "budget_execution" = "budget_execution_rate"
 )
 
+# visualize --------------------------------------------------------------
 prosperity_plots <- purrr::imap(cluster_names, \(var, label) {
   min_year <- cliar_ctf |> 
     select(
@@ -149,88 +149,10 @@ prosperity_plots |>
     names(cluster_names),
      ~ ggplot2::ggsave(
       filename = file.path(
-        "analysis/figs/prosperity",
+        "analysis/figs/final",
         sprintf(
-          "gdp_pc_vs_%s_trend.png",
-          .y
-        )
-      ),
-      plot = .x,
-      width = 10, height = 10, dpi = 300, bg = "white"
-    )
-  )
-
-# faceted by income group
-prosperity_plots_by_income_group <- purrr::imap(cluster_names, \(var, label) {
-  min_year <- cliar_ctf |> 
-    select(
-      all_of(
-        c(var, "year")
-      )
-    ) |> 
-    na.omit() |> 
-    pull(year) |> 
-    min()
-
-  quantile_baseline <- cliar_ctf |>
-    filter(year == min_year) |>
-    classify_quantile(var, quantile_group = c("income_group", "year"), threshold = "tercile") |>
-    select(country_code, quantile_indicator)
-
-  cliar_ctf |>
-    left_join(quantile_baseline, by = "country_code") |>
-    filter(
-      !is.na(quantile_indicator) &
-        !is.na(income_group) &
-        between(year, min_year, 2024)
-    ) |>
-    group_by(quantile_indicator, income_group, year) |>
-    summarise(
-      log_gdp_per_capita = mean(log_gdp_per_capita, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    group_by(quantile_indicator, income_group) |>
-    mutate(
-      log_gdp_per_capita = (log_gdp_per_capita)/
-        log_gdp_per_capita[year == min_year] * 100
-    ) |>
-    ungroup() |>
-    ggplot(aes(year, log_gdp_per_capita, color = quantile_indicator)) +
-    geom_point(size = 2) +
-    geom_line(linewidth = 1.5) +
-    geom_hline(
-      yintercept = 100,
-      linetype = "dashed"
-    ) +
-    scale_color_manual(
-      values = c(
-        "Weak" = "red",
-        "Emerging" = "goldenrod2",
-        "Strong" = "forestgreen"
-      ),
-      name = "Global Level",
-      na.value = "grey60"
-    ) +
-    scale_x_continuous(breaks = scales::breaks_width(2), labels = scales::label_number(big.mark = "")) +
-    theme(legend.position = "bottom") +
-    facet_wrap(
-      vars(income_group),
-      nrow = 2
-    ) +
-    coord_cartesian(
-      ylim = c(95, 105)
-    ) +
-    labs(x = "Year", y = "Logged GDP per capita (Baseline = 100)")
-})
-
-prosperity_plots_by_income_group |> 
-  purrr::walk2(
-    names(cluster_names),
-     ~ ggplot2::ggsave(
-      filename = file.path(
-        "analysis/figs/prosperity",
-        sprintf(
-          "gdp_pc_vs_%s_trend_by_income.png",
+          "fig_1%s_gdp_pc_vs_%s_trend.png",
+          letters[which(names(cluster_names) == .y)],
           .y
         )
       ),
@@ -305,9 +227,10 @@ prosperity_plots_low_income |>
     names(cluster_names),
      ~ ggplot2::ggsave(
       filename = file.path(
-        "analysis/figs/prosperity",
+        "analysis/figs/final",
         sprintf(
-          "gdp_pc_vs_%s_trend_low_income.png",
+          "fig_annex7%s_gdp_pc_vs_%s_trend_low_income.png",
+          letters[which(names(cluster_names) == .y)],
           .y
         )
       ),

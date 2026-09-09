@@ -208,8 +208,6 @@ plot_cor_heatmap <- function(cor_results, title_suffix) {
       name      = "Correlation"
     ) +
     ggplot2::labs(
-      title    = "Correlation: Institutional Capacity and Outcomes",
-      subtitle = paste0(title_suffix, " | 2020-2024 country averages"),
       x        = NULL,
       y        = NULL
     ) +
@@ -224,32 +222,4 @@ plot_cor_heatmap <- function(cor_results, title_suffix) {
 # --- All countries (overall) ---
 cor_results_all <- compute_cor_results(cliar_correlation, cartesian_product)
 plot_cor_heatmap(cor_results_all, "All countries")
-ggsave_heatmap(here("analysis", "figs", "outcomes", "heatmap_clusters_outcomes_global_GDP.png"))
-
-# --- One plot per income group ---
-income_groups <- cliar_correlation |>
-  dplyr::distinct(income_group) |>
-  dplyr::filter(!is.na(income_group)) |>
-  dplyr::pull(income_group) |>
-  sort()
-
-purrr::walk(income_groups, function(ig) {
-  subset_data <- cliar_correlation |> dplyr::filter(income_group == ig)
-  cor_res     <- compute_cor_results(subset_data, cartesian_product)
-  p           <- plot_cor_heatmap(cor_res, as.character(ig))
-
-  slug <- ig |>
-    stringr::str_to_lower() |>
-    stringr::str_replace_all("\\s+", "_")
-
-  ggsave_heatmap(
-    here("analysis", "figs", "outcomes", paste0("heatmap_clusters_outcomes_GDP", slug, ".png")),
-    plot = p
-  )
-})
-
-
-
-
-
-
+ggsave_heatmap(here("analysis", "figs", "final", "fig_2_heatmap_clusters_outcomes_global_GDP.png"))

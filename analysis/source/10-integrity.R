@@ -61,7 +61,7 @@ compiled_indicators |>
   )
 
 ggsave(
-  here("analysis", "figs", "custom", "public_sector_corruption.png"),
+  here("analysis", "figs", "final", "fig_22_public_sector_corruption.png"),
   width = 14,
   height = 10,
   dpi = 300,

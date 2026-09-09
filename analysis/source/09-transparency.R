@@ -55,7 +55,7 @@ open_budget |>
   )
 
 ggsave(
-  here("analysis", "figs", "custom", "open_budget.png"),
+  here("analysis", "figs", "final", "fig_20_open_budget.png"),
   width = 14,
   height = 10,
   dpi = 300,

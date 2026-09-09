@@ -7,24 +7,24 @@ library(purrr)
 devtools::load_all()
 
 theme_set(
-    ggthemes::theme_few(base_size = 24)
+  ggthemes::theme_few(base_size = 24)
 )
 
 # read-in data -----------------------------------------------------------
-credit_rating_average <- pigoar2026::credit_rating |> 
+credit_rating_average <- pigoar2026::credit_rating |>
   filter(
     year %in% 2020:2024
-  ) |> 
-  group_by(country_code) |> 
+  ) |>
+  group_by(country_code) |>
   summarise(
     credit_rating_mean = mean(credit_rating, na.rm = TRUE)
-  ) 
+  )
 
-wdi_outcomes <- cliaretl::wdi_indicators |> 
+wdi_outcomes <- cliaretl::wdi_indicators |>
   filter(
     year %in% 2020:2024
-  ) |> 
-  group_by(country_code) |> 
+  ) |>
+  group_by(country_code) |>
   summarise(
     gdp_per_capita = mean(log(wdi_nygdppcapppkd), na.rm = TRUE),
     poverty_gap_215 = mean(wdi_sipovlmicgp, na.rm = TRUE),
@@ -34,50 +34,50 @@ wdi_outcomes <- cliaretl::wdi_indicators |>
     mortality_rate = mean(wdi_shdynmort, na.rm = TRUE)
   )
 
-labor_income_average <- pigoar2026::labor_income |> 
+labor_income_average <- pigoar2026::labor_income |>
   filter(
     year %in% 2020:2024
-  ) |> 
-  group_by(country_code) |> 
+  ) |>
+  group_by(country_code) |>
   summarise(
     labor_income = mean(labor_income, na.rm = TRUE)
   )
 
 bready <- pigoar2026::bready
 
-cliar_correlation <- cliaretl::closeness_to_frontier_static |> 
+cliar_correlation <- cliaretl::closeness_to_frontier_static |>
   left_join(
     credit_rating_average,
     by = c("country_code")
-  ) |> 
+  ) |>
   left_join(
     wdi_outcomes,
     by = c("country_code")
-  ) |> 
+  ) |>
   left_join(
     labor_income_average,
     by = c("country_code")
-  ) |> 
+  ) |>
   left_join(
     bready,
     by = c("country_code")
-  ) |> 
+  ) |>
   mutate(
     income_group = forcats::fct_relevel(
-            income_group,
-            c(
-              "High income",
-              "Upper middle income",
-              "Lower middle income",
-              "Low income"
-            )
-        )
+      income_group,
+      c(
+        "High income",
+        "Upper middle income",
+        "Lower middle income",
+        "Low income"
+      )
+    )
   )
 
 # join with bready topics
-bready_topic_correlation <- cliaretl::closeness_to_frontier_static |> 
+bready_topic_correlation <- cliaretl::closeness_to_frontier_static |>
   left_join(
-    pigoar2026::bready_topic |> 
+    pigoar2026::bready_topic |>
       select(
         country_code,
         topic,
@@ -105,9 +105,10 @@ names(institutional_clusters) <- c(
   "Transparency and Accountability"
 )
 
-institutional_clusters <- institutional_clusters |> 
+institutional_clusters <- institutional_clusters |>
   tibble::enframe(
-    name = "x_lab", value = "x_val"
+    name = "x_lab",
+    value = "x_val"
   )
 
 outcomes <- c(
@@ -118,9 +119,10 @@ outcomes <- c(
   "Infant mortality rate (logged)" = "mortality_rate",
   "Public Services for Businesses" = "pillar_2_public_services",
   "Operational Efficiency" = "pillar_3_operational_efficiency"
-) |> 
+) |>
   tibble::enframe(
-    name = "y_lab", value = "y_val"
+    name = "y_lab",
+    value = "y_val"
   )
 
 # generate all possible combinations between clusters and outcomes
@@ -128,12 +130,18 @@ cartesian_product <- tidyr::crossing(
   institutional_clusters |> select(x_val),
   outcomes |> select(y_val)
 ) |>
-  left_join(institutional_clusters) |> 
+  left_join(institutional_clusters) |>
   left_join(outcomes)
 
 # generate plots
+fig_4_cartesian_product <- cartesian_product |>
+  filter(
+    y_val == "credit_rating_mean",
+    x_val != "vars_pfm_avg"
+  )
+
 correlation_plots <- purrr::pmap(
-  cartesian_product,
+  fig_4_cartesian_product,
   function(x_val, y_val, x_lab, y_lab) {
     plot <- ggplot_correlation(
       data = cliar_correlation |> filter(!is.na(income_group)),
@@ -154,8 +162,8 @@ correlation_plots <- purrr::pmap(
           nrow = 2
         )
       )
-    
-    if(y_val == "poverty_gap_215" | y_val == "mortality_rate"){
+
+    if (y_val == "poverty_gap_215" | y_val == "mortality_rate") {
       plot <- plot +
         scale_y_log10()
     }
@@ -167,38 +175,162 @@ correlation_plots <- purrr::pmap(
 # save plots
 purrr::walk2(
   correlation_plots,
-  seq_len(nrow(cartesian_product)),
+  seq_len(nrow(fig_4_cartesian_product)),
   ~ ggplot2::ggsave(
     filename = file.path(
-      "analysis/figs/outcomes",
+      "analysis/figs/final",
       sprintf(
-        "cor_%s_vs_%s.png",
-        gsub("\\s+", "_", cartesian_product$y_val[.y]),
-        gsub("\\s+", "_", cartesian_product$x_val[.y])
+        "fig_4_cor_%s_vs_%s.png",
+        gsub("\\s+", "_", fig_4_cartesian_product$y_val[.y]),
+        gsub("\\s+", "_", fig_4_cartesian_product$x_val[.y])
       )
     ),
     plot = .x,
-    width = 10, height = 10, dpi = 300, bg = "white"
+    width = 10,
+    height = 10,
+    dpi = 300,
+    bg = "white"
   )
 )
 
+# health outcomes
+health_cartesian_product <- cartesian_product |>
+  filter(
+    y_val == "mortality_rate",
+    x_val == "vars_transp_avg"
+  )
+
+purrr::pmap(
+  health_cartesian_product,
+  function(x_val, y_val, x_lab, y_lab) {
+    plot <- ggplot_correlation(
+      data = cliar_correlation |> filter(!is.na(income_group)),
+      x = x_val,
+      y = y_val,
+      group = "income_group"
+    ) +
+      scale_y_continuous(
+        labels = function(x) stringr::str_wrap(x, width = 15)
+      ) +
+      labs(
+        x = paste0(x_lab, " (2020-2024)"),
+        y = y_lab
+      ) +
+      guides(
+        color = guide_legend(
+          "Income Group",
+          nrow = 2
+        )
+      )
+
+    if (y_val == "poverty_gap_215" | y_val == "mortality_rate") {
+      plot <- plot +
+        scale_y_log10()
+    }
+
+    plot
+  }
+)
+
+ggsave(
+  filename = file.path(
+    "analysis/figs/final",
+    "fig_7_health_cor_transparency_vs_mortality.png"
+  ),
+  width = 10,
+  height = 10,
+  dpi = 300,
+  bg = "white"
+)
+
+# bready -----------------------------------------------------------------
 # correlations with b-ready topics and pillars
 bready_pillars <- tibble(
   y_val = c("pillar_2_overall", "pillar_3_overall"),
   y_lab = c("Public Services for Businesses", "Operational Efficiency")
 )
 
+bready_correlation <- bready |>
+          left_join(
+            cliaretl::closeness_to_frontier_static,
+            by = c("country_code")
+          ) |>
+          rename(
+            pillar_2_overall = pillar_2_public_services,
+            pillar_3_overall = pillar_3_operational_efficiency
+          ) |>
+          filter(
+            !is.na(income_group)
+          )
+
 bready_topic_cartesian <- tidyr::crossing(
   institutional_clusters,
   bready_pillars
+) |>
+  filter(
+    x_val != "vars_pfm_avg"
+  )
+
+bready_cartesian <- bready_topic_cartesian |>
+  filter(
+    x_val %in% c("vars_hrm_avg", "vars_digital_avg")
+  )
+
+# correlation between hrm and information systems with overall score
+bready_correlation_overall_plots <- bready_cartesian |>
+  purrr::pmap(
+    function(x_val, y_val, x_lab, y_lab) {
+      ggplot_correlation(
+        data = bready_correlation,
+        x = x_val,
+        y = y_val,
+        group = "income_group"
+      ) +
+        scale_y_continuous(
+          labels = function(x) stringr::str_wrap(x, width = 15)
+        ) +
+        labs(
+          x = paste0(x_lab, " (2020-2024)"),
+          y = y_lab
+        ) +
+        guides(
+          color = guide_legend(
+            "Income Group",
+            nrow = 2
+          )
+        )
+    }
+  )
+
+
+# save plots
+purrr::walk2(
+  bready_correlation_overall_plots,
+  seq_len(nrow(bready_cartesian)),
+  ~ ggplot2::ggsave(
+    filename = file.path(
+      "analysis/figs/final",
+      sprintf(
+        "fig_3%s_cor_%s_vs_%s.png",
+        letters[.y],
+        gsub("\\s+", "_", bready_cartesian$y_val[.y]),
+        gsub("\\s+", "_", bready_cartesian$x_val[.y])
+      )
+    ),
+    plot = .x,
+    width = 10,
+    height = 10,
+    dpi = 300,
+    bg = "white"
+  )
 )
 
-# generate plots
+# generate topic-level plots
 bready_correlation_plots <- purrr::pmap(
-  bready_topic_cartesian,
+  bready_cartesian,
   function(x_val, y_val, x_lab, y_lab) {
     plot <- ggplot_correlation(
-      data = bready_topic_correlation |> 
+      data = bready_topic_correlation |>
         filter(
           !is.na(income_group) & !is.na(topic)
         ),
@@ -233,15 +365,18 @@ purrr::walk2(
   seq_len(nrow(bready_topic_cartesian)),
   ~ ggplot2::ggsave(
     filename = file.path(
-      "analysis/figs/outcomes",
+      "analysis/figs/final",
       sprintf(
-        "cor_%s_vs_%s.png",
+        "fig_annex6_cor_%s_vs_%s.png",
         gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
         gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
       )
     ),
     plot = .x,
-    width = 10, height = 10, dpi = 300, bg = "white"
+    width = 10,
+    height = 10,
+    dpi = 300,
+    bg = "white"
   )
 )
 
@@ -272,21 +407,22 @@ regression_results |>
     outcome = forcats::fct_reorder(outcome, estimate)
   ) |>
   filter(
-    outcome %in% c(
-      "Credit Rating",
-      "Labor income",
-      "Poverty Gap ($2.15 a day)",
-      "Infant mortality rate (logged)",
-      "Public Services for Businesses",
-      "Operational Efficiency"
-    ) &
+    outcome %in%
+      c(
+        "Credit Rating",
+        "Labor income",
+        "Poverty Gap ($2.15 a day)",
+        "Infant mortality rate (logged)",
+        "Public Services for Businesses",
+        "Operational Efficiency"
+      ) &
       predictor != "Public Financial Management"
-  ) |> 
+  ) |>
   ggplot(aes(x = estimate, y = outcome)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
   geom_linerange(aes(xmin = conf.low, xmax = conf.high)) +
   geom_point(size = 2.5) +
-  facet_wrap(~ predictor, scales = "free_x") +
+  facet_wrap(~predictor, scales = "free_x") +
   labs(
     x = "Coefficient estimate",
     y = NULL
@@ -297,6 +433,9 @@ regression_results |>
   )
 
 ggsave(
-  here("analysis/figs/outcomes/regression_results.png"),
-  width = 12, height = 8, dpi = 300, bg = "white"
+  here("analysis/figs/final/fig_annex8_regression_results.png"),
+  width = 12,
+  height = 8,
+  dpi = 300,
+  bg = "white"
 )
