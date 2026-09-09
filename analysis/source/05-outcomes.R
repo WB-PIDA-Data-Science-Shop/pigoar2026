@@ -178,7 +178,7 @@ purrr::walk2(
   seq_len(nrow(fig_4_cartesian_product)),
   ~ ggplot2::ggsave(
     filename = file.path(
-      "analysis/figs/outcomes",
+      "analysis/figs/final",
       sprintf(
         "fig_4_cor_%s_vs_%s.png",
         gsub("\\s+", "_", fig_4_cartesian_product$y_val[.y]),
@@ -433,7 +433,7 @@ regression_results |>
   )
 
 ggsave(
-  here("analysis/figs/final/regression_results.png"),
+  here("analysis/figs/final/fig_annex8_regression_results.png"),
   width = 12,
   height = 8,
   dpi = 300,

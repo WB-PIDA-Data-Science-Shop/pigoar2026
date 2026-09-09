@@ -78,7 +78,6 @@ cliar_ctf <- ctf_dynamic |>
     by = c("country_code", "year")
   )
 
-# visualize --------------------------------------------------------------
 cluster_names <- c(
   "hrm" = "vars_hrm_avg",
   "pub_sector_corruption" = "vdem_core_v2x_pubcorr",
@@ -86,6 +85,7 @@ cluster_names <- c(
   "budget_execution" = "budget_execution_rate"
 )
 
+# visualize --------------------------------------------------------------
 prosperity_plots <- purrr::imap(cluster_names, \(var, label) {
   min_year <- cliar_ctf |> 
     select(

@@ -252,7 +252,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_20_transparency_capacity_quantile.png"
+    "fig_19_transparency_capacity_quantile.png"
   ),
   width = 12,
   height = 14,

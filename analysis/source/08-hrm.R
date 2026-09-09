@@ -65,7 +65,7 @@ gsps_institutional |>
   )
 
 ggsave(
-  here("analysis", "figs", "custom", "fig_14b_gsps_written_exam.png"),
+  here("analysis", "figs", "final", "fig_14b_gsps_written_exam.png"),
   width = 14,
   height = 10,
   dpi = 300,
