@@ -152,7 +152,7 @@ acled_demonstrations_regional |>
     )
 
 ggsave(
-    here("analysis", "figs", "acled", "fig_5a_global_demonstration_trends.png"),
+    here("analysis", "figs", "final", "fig_5a_global_demonstration_trends.png"),
     width = 10,
     height = 10,
     dpi = 300,
@@ -173,7 +173,7 @@ acled_demonstrations_regional |>
     )
 
 ggsave(
-    here("analysis", "figs", "acled", "fig_5b_global_demonstration_trends_income.png"),
+    here("analysis", "figs", "final", "fig_5b_global_demonstration_trends_income.png"),
     width = 10,
     height = 10,
     dpi = 300,
@@ -273,7 +273,7 @@ list(
     guides(color = guide_legend(nrow = 2))
 
 ggsave(
-    here("analysis", "figs", "acled", "fig_6_regression_income.png"),
+    here("analysis", "figs", "final", "fig_6_regression_income.png"),
     dpi = 300,
     width = 14,
     height = 8,
