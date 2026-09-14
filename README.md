@@ -47,17 +47,17 @@ The repository will be organized as follows:
 ├── main.R              # Main file to reproduce the whole workflow
 └── spielplatz/         # Sandbox/experimentation area.
 
-
+``` 
 ## Requirements
 
 ### Software
-- **R**: Version 4.3 or higher
+- **R**: Version 4.5.2 or higher
 - **Dependency Management**: `renv` for managing package dependencies
 - **Development Tools**: `devtools` for package loading
 
 ### Hardware
 - **Memory**: No minimum required, but 16 GB is recommended.
-- **Run Time**: ~3 minutes on recommended hardware.
+- **Run Time**: ~12 minutes on recommended hardware.
 
 ## Installations for Replication
 
@@ -70,12 +70,12 @@ b. Execute `renv::restore()` in the RStudio console to install the exact
 
 **2. Execute the Full Workflow:**
 
-Open `main.R` and run it. This executes the following in order:
+Open `analysis/source/00-main.R` and run it. This executes the following in order:
 
 a. **Data Transformation:** Confirm the `input/` folder provided by the 
    WKGPI team is in the project root. Source the scripts in `data-raw/source/` 
    sequentially.
 
 b. **Data Analysis & Visualization:** Source all scripts in `analysis/`. 
-   Verify that each plot in `analysis/figs/` matches the corresponding figure in 
+   Verify that each plot in `analysis/figs/final` matches the corresponding figure in 
    the PIGO Annual Review 2026 exactly.
