@@ -218,17 +218,7 @@ ctf_avgs <- ctf_static |>
       "Information Systems",
       "Public Human Resources Management"
     )
-  ) |>
-  filter(
-    cluster %in%
-      c(
-        "Integrity",
-        "Transparency and Accountability",
-        "Information Systems",
-        "Public Human Resource Management"
-      )
-  )
-
+  ) 
 
   
 # Bubble plot by income -----------------------------------------------------
@@ -301,8 +291,8 @@ ggsave_bubble(
   here(
     "analysis",
     "figs",
-    "overview_ctf",
-    "population_vs_income_level_panel.png"
+    "final",
+    "fig_9_institutional_capacity_pop_growth_by_income_level.png"
   )
 )
 
@@ -353,8 +343,8 @@ ggsave_bubble(
   here(
     "analysis",
     "figs",
-    "overview_ctf",
-    "population_vs_region_panel.png"
+    "final",
+    "fig_10_institutional_capacity_pop_growth_by_region.png"
   )
 )
 
@@ -382,7 +372,7 @@ hrm_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf", "hrm-regional-dumbbells.png")
+  here("analysis", "figs", "final", "fig_annex3c_hrms_dumbbells.png")
 )
 
 
@@ -405,7 +395,7 @@ digital_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf", "digital-regional-dumbbells.png")
+  here("analysis", "figs",  "final", "fig_annex3d_digital_dumbbells.png")
 )
 
 
@@ -428,7 +418,7 @@ integrity_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf", "integrity-regional-dumbbells.png")
+  here("analysis", "figs", "final", "fig_annex3a_integrity_dumbbells.png")
 )
 
 
@@ -451,27 +441,6 @@ transp_data |>
   scale_color_brewer(palette = "Paired")
 
 ggsave_db(
-  here("analysis", "figs", "overview_ctf", "transp-regional-dumbbells.png")
+  here("analysis", "figs", "final", "fig_annex3b_transparency_dumbbells.png")
 )
 
-# justice -----------------------------------------------------------------
-
-justice_data <- ctf_static_wide |>
-  compute_regional_statistics("vars_leg_avg")
-
-# Plot
-justice_data |>
-  generate_regional_minmax_plot() +
-  ggtitle("Justice Institutions") +
-  labs(
-    x = "",
-    y = "Benchmarking score",
-    shape = "Values",
-    color = "Region"
-  ) +
-  coord_cartesian(ylim = c(0, 1)) +
-  scale_color_brewer(palette = "Paired")
-
-ggsave_db(
-  here("analysis", "figs", "overview_ctf", "justice-regional-dumbbells.png")
-)

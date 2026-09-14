@@ -259,12 +259,27 @@ matched_families
 
 # plot data 2020 to 2024 --------------------------------------------------------------
 # Generate and save one plot per family using compute_ctf_diff() fun
-output_dir <- here("analysis", "figs", "frontier_distance")
+output_dir <- here("analysis", "figs", "final")
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 families <- unname(cluster_mapping)  # values: "Public Human Resources Management" e.g.
 
+# Mapping of family slug -> desired export filename prefix (only these are exported)
+fig_export_map_2024 <- c(
+  "public_human_resources_management" = "fig_11b_",
+  "transparency_and_accountability"   = "fig_12a_",
+  "integrity"                         = "fig_12b_"
+)
+
 purrr::walk(families, function(fam) {
+  fam_slug <- tolower(fam)
+  fam_slug <- gsub("[^a-z0-9]+", "_", fam_slug)
+  fam_slug <- gsub("_+",         "_", fam_slug)
+  fam_slug <- gsub("^_|_$",      "",  fam_slug)
+
+  # Only export families listed in the mapping
+  if (!fam_slug %in% names(fig_export_map_2024)) return(invisible(NULL))
+
   diff_data <- compute_ctf_diff(
     dyn_ctf_plot,
     family    = fam,
@@ -276,13 +291,8 @@ purrr::walk(families, function(fam) {
 
   if (is.null(p)) return(invisible(NULL))
 
-  fam_slug <- tolower(fam)
-  fam_slug <- gsub("[^a-z0-9]+", "_", fam_slug)
-  fam_slug <- gsub("_+",         "_", fam_slug)
-  fam_slug <- gsub("^_|_$",      "",  fam_slug)
-
   ggsave_frontier(
-    filename = file.path(output_dir, paste0("ctf_diff_2020_2024_", fam_slug, ".png")),
+    filename = file.path(output_dir, paste0(fig_export_map_2024[[fam_slug]], fam_slug, ".png")),
     plot     = p
   )
 })
@@ -430,7 +440,22 @@ improvement_region_summary <- bind_rows(
 
 
 # plot data 2020 to 2022 --------------------------------------------------------------
+
+# Mapping of family slug -> desired export filename prefix (only these are exported)
+fig_export_map_2022 <- c(
+  "information_systems"           = "fig_11a_",
+  "public_financial_management"   = "fig_11c_"
+)
+
 purrr::walk(families, function(fam) {
+  fam_slug <- tolower(fam)
+  fam_slug <- gsub("[^a-z0-9]+", "_", fam_slug)
+  fam_slug <- gsub("_+",         "_", fam_slug)
+  fam_slug <- gsub("^_|_$",      "",  fam_slug)
+
+  # Only export families listed in the mapping
+  if (!fam_slug %in% names(fig_export_map_2022)) return(invisible(NULL))
+
   diff_data <- compute_ctf_diff(dyn_ctf_plot, family = fam, from_year = 2020, to_year = 2022,
                                 mapping = cluster_mapping)
   
@@ -443,13 +468,8 @@ purrr::walk(families, function(fam) {
   # 3. Add the free y-axis 
   p <- p + scale_y_continuous(breaks = seq(-0.5, 0.5, by = 0.05))
 
-  fam_slug <- tolower(fam)
-  fam_slug <- gsub("[^a-z0-9]+", "_", fam_slug)
-  fam_slug <- gsub("_+",         "_", fam_slug)
-  fam_slug <- gsub("^_|_$",      "",  fam_slug)
-
   ggsave_frontier(
-    filename = file.path(output_dir, paste0("ctf_diff_2020_2022_", fam_slug, ".png")),
+    filename = file.path(output_dir, paste0(fig_export_map_2022[[fam_slug]], fam_slug, ".png")),
     plot     = p
   )
 })
@@ -517,7 +537,7 @@ ggsave_donas<- partial(
 )
 
 ggsave_donas(
-  filename = file.path(output_dir, "donas_improvement_by_family_income_budget.png")
+  filename = file.path(output_dir, "fig_1_es2_change_in_core_governance_dimensions_by_income_level_overview.png")
 )
 
 # Region Analysis -----------------------------------------------------------
@@ -600,7 +620,7 @@ improvement_region_summary |>
   )
 
 ggsave_frontier(
-  filename = file.path(output_dir, "region_donas_improvement_by_family.png")
+  filename = file.path(output_dir, "fig_annex2a_change_in_core_governance_dimensions_by_region_overview.png")
 )
 
 
