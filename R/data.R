@@ -39,17 +39,6 @@
 #' @details The Armed Conflict Location & Event Data Project (ACLED) is a comprehensive dataset of political violence, protest, and disorder events across the world. This dataset aggregates ACLED event data for Asia at the weekly level, including event types such as battles, protests, riots, and violence against civilians. Each record summarizes the number of events, fatalities, and estimated population exposure for a specific week, country, and administrative region. Geographic centroids are provided for spatial analysis. For more information, see the official ACLED codebook: https://acleddata.com/resources/codebooks/
 "acled_regional"
 
-#' @title World Bank Map 
-#' @description A shapefile containing all relevant country boundaries and disputed areas used by the World Bank.
-#' @format A data frame with 526 rows and 2 variables:
-#' \describe{
-#'   \item{\code{country_code}}{character World Bank country code}
-#'   \item{\code{geometry}}{list Geometry of the country boundaries}
-#'}
-#' @details This dataset includes both the official country boundaries and any disputed areas as recognized by the World Bank.
-#' @source https://datacatalogfiles.worldbank.org/ddh-published/0038272/5/DR0095369/World%20Bank%20Official%20Boundaries%20(GeoJSON)/World%20Bank%20Official%20Boundaries%20-%20Admin%200.geojson
-"wb_map"
-
 #' @title Microdados de Despesas de Entes Subnacionais (MiDES)
 #' @description This dataset contains annual panel data on public procurement and public expenditure of Brazilian municipalities.
 #' @format A data frame with 43,298 rows and 10 variables:
@@ -84,43 +73,6 @@
 #' @source: https://basedosdados.org/dataset/3e7c4d58-96ba-448e-b053-d385a829ef00?table=dabe5ea8-3bb5-4a3e-9d5a-3c7003cd4a60
 "rais_mun"
 
-#' Brazilian municipality boundaries (IBGE)
-#'
-#' Municipal boundary polygons for Brazil from IBGE, suitable for subnational
-#' analysis and mapping. Provided as an `sf` object with attributes for region,
-#' state, and municipality identifiers.
-#'
-#' @format An `sf` data frame with 5,573 rows (municipalities) and 16 variables:
-#' \describe{
-#'   \item{\code{municipality_code}}{Character. IBGE 7-digit municipality code.}
-#'   \item{\code{nm_mun}}{Character. Municipality name.}
-#'   \item{\code{cd_rgi}}{Character. Immediate geographic region code (IBGE).}
-#'   \item{\code{nm_rgi}}{Character. Immediate geographic region name.}
-#'   \item{\code{cd_rgint}}{Character. Intermediate geographic region code (IBGE).}
-#'   \item{\code{nm_rgint}}{Character. Intermediate geographic region name.}
-#'   \item{\code{cd_uf}}{Character. State code (IBGE).}
-#'   \item{\code{nm_uf}}{Character. State name.}
-#'   \item{\code{sigla_uf}}{Character. State acronym (UF).}
-#'   \item{\code{cd_regia}}{Character. Macro-region code (IBGE).}
-#'   \item{\code{nm_regia}}{Character. Macro-region name (IBGE).}
-#'   \item{\code{sigla_rg}}{Character. Macro-region acronym (if applicable).}
-#'   \item{\code{cd_concu}}{Character. Mesoregion/microregion legacy code (if present).}
-#'   \item{\code{nm_concu}}{Character. Mesoregion/microregion legacy name (if present).}
-#'   \item{\code{area_km2}}{Double. Municipality area in square kilometers.}
-#'   \item{\code{geometry}}{List-column. Simple features polygon geometry (EPSG:4674).}
-#' }
-#'
-#' @details
-#' - Coordinate reference system (CRS): SIRGAS 2000 (EPSG:4674, geographic).
-#' - Geometry type: MULTIPOLYGON/POLYGON; includes islands and multipart features.
-#' - Source data from IBGE’s official municipal boundary dataset; lightly cleaned
-#'   and renamed for consistency. Attributes follow IBGE’s regional hierarchy:
-#'   macro-region > state (UF) > intermediate > immediate > municipality.
-#'
-#' @source Instituto Brasileiro de Geografia e Estatística (IBGE) — Malha Municipal.
-#'   https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais.html
-"brazil_mun_shp"
-
 #' @title Country credit rating
 #' @description Average of scores across the rating of the four top rating agencies (S&P, Moody’s, Fitch and DBRS). Scoring the creditworthiness of a country between 100 (riskless) and 0 (likely to default), assigned according to Trading Economics’ methodology and based on Standard & Poor, Moody’s and DBRS sovereign debt credit rating.
 #' @format A data frame with 369 rows and 3 variables:
@@ -142,62 +94,6 @@
 #'}
 #' @details World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WB_WDI_SP_POP_TOTL
 "population"
-
-#' World Bank Documents API: 2025 document catalog (flattened)
-#'
-#' A tibble of documents retrieved from the World Bank Documents & Reports API,
-#' with authors flattened to a single semicolon-separated string per document
-#' and selected metadata fields standardized. Data were fetched for the period
-#' 2025-01-01 to 2025-12-31 using the v3 API.
-#'
-#' @format A tibble with one row per document and the following columns:
-#' \describe{
-#'   \item{document_id}{Character. Unique document identifier (id).}
-#'   \item{authors}{Character. Semicolon-separated list of authors extracted from the nested authors/authr field.}
-#'   \item{count}{Character. Country or count field as returned by the API (often country name).}
-#'   \item{doc_type}{Character. Document type (docty).}
-#'   \item{theme}{Character. Comma-separated themes associated with the document.}
-#'   \item{theme_category}{Character. Tab separated thematic categories associated with the document. Programmatically encoded using World Bank theme taxonomy.}
-#'   \item{lang}{Character. Language code/name.}
-#'   \item{doc_date}{Character or date-time string. Document date (docdt) as returned by the API.}
-#'   \item{display_title}{Character. Human-readable title.}
-#'   \item{pdfurl}{Character. Direct URL to the PDF if available.}
-#'   \item{projectid}{Character. Project identifier when applicable.}
-#'   \item{guid}{Character. Global unique identifier.}
-#'   \item{url}{Character. Landing page URL.}
-#'   \item{orig_unit}{Character. Originating unit (origu).}
-#'   \item{owner}{Character. Owning unit/department.}
-#'   \item{gov_unit}{Numeric. Flag for whether the owning unit is mapped to Governance.}
-#'   \item{abstract}{Character. Abstract text(s) as returned by the API; may include multiple language versions.}
-#' }
-#'
-#' @details
-#' - Data are retrieved via the World Bank Documents & Reports Search API (v3).
-#' - The nested `authors`/`authr` field is collapsed to a single character string
-#'   per document using semicolons as separators.
-#'
-#' @source World Bank Documents & Reports API:
-#'   https://documents.worldbank.org/en/publication/documents-reports/api
-#'
-#' @seealso
-#' - API search endpoint: https://search.worldbank.org/api/v3/wds
-#' - API field list parameter (`fl`) for selecting returned fields
-#'
-"wb_documents"
-
-#' Governance and Institutional Units mapping
-#'
-#' A tibble mapping World Bank owning units (from Documents & Reports API)
-#' to their short unit codes extracted from the unit label.
-#'
-#' @format A tibble with 2 columns:
-#' \describe{
-#'   \item{owner}{Character. Owning unit label from the API (e.g., "EFI-AFR1-GOV-FM & PS-1 (EAEG1)").}
-#'   \item{owner_code}{Character. Short unit code parsed from parentheses (e.g., "EAEG1").}
-#' }
-#'
-#' @source Derived from World Bank Documents & Reports API unit labels.
-"gov_unit"
 
 #' Labour income share (SDG 10.4.1), ILOSTAT
 #'
@@ -362,24 +258,6 @@
 #' @source International Budget Partnership
 "open_budget"
 
-#' Budget Outturn (BOOST DATA)
-#'
-#' Aggregate budget execution outturn by country and year, calculated using the
-#' PEFA formula: Executed Budget / Approved Budget * 100. Derived from the World
-#' Bank BOOST database.
-#'
-#' @format A tibble with 207 rows and 5 columns:
-#' \describe{
-#'   \item{country_code}{ISO country code (character)}
-#'   \item{year}{Year (numeric)}
-#'   \item{total_executed}{Total executed budget expenditure (numeric)}
-#'   \item{total_approved}{Total approved budget expenditure (numeric)}
-#'   \item{budget_outturn}{Budget outturn rate, as a percentage (numeric).
-#'     Calculated as \code{total_executed / total_approved * 100}.
-#'     \code{NA} when \code{total_approved} is zero.}
-#' }
-#' @source World Bank BOOST database, accessed via MEGA Databricks platform.
-"budget_outturn"
 
 
 
