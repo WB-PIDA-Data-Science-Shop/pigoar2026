@@ -1,4 +1,6 @@
 ## code to prepare `credit_rating` dataset goes here
+## access date: 12/17/2025
+
 credit_rating_raw <- get_data360_api(
   "WEF_TTDI",
   "WEF_TTDI_INDCCREDITRATE",

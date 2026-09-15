@@ -143,62 +143,6 @@
 #' @details World Bank Data 360. https://data360.worldbank.org/en/int/indicator/WB_WDI_SP_POP_TOTL
 "population"
 
-#' World Bank Documents API: 2025 document catalog (flattened)
-#'
-#' A tibble of documents retrieved from the World Bank Documents & Reports API,
-#' with authors flattened to a single semicolon-separated string per document
-#' and selected metadata fields standardized. Data were fetched for the period
-#' 2025-01-01 to 2025-12-31 using the v3 API.
-#'
-#' @format A tibble with one row per document and the following columns:
-#' \describe{
-#'   \item{document_id}{Character. Unique document identifier (id).}
-#'   \item{authors}{Character. Semicolon-separated list of authors extracted from the nested authors/authr field.}
-#'   \item{count}{Character. Country or count field as returned by the API (often country name).}
-#'   \item{doc_type}{Character. Document type (docty).}
-#'   \item{theme}{Character. Comma-separated themes associated with the document.}
-#'   \item{theme_category}{Character. Tab separated thematic categories associated with the document. Programmatically encoded using World Bank theme taxonomy.}
-#'   \item{lang}{Character. Language code/name.}
-#'   \item{doc_date}{Character or date-time string. Document date (docdt) as returned by the API.}
-#'   \item{display_title}{Character. Human-readable title.}
-#'   \item{pdfurl}{Character. Direct URL to the PDF if available.}
-#'   \item{projectid}{Character. Project identifier when applicable.}
-#'   \item{guid}{Character. Global unique identifier.}
-#'   \item{url}{Character. Landing page URL.}
-#'   \item{orig_unit}{Character. Originating unit (origu).}
-#'   \item{owner}{Character. Owning unit/department.}
-#'   \item{gov_unit}{Numeric. Flag for whether the owning unit is mapped to Governance.}
-#'   \item{abstract}{Character. Abstract text(s) as returned by the API; may include multiple language versions.}
-#' }
-#'
-#' @details
-#' - Data are retrieved via the World Bank Documents & Reports Search API (v3).
-#' - The nested `authors`/`authr` field is collapsed to a single character string
-#'   per document using semicolons as separators.
-#'
-#' @source World Bank Documents & Reports API:
-#'   https://documents.worldbank.org/en/publication/documents-reports/api
-#'
-#' @seealso
-#' - API search endpoint: https://search.worldbank.org/api/v3/wds
-#' - API field list parameter (`fl`) for selecting returned fields
-#'
-"wb_documents"
-
-#' Governance and Institutional Units mapping
-#'
-#' A tibble mapping World Bank owning units (from Documents & Reports API)
-#' to their short unit codes extracted from the unit label.
-#'
-#' @format A tibble with 2 columns:
-#' \describe{
-#'   \item{owner}{Character. Owning unit label from the API (e.g., "EFI-AFR1-GOV-FM & PS-1 (EAEG1)").}
-#'   \item{owner_code}{Character. Short unit code parsed from parentheses (e.g., "EAEG1").}
-#' }
-#'
-#' @source Derived from World Bank Documents & Reports API unit labels.
-"gov_unit"
-
 #' Labour income share (SDG 10.4.1), ILOSTAT
 #'
 #' Country-year estimates of the labour income share as a percent of GDP
@@ -362,24 +306,6 @@
 #' @source International Budget Partnership
 "open_budget"
 
-#' Budget Outturn (BOOST DATA)
-#'
-#' Aggregate budget execution outturn by country and year, calculated using the
-#' PEFA formula: Executed Budget / Approved Budget * 100. Derived from the World
-#' Bank BOOST database.
-#'
-#' @format A tibble with 207 rows and 5 columns:
-#' \describe{
-#'   \item{country_code}{ISO country code (character)}
-#'   \item{year}{Year (numeric)}
-#'   \item{total_executed}{Total executed budget expenditure (numeric)}
-#'   \item{total_approved}{Total approved budget expenditure (numeric)}
-#'   \item{budget_outturn}{Budget outturn rate, as a percentage (numeric).
-#'     Calculated as \code{total_executed / total_approved * 100}.
-#'     \code{NA} when \code{total_approved} is zero.}
-#' }
-#' @source World Bank BOOST database, accessed via MEGA Databricks platform.
-"budget_outturn"
 
 
 
