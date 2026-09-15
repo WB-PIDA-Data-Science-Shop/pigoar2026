@@ -71,6 +71,12 @@ coverage_country_complete <- clusters_data |>
 country_meta <- countryclass |>          # or a dedicated lookup
   distinct(country_code, region, country_name)
 
+# clusters_data doesn't carry `region` or `is_available` directly, so
+# join the region lookup and derive is_available from the `value` column
+coverage_country_complete <- coverage_country_complete |>
+  left_join(country_meta, by = "country_code") |>
+  mutate(is_available = !is.na(value))
+
 # cluster label: 
 cluster_mapping_tbl <- tibble::tibble(
   raw = c(
@@ -96,7 +102,7 @@ cluster_mapping_tbl <- tibble::tibble(
 
 # ── 1. Summarise: count available years per country × indicator ───────────────
 coverage_year_count <- coverage_country_complete |>
-  group_by(region, country_code, country_name, family_name, variable, var_name) |>
+  group_by(region, country_code, family_name, variable, var_name) |>
   summarise(
     years_available = sum(is_available),   # TRUE counts as 1
     .groups = "drop"
@@ -104,7 +110,7 @@ coverage_year_count <- coverage_country_complete |>
 
 # simpler and safer version of the above:
 coverage_year_count <- coverage_country_complete |>
-  group_by(region, country_code, country_name, family_name, variable, var_name) |>
+  group_by(region, country_code, family_name, variable, var_name) |>
   summarise(
     years_available = sum(is_available),   # TRUE counts as 1
     .groups = "drop"
@@ -129,6 +135,16 @@ indicator_order_p2 <- coverage_year_count |>
   distinct(family_name, variable, var_name) |>
   arrange(family_name, var_name) |>
   pull(variable)
+
+# country_order wasn't carried over from an earlier script/part, so define it
+# here: order countries by region then alphabetically by country name.
+# Note: coverage_year_count already has `region`; only pull `country_name`
+# from country_meta to avoid a region.x/region.y column clash on join.
+country_order <- coverage_year_count |>
+  left_join(country_meta |> select(country_code, country_name), by = "country_code") |>
+  distinct(country_code, region, country_name) |>
+  arrange(region, country_name) |>
+  pull(country_code)
 
 coverage_year_count <- coverage_year_count |>
   mutate(
@@ -213,8 +229,8 @@ yearcount_plots <- setNames(
 purrr::iwalk(yearcount_plots, \(p, nm) {
   ggsave_annex(
     filename = here(
-      "analysis", "figs", "coverage",
-      paste0("region_yearcount_", janitor::make_clean_names(nm), ".png")
+      "analysis", "figs", "final",
+      paste0("fig_annex2b_regional_coverage_", janitor::make_clean_names(nm), ".png")
     ),
     plot   = p
   )
