@@ -15,11 +15,22 @@ library(dotwhisker)
 library(survey)
 library(broom)
 
+# NOTE: other scripts in this project reassign `ggsave` in .GlobalEnv to a
+# `purrr::partial()` with pre-bound `width`/`height`/`dpi` arguments (e.g.
+# 16-donuts-coverage.R). If one of those scripts was sourced earlier in the
+# same session, that partial persists in .GlobalEnv and this script's calls
+# below (which also pass width/height/dpi explicitly) will fail with:
+# "formal argument \"width\" matched by multiple actual arguments".
+# Force this script to always use the unmodified ggplot2::ggsave.
+ggsave <- ggplot2::ggsave
 
-#figure 23- taken directly from source
 
 
-# figure 24 --------------------------------------------------------------
+
+#figure 22- taken directly from source
+
+
+# figure 23 --------------------------------------------------------------
 
 croatia <- read_dta(
   here("data-raw/input/decentralization/Croatia-2023-full-data.dta")
@@ -313,28 +324,28 @@ p_ro2 <- ggplot(regional_ro2, aes(x = value, y = region, fill = indicator)) +
 
 print(p_ro2)
  
-ggsave("analysis/figs/decentralization/fig24a.png",
+ggsave("analysis/figs/final/fig_23a_croatia_firms.png",
         plot   = p,
         width  = 10,
         height = 9,
         dpi    = 300
 )
 
-ggsave( "analysis/figs/decentralization/fig24b.png",
+ggsave( "analysis/figs/final/fig_23b_croatia_total_share.png",
         plot   = p2,
         width  = 10,
         height = 9,
         dpi    = 300
 )
 
-ggsave( "analysis/figs/decentralization/fig24c.png",
+ggsave( "analysis/figs/final/fig_23c_romania_firms.png",
         plot   = p_ro1,
         width  = 10,
         height = 9,
         dpi    = 300
 )
 
-ggsave( "analysis/figs/decentralization/fig24d.png",
+ggsave( "analysis/figs/final/fig_23d_romania_total_share.png",
         plot   = p_ro2,
         width  = 10,
         height = 9,
@@ -344,7 +355,7 @@ ggsave( "analysis/figs/decentralization/fig24d.png",
 
 
 # ============================================================================
-# FIGURE 25 — Subnational coverage: water, vaccination, education (DHS data)
+# FIGURE 24 — Subnational coverage: water, vaccination, education (DHS data)
 # ============================================================================
 
 # --- 1. Define countries of interest ----------------------------------------
@@ -452,7 +463,7 @@ pal <- c(
   "Gross primary school\nattendance"                 = "#009E73"
 )
 
-p_fig25 <- ggplot(df, aes(x = CountryLabel, y = Value, fill = label)) +
+p_fig24 <- ggplot(df, aes(x = CountryLabel, y = Value, fill = label)) +
   geom_boxplot(
     colour        = "black",
     outlier.shape = 16,
@@ -491,8 +502,8 @@ p_fig25 <- ggplot(df, aes(x = CountryLabel, y = Value, fill = label)) +
     plot.margin        = margin(10, 15, 10, 10)
   )
 
-ggsave( "analysis/figs/decentralization/fig25.png",
-  plot   = p_fig25,
+ggsave( "analysis/figs/final/fig_24_subnational_services_access.png",
+  plot   = p_fig24,
   width  = 10,
   height = 9,
   dpi    = 300
@@ -501,7 +512,7 @@ ggsave( "analysis/figs/decentralization/fig25.png",
 
 
 # ============================================================================
-# FIGURE 26 — Subnational debt in the OECD
+# FIGURE 25 — Subnational debt in the OECD
 # ============================================================================
 
 
@@ -527,7 +538,7 @@ p_debt <- ggplot(debt_data, aes(x = country, y = pct_debt)) +
     axis.title.x       = element_text(size = 10, margin = margin(t = 6)),
     plot.caption       = element_text(colour = "grey50", size = 7)
   )
-ggsave( "analysis/figs/decentralization/fig26.png",
+ggsave( "analysis/figs/final/fig_25_subnational_gov_public_debt.png",
         plot   = p_debt,
         width  = 10,
         height = 9,
@@ -537,7 +548,7 @@ ggsave( "analysis/figs/decentralization/fig26.png",
 
 
 # ============================================================================
-# FIGURE 27 — Procurement delays and dismissals in Brazilian municipalities
+# FIGURE 26 — Procurement delays and dismissals in Brazilian municipalities
 # ============================================================================
 load("data-raw/input/decentralization/rais_mun.rda")
 load("data-raw/input/decentralization/mides.rda")
@@ -637,13 +648,13 @@ list(
   )
 
 ggsave(
- "analysis/figs/decentralization/fig27.png",
+ "analysis/figs/final/fig_26_municipal_procurement.png",
   height = 6,
   width = 9,
   bg = "white"
 )
 # ============================================================================
-# FIGURE 28 — Fiscal decentralization: revenue vs. expenditure scatter
+# FIGURE 27 — Fiscal decentralization: revenue vs. expenditure scatter
 # ============================================================================
 
 # --- Load and prepare IMF data ----------------------------------------------
@@ -728,7 +739,7 @@ reference_lines <- list(
 )
 
 # --- Figure 28: Revenue vs. Expenditure -------------------------------------
-p_fig28 <- ggplot(country_avg, aes(x = mean_rev, y = mean_exp, color = income_group.x)) +
+p_fig27 <- ggplot(country_avg, aes(x = mean_rev, y = mean_exp, color = income_group.x)) +
   geom_point(size = 2.5, alpha = 0.8) +
   geom_text_repel(
     aes(label = country_code),
@@ -744,15 +755,15 @@ p_fig28 <- ggplot(country_avg, aes(x = mean_rev, y = mean_exp, color = income_gr
   reference_lines +
   scatter_theme
 
-ggsave("analysis/figs/decentralization/fig28.png",
-  plot = p_fig28,
+ggsave("analysis/figs/final/fig_27_corr_revenue_vs_expenditure.png",
+  plot = p_fig27,
   dpi  = 300
 )
 
 
 
 # ============================================================================
-# FIGURE 29 — Administrative decentralization
+# FIGURE 28 — Administrative decentralization
 # ============================================================================
 
 # Load and prepare admin data
@@ -775,7 +786,7 @@ country_avg_admin <- merge(country_avg, admin_data, by = 'country_code') %>%
   )
 
 
-p_fig29 <-ggplot(country_avg_admin, 
+p_fig28 <-ggplot(country_avg_admin, 
                  aes(x = adminexp15, y = hiring_disc, color = income_group.x)) +
   geom_point(size = 2.5, alpha = 0.8) +
   geom_text_repel(
@@ -791,7 +802,7 @@ p_fig29 <-ggplot(country_avg_admin,
   ) +
   scatter_theme
 ggsave(
-  "analysis/figs/decentralization/fig29.png",
+  "analysis/figs/final/fig_28_hrm_hiring_exp_decentralization.png",
   plot = p_fig28,
   dpi  = 300
 )
