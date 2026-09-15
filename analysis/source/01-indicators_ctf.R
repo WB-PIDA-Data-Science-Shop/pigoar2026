@@ -165,7 +165,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_14a_hrm_capacity_quantile.png"
+    "fig_13a_hrm_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -193,7 +193,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_17_digital_capacity_quantile.png"
+    "fig_16_digital_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -221,7 +221,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_21_integrity_capacity_quantile.png"
+    "fig_20_integrity_capacity_quantile.png"
   ),
   width = 12,
   height = 10,
@@ -252,7 +252,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_19_transparency_capacity_quantile.png"
+    "fig_18_transparency_capacity_quantile.png"
   ),
   width = 12,
   height = 14,
@@ -280,7 +280,7 @@ ggsave(
     "analysis",
     "figs",
     "final",
-    "fig_15_pfm_capacity_quantile.png"
+    "fig_14_pfm_capacity_quantile.png"
   ),
   width = 14,
   height = 10,
