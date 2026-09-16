@@ -362,14 +362,14 @@ bready_correlation_plots <- purrr::pmap(
 # save plots
 purrr::walk2(
   bready_correlation_plots,
-  seq_len(nrow(bready_topic_cartesian)),
+  seq_len(nrow(bready_cartesian)),
   ~ ggplot2::ggsave(
     filename = file.path(
       "analysis/figs/final",
       sprintf(
         "fig_annex6_cor_%s_vs_%s.png",
-        gsub("\\s+", "_", bready_topic_cartesian$y_val[.y]),
-        gsub("\\s+", "_", bready_topic_cartesian$x_val[.y])
+        gsub("\\s+", "_", bready_cartesian$y_val[.y]),
+        gsub("\\s+", "_", bready_cartesian$x_val[.y])
       )
     ),
     plot = .x,

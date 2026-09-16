@@ -14,7 +14,7 @@ library(here)
 
 # Defining all the folders that contain the scripts to be sourced
 dirs <- c(
-  here("data-raw", "source"), # Data Cleaning Scripts (optional)
+  # here("data-raw", "source"), # Data Cleaning Scripts (optional)
   here("analysis", "source") # Data Analysis scripts
 )
 

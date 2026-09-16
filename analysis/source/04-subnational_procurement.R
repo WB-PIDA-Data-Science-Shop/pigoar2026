@@ -62,10 +62,10 @@ subnational_gov |>
   scale_x_log10() +
   scale_y_log10()
 
-ggsave(
-  here("analysis", "figs", "correlation", "subnat_procur_hrm.png"),
-  bg = "white"
-)
+# ggsave(
+#   here("analysis", "figs", "correlation", "subnat_procur_hrm.png"),
+#   bg = "white"
+# )
 
 # regression -------------------------------------------------------------
 baseline_lm <- lm(
@@ -128,9 +128,9 @@ list(
     name = "Models"
   )
 
-ggsave(
-  here("analysis", "figs", "procurement", "subnat_procur_hrm_fit.png"),
-  height = 6,
-  width = 9,
-  bg = "white"
-)
+# ggsave(
+#   here("analysis", "figs", "procurement", "subnat_procur_hrm_fit.png"),
+#   height = 6,
+#   width = 9,
+#   bg = "white"
+# )
