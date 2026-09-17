@@ -27,9 +27,10 @@ set.seed(101010)
 
 # load data ---------------------------------------------------------------
 
-cliar_indicators <- read_rds(
-  here("data-raw", "input", "cliar", "compiled_indicators.rds")
-) |>
+cliar_indicators <- fs::path_package(
+    "extdata", "compiled_indicators.rds", package = "cliaretl"
+  ) |> 
+  readr::read_rds() |> 
   filter(region != "North America") |>
   filter(year >= 2015)
 

@@ -69,7 +69,10 @@ db_variables <- dplyr::bind_rows(
   ) 
 )
 
-cliar_indicators <- read_rds(here("data-raw", "input", "compiled_indicators.rds")) |> 
+cliar_indicators <- fs::path_package(
+    "extdata", "compiled_indicators.rds", package = "cliaretl"
+  ) |> 
+  readr::read_rds() |> 
     # filter to only years 2013 or later
   filter(
     year >= 2013
