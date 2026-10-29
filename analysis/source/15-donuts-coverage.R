@@ -101,15 +101,12 @@ cluster_mapping_tbl <- tibble::tibble(
 
 
 # ── 1. Summarise: count available years per country × indicator ───────────────
+# keep only the five report clusters and CTF-benchmarked indicators
 coverage_year_count <- coverage_country_complete |>
-  group_by(region, country_code, family_name, variable, var_name) |>
-  summarise(
-    years_available = sum(is_available),   # TRUE counts as 1
-    .groups = "drop"
-  )
-
-# simpler and safer version of the above:
-coverage_year_count <- coverage_country_complete |>
+  filter(
+    family_name %in% cluster_mapping_tbl$raw,
+    variable %in% vars_ctf
+  ) |>
   group_by(region, country_code, family_name, variable, var_name) |>
   summarise(
     years_available = sum(is_available),   # TRUE counts as 1
@@ -151,7 +148,7 @@ coverage_year_count <- coverage_year_count |>
     country_code = factor(country_code, levels = rev(country_order)),
     family_name  = factor(
       family_name,
-      levels = cluster_mapping_tbl$label,
+      levels = cluster_mapping_tbl$raw,
       labels = stringr::str_wrap(cluster_mapping_tbl$label, width = 15)
     ),
     variable     = factor(variable, levels = indicator_order_p2)
