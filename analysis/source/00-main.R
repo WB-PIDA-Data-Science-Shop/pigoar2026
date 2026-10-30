@@ -12,6 +12,7 @@ set.seed(1902)
 renv::restore() # Optional
 
 library(here)
+pkgload::load_all(here()) # load project functions in R/
 
 
 # source-scripts ---------------------------------------------------------

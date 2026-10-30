@@ -68,7 +68,21 @@ b. Execute `renv::restore()` in the RStudio console to install the exact
    package versions in the `renv.lock` file.
 
 
-**2. Execute the Full Workflow:**
+**2. Set the Google Cloud Billing ID:**
+
+The RAIS data (`data-raw/source/rais_mun.R`) is queried from 
+[Base dos Dados](https://basedosdados.org) via Google BigQuery, which requires 
+a Google Cloud project ID for billing. Create a file named `.Renviron` in the 
+project root (it is gitignored) containing:
+
+```
+billing_id=your-gcp-project-id
+```
+
+Restart R so the variable is loaded, and check it with `Sys.getenv("billing_id")`.
+
+
+**3. Execute the Full Workflow:**
 
 Open `analysis/source/00-main.R` and run it. This executes the following in order:
 

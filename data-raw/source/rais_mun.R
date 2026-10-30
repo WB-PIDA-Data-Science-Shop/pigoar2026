@@ -4,9 +4,17 @@
 library(basedosdados)
 library(dplyr)
 
-set_billing_id(
-  Sys.getenv("billing_id")
-)
+billing_id <- Sys.getenv("billing_id")
+
+if (billing_id == "") {
+  stop(
+    "`billing_id` is not set. Create a `.Renviron` file in the project root ",
+    "with `billing_id=your-gcp-project-id` and restart R (see README, 2. Set the Google Cloud Billing ID).",
+    call. = FALSE
+  )
+}
+
+set_billing_id(billing_id)
 
 rais_input <- bdplyr("br_me_rais.microdados_vinculos")
 
