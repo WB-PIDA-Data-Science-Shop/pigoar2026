@@ -23,16 +23,16 @@ dependencies, and running the full analysis pipeline.
 The repository will be organized as follows:
 
 ```         
-├── data-raw/           # Raw data and initial processing scripts.
-│   ├── source          # Scripts for cleanign raw data
-│   ├── input           # Raw data files (provided by the WKGPI Team)
-│   └── output          # Intermediate outputs for analysis
+├── data-raw/           # Raw data and initial processing scripts directory.
+│   ├── source          # Scripts for cleaning raw data (code).
+│   ├── input           # Raw data files (provided by the WKGPI Team) (input data).
+│   └── output          # Intermediate outputs for analysis (intermediate data).
 ├── analysis/           # Report ready figures and scripts.
-│   ├── figs            # Directory that hosts the final generated plots.
-│   ├── source          # Scripts for analysis and plotting
-├── R/                  # Custom R functions.
-├── documentation/      # Reproducibility documentation.
-├── data/               # Processed data for analysis.
+│   ├── figs            # Directory that hosts the /final generated plot (generated outputs).
+│   ├── source          # Scripts for analysis and plotting (code) including 00-main.R script.
+├── R/                  # Custom R functions (code).
+├── documentation/      # Reproducibility documentation (extended README version).
+├── data/               # Cleaned data ready to be lazy-loaded for analysis (intermediate data).
 ├── man/                # R package manual pages.
 ├── renv/               # R package dependency management.
 ├── README.Rmd          # Overview to run workflow.
@@ -43,9 +43,7 @@ The repository will be organized as follows:
 ├── DESCRIPTION         # Project metadata.
 ├── LICENSE             # Licensing information.
 ├── LICENSE.md          # License in Markdown format.
-├── NAMESPACE           # Package namespace definition.
-├── main.R              # Main file to reproduce the whole workflow
-└── spielplatz/         # Sandbox/experimentation area.
+└── NAMESPACE           # Package namespace definition.
 
 ``` 
 ## Requirements

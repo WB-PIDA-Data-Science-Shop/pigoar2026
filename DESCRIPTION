@@ -1,9 +1,13 @@
 Package: pigoar2026
-Title: What the Package Does (One Line, Title Case)
+Title: Reproducible Analysis for the PIGO Annual Review 2026
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Tanu", "Kumar", email = "tkumar2@worldbankgroup.org", role = "aut"),
+    person("Galileu", "Kim", email = "galileukim@worldbankgroup.org", role = "aut"),
+    person("Ileana", "Marroquin", email = "imarroquinmartin@worldbankgroup.org", role = c("aut", "cre")))
+Description: Cleans, harmonizes, and analyzes public sector data to reproduce
+    the figures and annex exhibits of the Public Institutions Global Observatory
+    (PIGO) Annual Review 2026, providing a fully reproducible data pipeline.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
